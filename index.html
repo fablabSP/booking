@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,426 +7,459 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
+/* ── THEME TOKENS ───────────────────────────────────── */
 :root {
-  --bg:#0a0e14; --surface:#111622; --surface2:#1a2235; --border:#1e2d45;
-  --accent:#00d4ff; --accent2:#ff6b35; --accent3:#7fff6b;
+  --accent:#0099cc; --accent2:#e05a00; --success:#1a9e4a; --danger:#d63031; --warning:#e17000;
+  --fd:'Syne',sans-serif; --fm:'DM Mono',monospace; --r:8px;
+}
+[data-theme="dark"] {
+  --bg:#0a0e14; --surface:#111622; --surface2:#1a2235; --surface3:#0d1220;
+  --border:#1e2d45; --border2:#263650;
   --text:#e8f0fe; --text2:#8fa3c0; --text3:#4a6080;
-  --danger:#ff4757; --warning:#ffa502; --success:#2ed573;
-  --fd:'Syne',sans-serif; --fm:'DM Mono',monospace;
-  --r:8px; --glow:0 0 20px rgba(0,212,255,0.15);
+  --shadow:0 2px 12px rgba(0,0,0,0.4);
+  --accent:#00d4ff; --glow:0 0 20px rgba(0,212,255,0.15);
+}
+[data-theme="light"] {
+  --bg:#f0f4f8; --surface:#ffffff; --surface2:#f7f9fc; --surface3:#e8eef5;
+  --border:#d0dbe8; --border2:#b8cad8;
+  --text:#1a2535; --text2:#4a6080; --text3:#8fa3c0;
+  --shadow:0 2px 12px rgba(0,0,0,0.08);
+  --glow:0 0 20px rgba(0,153,204,0.15);
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--text);font-family:var(--fm);font-size:13px;min-height:100vh;overflow-x:hidden;}
-body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--text);font-family:var(--fm);font-size:13px;min-height:100vh;overflow-x:hidden;transition:background .25s,color .25s;}
+[data-theme="dark"] body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.025) 1px,transparent 1px);background-size:44px 44px;pointer-events:none;z-index:0;}
 .app{position:relative;z-index:1;}
 
-/* CONFIG */
-.cfg-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.9);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;z-index:1000;}
-.cfg-modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:36px;width:540px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 0 60px rgba(0,212,255,0.1);}
-.cfg-modal h2{font-family:var(--fd);font-size:22px;font-weight:800;color:var(--accent);margin-bottom:6px;}
-.cfg-modal p{color:var(--text2);font-size:12px;margin-bottom:24px;line-height:1.6;}
-.cfg-step{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:10px;}
-.cfg-step label{display:block;font-size:10px;letter-spacing:.1em;color:var(--text3);text-transform:uppercase;margin-bottom:6px;}
+/* ── CONFIG ─────────────────────────────────────────── */
+.cfg-ov{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;z-index:2000;}
+.cfg-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:36px;width:540px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow);}
+.cfg-box h2{font-family:var(--fd);font-size:22px;font-weight:800;color:var(--accent);margin-bottom:6px;}
+.cfg-box p{color:var(--text2);font-size:12px;margin-bottom:22px;line-height:1.6;}
+.cfg-row{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:13px;margin-bottom:9px;}
+.cfg-row label{display:block;font-size:10px;letter-spacing:.1em;color:var(--text3);text-transform:uppercase;margin-bottom:5px;}
 
-/* LOGIN */
-.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;}
-.login-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:48px 40px;width:440px;max-width:95vw;box-shadow:0 0 80px rgba(0,212,255,0.08);}
-.login-logo{font-family:var(--fd);font-size:28px;font-weight:800;letter-spacing:-1px;margin-bottom:4px;}
+/* ── LOGIN ──────────────────────────────────────────── */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+.login-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:44px 38px;width:420px;max-width:100%;box-shadow:var(--shadow);}
+.login-logo{font-family:var(--fd);font-size:26px;font-weight:800;letter-spacing:-1px;margin-bottom:4px;}
 .login-logo span{color:var(--accent);}
-.login-sub{color:var(--text2);font-size:12px;margin-bottom:28px;line-height:1.6;}
-.login-divider{display:flex;align-items:center;gap:12px;margin:18px 0;color:var(--text3);font-size:11px;}
-.login-divider::before,.login-divider::after{content:'';flex:1;height:1px;background:var(--border);}
+.login-sub{color:var(--text2);font-size:12px;margin-bottom:26px;line-height:1.6;}
+.divider{display:flex;align-items:center;gap:10px;margin:14px 0;color:var(--text3);font-size:11px;}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border);}
 
-/* HEADER */
-.header{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;border-bottom:1px solid var(--border);background:rgba(10,14,20,0.85);backdrop-filter:blur(12px);position:sticky;top:0;z-index:100;}
-.logo{font-family:var(--fd);font-weight:800;font-size:18px;letter-spacing:-0.5px;}
+/* ── HEADER ─────────────────────────────────────────── */
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:13px 26px;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:100;box-shadow:var(--shadow);}
+.logo{font-family:var(--fd);font-weight:800;font-size:17px;letter-spacing:-.5px;}
 .logo span{color:var(--accent);}
 .logo sub{font-size:9px;color:var(--text3);vertical-align:middle;margin-left:4px;font-weight:400;font-family:var(--fm);letter-spacing:.1em;text-transform:uppercase;}
-.pool-badge{background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.25);border-radius:8px;padding:6px 14px;font-size:12px;}
-.pool-badge .lbl{font-size:9px;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;display:block;}
-.pool-badge .val{color:var(--accent);font-weight:600;font-size:16px;font-family:var(--fd);}
-.user-pill{display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:50px;padding:5px 12px 5px 6px;}
-.user-avatar{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#000;font-family:var(--fd);}
-.user-name{font-size:12px;font-weight:500;}
-.user-role{font-size:9px;color:var(--text3);}
-.btn-logout{background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px;padding:3px;transition:color .2s;}
-.btn-logout:hover{color:var(--danger);}
+.hdr-right{display:flex;align-items:center;gap:10px;}
+.pool-pill{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:5px 12px;font-size:11px;}
+.pool-pill .pl{font-size:9px;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;display:block;}
+.pool-pill .pv{color:var(--accent);font-weight:700;font-size:15px;font-family:var(--fd);}
+.user-pill{display:flex;align-items:center;gap:7px;background:var(--surface2);border:1px solid var(--border);border-radius:50px;padding:4px 11px 4px 5px;}
+.uav{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;font-family:var(--fd);}
+.uname{font-size:12px;font-weight:500;color:var(--text);}
+.urole{font-size:9px;color:var(--text3);}
+.btn-icon{background:none;border:1px solid var(--border);border-radius:6px;padding:5px 8px;cursor:pointer;color:var(--text2);font-size:13px;transition:all .2s;}
+.btn-icon:hover{border-color:var(--accent);color:var(--accent);}
 
-/* NAV */
-.nav-tabs{display:flex;gap:2px;padding:14px 28px 0;border-bottom:1px solid var(--border);}
-.nav-tab{padding:9px 18px;font-family:var(--fm);font-size:12px;color:var(--text3);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;transition:all .2s;letter-spacing:.04em;text-transform:uppercase;}
-.nav-tab:hover{color:var(--text2);}
-.nav-tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+/* ── NAV ────────────────────────────────────────────── */
+.nav{display:flex;gap:2px;padding:12px 26px 0;border-bottom:1px solid var(--border);background:var(--surface);overflow-x:auto;}
+.ntab{padding:8px 16px;font-family:var(--fm);font-size:11px;color:var(--text3);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;transition:all .2s;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;}
+.ntab:hover{color:var(--text2);}
+.ntab.active{color:var(--accent);border-bottom-color:var(--accent);}
 
-/* MAIN */
-.main{padding:28px;max-width:1320px;margin:0 auto;}
-.page{display:none;}.page.active{display:block;}
+/* ── MAIN ───────────────────────────────────────────── */
+.main{padding:26px;max-width:1340px;margin:0 auto;}
+.page{display:none;animation:fadeIn .2s ease;}
+.page.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
 
-/* BUTTONS */
-.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:var(--r);border:none;cursor:pointer;font-family:var(--fm);font-size:12px;font-weight:500;transition:all .2s;letter-spacing:.02em;}
-.btn-primary{background:var(--accent);color:#000;}
-.btn-primary:hover{background:#33ddff;transform:translateY(-1px);box-shadow:var(--glow);}
+/* ── BUTTONS ────────────────────────────────────────── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 15px;border-radius:var(--r);border:none;cursor:pointer;font-family:var(--fm);font-size:12px;font-weight:500;transition:all .18s;letter-spacing:.02em;}
+.btn-primary{background:var(--accent);color:#fff;}
+[data-theme="light"] .btn-primary{color:#fff;}
+.btn-primary:hover{opacity:.88;transform:translateY(-1px);box-shadow:var(--glow);}
 .btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
 .btn-secondary:hover{border-color:var(--accent);color:var(--accent);}
-.btn-danger{background:rgba(255,71,87,.1);color:var(--danger);border:1px solid rgba(255,71,87,.3);}
-.btn-danger:hover{background:rgba(255,71,87,.2);}
-.btn-warning{background:rgba(255,165,2,.1);color:var(--warning);border:1px solid rgba(255,165,2,.3);}
-.btn-success{background:rgba(46,213,115,.1);color:var(--success);border:1px solid rgba(46,213,115,.3);}
-.btn-sm{padding:5px 11px;font-size:11px;}
+.btn-danger{background:rgba(214,48,49,.1);color:var(--danger);border:1px solid rgba(214,48,49,.3);}
+.btn-danger:hover{background:rgba(214,48,49,.18);}
+.btn-warning{background:rgba(225,112,0,.1);color:var(--warning);border:1px solid rgba(225,112,0,.3);}
+.btn-success{background:rgba(26,158,74,.1);color:var(--success);border:1px solid rgba(26,158,74,.3);}
+.btn-sm{padding:5px 10px;font-size:11px;}
 .btn:disabled{opacity:.35;cursor:not-allowed;transform:none!important;}
 
-/* FORMS */
-.form-group{margin-bottom:14px;}
-.form-label{display:block;font-size:10px;letter-spacing:.1em;color:var(--text3);text-transform:uppercase;margin-bottom:5px;}
-.form-input,.form-select,.form-textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:9px 13px;color:var(--text);font-family:var(--fm);font-size:12px;outline:none;transition:border-color .2s;}
-.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,212,255,.07);}
-.form-select option{background:var(--surface2);}
-.form-textarea{resize:vertical;min-height:70px;}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+/* ── FORMS ──────────────────────────────────────────── */
+.fg{margin-bottom:13px;}
+.fl{display:block;font-size:10px;letter-spacing:.1em;color:var(--text3);text-transform:uppercase;margin-bottom:5px;}
+.fi,.fs,.fta{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:9px 12px;color:var(--text);font-family:var(--fm);font-size:12px;outline:none;transition:border-color .2s;}
+.fi:focus,.fs:focus,.fta:focus{border-color:var(--accent);}
+.fs option{background:var(--surface2);color:var(--text);}
+.fta{resize:vertical;min-height:68px;}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:11px;}
+input[type="date"],input[type="time"]{color-scheme:inherit;}
 
-/* CARDS */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;}
-.card:hover{border-color:rgba(0,212,255,.18);}
+/* ── CARDS ──────────────────────────────────────────── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;transition:border-color .2s,box-shadow .2s;}
+.card:hover{border-color:var(--border2);}
 
-/* GRIDS */
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
-.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
-@media(max-width:900px){.grid-3,.grid-4{grid-template-columns:1fr 1fr;}.grid-2{grid-template-columns:1fr;}}
-@media(max-width:580px){.grid-3,.grid-4,.grid-2{grid-template-columns:1fr;}.main{padding:14px;}}
+/* ── GRIDS ──────────────────────────────────────────── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;}
+@media(max-width:960px){.g3,.g4{grid-template-columns:1fr 1fr;}.g2{grid-template-columns:1fr;}}
+@media(max-width:580px){.g3,.g4,.g2{grid-template-columns:1fr;}.main{padding:14px;}}
 
-/* SECTION HEADER */
-.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;}
-.sec-title{font-family:var(--fd);font-size:22px;font-weight:700;letter-spacing:-.5px;}
-.sec-title span{color:var(--accent);}
+/* ── STAT CARDS ─────────────────────────────────────── */
+.sc{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;position:relative;overflow:hidden;}
+.sc::after{content:'';position:absolute;bottom:-16px;right:-16px;width:64px;height:64px;border-radius:50%;background:radial-gradient(circle,var(--sc-c,var(--accent)) 0%,transparent 70%);opacity:.12;}
+.sc-lbl{font-size:10px;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:7px;}
+.sc-val{font-family:var(--fd);font-size:28px;font-weight:800;color:var(--text);}
+.sc-sub{font-size:11px;color:var(--text2);margin-top:3px;}
+.sc-icon{position:absolute;top:16px;right:16px;font-size:17px;opacity:.3;}
 
-/* LOCATION TABS */
-.loc-tabs{display:flex;gap:8px;margin-bottom:20px;}
-.loc-tab{padding:8px 20px;border-radius:var(--r);font-family:var(--fm);font-size:12px;cursor:pointer;border:1px solid var(--border);background:var(--surface2);color:var(--text2);transition:all .2s;}
-.loc-tab.active{background:rgba(0,212,255,.1);border-color:var(--accent);color:var(--accent);}
-.loc-badge{font-size:10px;background:var(--surface);border:1px solid var(--border);padding:2px 6px;border-radius:3px;margin-left:6px;color:var(--text3);}
+/* ── SECTION HEADER ─────────────────────────────────── */
+.shdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.stitle{font-family:var(--fd);font-size:21px;font-weight:700;letter-spacing:-.4px;}
+.stitle span{color:var(--accent);}
 
-/* EQUIPMENT CARDS */
-.equip-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;}
-.equip-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),transparent);opacity:0;transition:opacity .2s;}
-.equip-card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:var(--glow);}
-.equip-card:hover::before{opacity:1;}
-.equip-card.selected{border-color:var(--accent);background:rgba(0,212,255,.05);}
-.equip-card.selected::before{opacity:1;}
-.equip-card.disabled-card{opacity:.45;cursor:not-allowed;pointer-events:none;}
-.equip-card.disabled-card::after{content:'UNAVAILABLE';position:absolute;top:10px;right:10px;font-size:9px;letter-spacing:.08em;background:rgba(255,71,87,.15);color:var(--danger);border:1px solid rgba(255,71,87,.3);padding:2px 7px;border-radius:3px;}
-.equip-icon{font-size:26px;margin-bottom:10px;}
-.equip-name{font-family:var(--fd);font-size:14px;font-weight:700;margin-bottom:2px;}
-.equip-loc{font-size:10px;color:var(--text3);margin-bottom:6px;letter-spacing:.05em;}
-.equip-qty{font-size:11px;color:var(--text2);margin-bottom:10px;}
-.equip-meta{display:flex;align-items:center;justify-content:space-between;}
-.equip-cost{color:var(--accent);font-weight:500;font-size:12px;}
-.equip-status{font-size:10px;padding:2px 7px;border-radius:3px;}
-.equip-status.available{background:rgba(46,213,115,.1);color:var(--success);}
-.equip-status.booked-status{background:rgba(255,71,87,.1);color:var(--danger);}
+/* ── EQUIP CARDS ────────────────────────────────────── */
+.ec{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:15px;cursor:pointer;transition:all .18s;position:relative;overflow:hidden;}
+.ec::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),transparent);opacity:0;transition:opacity .2s;}
+.ec:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:var(--glow);}
+.ec:hover::before,.ec.sel::before{opacity:1;}
+.ec.sel{border-color:var(--accent);background:rgba(0,153,204,.05);}
+[data-theme="light"] .ec.sel{background:rgba(0,153,204,.04);}
+.ec.dis{opacity:.4;cursor:not-allowed;pointer-events:none;}
+.ec.dis::after{content:'UNAVAILABLE';position:absolute;top:8px;right:8px;font-size:9px;letter-spacing:.07em;background:rgba(214,48,49,.12);color:var(--danger);border:1px solid rgba(214,48,49,.25);padding:2px 6px;border-radius:3px;}
+.ec-icon{font-size:24px;margin-bottom:9px;}
+.ec-name{font-family:var(--fd);font-size:13px;font-weight:700;margin-bottom:1px;}
+.ec-loc{font-size:10px;color:var(--text3);margin-bottom:5px;}
+.ec-desc{font-size:11px;color:var(--text2);margin-bottom:10px;line-height:1.4;}
+.ec-foot{display:flex;align-items:center;justify-content:space-between;}
+.ec-cost{color:var(--accent);font-weight:600;font-size:12px;}
+.badge{font-size:10px;padding:2px 7px;border-radius:3px;}
+.badge-ok{background:rgba(26,158,74,.1);color:var(--success);}
+.badge-busy{background:rgba(214,48,49,.1);color:var(--danger);}
+.badge-dis{background:rgba(214,48,49,.1);color:var(--danger);}
 
-/* STAFF CARDS */
-.staff-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;cursor:pointer;transition:all .2s;}
-.staff-card:hover{border-color:var(--accent2);transform:translateY(-2px);}
-.staff-card.selected{border-color:var(--accent2);background:rgba(255,107,53,.05);}
-.staff-av{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--accent2),var(--warning));display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-weight:700;font-size:17px;color:#000;margin-bottom:10px;}
-.staff-name{font-family:var(--fd);font-size:14px;font-weight:700;}
-.staff-role{font-size:11px;color:var(--text2);margin-bottom:6px;}
+/* ── STAFF CARDS ────────────────────────────────────── */
+.stc{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:16px;cursor:pointer;transition:all .18s;}
+.stc:hover{border-color:var(--accent2);transform:translateY(-2px);}
+.stc.sel{border-color:var(--accent2);background:rgba(224,90,0,.04);}
+.stc-av{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--accent2),var(--warning));display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-weight:700;font-size:16px;color:#fff;margin-bottom:9px;}
+.stc-name{font-family:var(--fd);font-size:13px;font-weight:700;}
+.stc-role{font-size:11px;color:var(--text2);margin-bottom:6px;}
 .exp-tag{font-size:10px;padding:2px 6px;border-radius:3px;background:var(--surface2);border:1px solid var(--border);color:var(--text2);}
 
-/* WIZARD */
-.wiz-steps{display:flex;align-items:center;margin-bottom:28px;}
-.wiz-step{display:flex;align-items:center;gap:8px;padding:6px 12px;font-size:11px;color:var(--text3);flex-shrink:0;}
-.wiz-step.active{color:var(--accent);}
-.wiz-step.done{color:var(--success);}
-.wiz-num{width:22px;height:22px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;transition:all .3s;}
-.wiz-step.active .wiz-num{background:var(--accent);color:#000;border-color:var(--accent);}
-.wiz-step.done .wiz-num{background:var(--success);color:#000;border-color:var(--success);}
-.wiz-conn{flex:1;height:1px;background:var(--border);}
-.wiz-panel{display:none;}.wiz-panel.active{display:block;}
+/* ── WIZARD ─────────────────────────────────────────── */
+.wiz{display:flex;align-items:center;margin-bottom:26px;}
+.ws{display:flex;align-items:center;gap:7px;padding:5px 10px;font-size:11px;color:var(--text3);flex-shrink:0;}
+.ws.active{color:var(--accent);}
+.ws.done{color:var(--success);}
+.wnum{width:21px;height:21px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;transition:all .25s;}
+.ws.active .wnum{background:var(--accent);color:#fff;border-color:var(--accent);}
+.ws.done .wnum{background:var(--success);color:#fff;border-color:var(--success);}
+.wconn{flex:1;height:1px;background:var(--border);}
+.wp{display:none;}.wp.active{display:block;}
 
-/* CALENDAR */
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:12px;}
-.cal-day-hdr{text-align:center;font-size:10px;color:var(--text3);padding:6px 0;letter-spacing:.08em;text-transform:uppercase;}
-.cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:6px;cursor:pointer;font-size:12px;border:1px solid transparent;transition:all .15s;position:relative;}
-.cal-day:hover:not(.cal-disabled):not(.cal-empty){border-color:var(--accent);color:var(--accent);}
-.cal-day.cal-today{color:var(--accent);font-weight:600;}
-.cal-day.cal-selected{background:var(--accent);color:#000;font-weight:600;}
-.cal-day.cal-disabled{color:var(--text3);cursor:not-allowed;opacity:.4;}
-.cal-day.cal-holiday{color:var(--accent2);background:rgba(255,107,53,.07);}
-.cal-day.cal-holiday::after{content:'';position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:3px;height:3px;border-radius:50%;background:var(--accent2);}
-.cal-day.cal-empty{cursor:default;}
-.cal-month-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
-.cal-month-title{font-family:var(--fd);font-weight:700;font-size:14px;}
+/* ── CALENDAR ───────────────────────────────────────── */
+.cg{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+.cdh{text-align:center;font-size:10px;color:var(--text3);padding:5px 0;letter-spacing:.06em;text-transform:uppercase;}
+.cd{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:6px;cursor:pointer;font-size:12px;border:1px solid transparent;transition:all .12s;position:relative;}
+.cd:hover:not(.cdd):not(.cde){border-color:var(--accent);color:var(--accent);}
+.cd.cdt{color:var(--accent);font-weight:600;}
+.cd.cds{background:var(--accent);color:#fff;font-weight:600;}
+[data-theme="light"] .cd.cds{color:#fff;}
+.cd.cdph{color:var(--accent2);}
+.cd.cdph::after{content:'';position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:3px;height:3px;border-radius:50%;background:var(--accent2);}
+.cd.cdd{color:var(--text3);cursor:not-allowed;opacity:.35;}
+.cd.cde{cursor:default;}
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.cal-title{font-family:var(--fd);font-weight:700;font-size:13px;}
 
-/* TIME SLOTS */
-.slot-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(85px,1fr));gap:5px;max-height:260px;overflow-y:auto;padding-right:4px;}
-.slot{padding:7px 4px;text-align:center;border-radius:6px;border:1px solid var(--border);cursor:pointer;font-size:11px;color:var(--text2);transition:all .15s;background:var(--surface2);}
+/* ── TIME SLOTS ─────────────────────────────────────── */
+.slotg{display:grid;grid-template-columns:repeat(auto-fill,minmax(82px,1fr));gap:5px;max-height:240px;overflow-y:auto;padding-right:3px;}
+.slot{padding:7px 3px;text-align:center;border-radius:6px;border:1px solid var(--border);cursor:pointer;font-size:11px;color:var(--text2);transition:all .12s;background:var(--surface2);}
 .slot:hover{border-color:var(--accent);color:var(--text);}
-.slot.sel{background:var(--accent);color:#000;border-color:var(--accent);font-weight:500;}
-.slot.taken{background:rgba(255,71,87,.06);color:var(--danger);border-color:rgba(255,71,87,.2);cursor:not-allowed;opacity:.55;}
-.slot.adjacent{background:rgba(255,165,2,.06);color:var(--warning);border-color:rgba(255,165,2,.2);cursor:not-allowed;opacity:.6;}
-.slot.lunch{background:rgba(255,165,2,.04);color:var(--text3);border-color:rgba(255,165,2,.15);cursor:not-allowed;opacity:.5;}
-.slot-legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;font-size:10px;}
-.slot-legend-item{display:flex;align-items:center;gap:5px;}
-.slot-dot{width:8px;height:8px;border-radius:50%;}
+.slot.ssel{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:500;}
+[data-theme="light"] .slot.ssel{color:#fff;}
+.slot.staken{background:rgba(214,48,49,.06);color:var(--danger);border-color:rgba(214,48,49,.2);cursor:not-allowed;opacity:.55;}
+.slot.sadj{background:rgba(225,112,0,.06);color:var(--warning);border-color:rgba(225,112,0,.2);cursor:not-allowed;opacity:.6;}
+.slot.slunch{background:var(--surface3);color:var(--text3);border-color:var(--border);cursor:not-allowed;opacity:.5;}
 
-/* BOOKING SUMMARY */
-.sum-box{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px;}
-.sum-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px;}
-.sum-row:last-child{border-bottom:none;}
-.sum-lbl{color:var(--text2);}
-.sum-val{color:var(--text);font-weight:500;}
-.sum-total .sum-lbl{color:var(--accent);font-weight:600;}
-.sum-total .sum-val{color:var(--accent);font-size:15px;font-weight:600;}
+/* ── SUMMARY BOX ────────────────────────────────────── */
+.sumbox{background:var(--surface2);border:1px solid var(--border);border-radius:11px;padding:16px;}
+.sumrow{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px;}
+.sumrow:last-child{border-bottom:none;}
+.suml{color:var(--text2);}
+.sumv{color:var(--text);font-weight:500;}
+.sumrow.total .suml{color:var(--accent);font-weight:600;}
+.sumrow.total .sumv{color:var(--accent);font-size:14px;font-weight:700;}
 
-/* BOOKING ITEMS */
-.bk-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 18px;display:flex;align-items:center;gap:14px;margin-bottom:8px;transition:all .2s;}
-.bk-item:hover{border-color:rgba(0,212,255,.2);}
-.bk-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-.bk-dot.equipment{background:var(--accent);}
-.bk-dot.consultancy{background:var(--accent2);}
-.bk-info{flex:1;}
-.bk-title{font-weight:500;margin-bottom:1px;}
-.bk-meta{font-size:11px;color:var(--text2);}
-.bk-status{font-size:10px;padding:3px 8px;border-radius:4px;font-weight:500;letter-spacing:.04em;white-space:nowrap;}
-.bk-status.confirmed{background:rgba(46,213,115,.1);color:var(--success);}
-.bk-status.pending{background:rgba(255,165,2,.1);color:var(--warning);}
-.bk-status.checked-in{background:rgba(0,212,255,.1);color:var(--accent);}
-.bk-status.cancelled{background:rgba(255,71,87,.1);color:var(--danger);}
+/* ── BOOKING ITEMS ──────────────────────────────────── */
+.bki{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:13px 16px;display:flex;align-items:center;gap:12px;margin-bottom:7px;transition:all .18s;}
+.bki:hover{border-color:var(--border2);}
+.bkdot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.bkdot.equipment{background:var(--accent);}
+.bkdot.consultancy{background:var(--accent2);}
+.bki-info{flex:1;}
+.bki-title{font-weight:500;margin-bottom:1px;font-size:13px;}
+.bki-meta{font-size:11px;color:var(--text2);}
+.bk-st{font-size:10px;padding:3px 8px;border-radius:4px;font-weight:500;white-space:nowrap;}
+.bk-st.confirmed{background:rgba(26,158,74,.1);color:var(--success);}
+.bk-st.checked-in{background:rgba(0,153,204,.1);color:var(--accent);}
+.bk-st.cancelled{background:rgba(214,48,49,.1);color:var(--danger);}
+.bk-st.pending{background:rgba(225,112,0,.1);color:var(--warning);}
 
-/* QR */
-.qr-wrap{display:flex;flex-direction:column;align-items:center;padding:16px;}
-.qr-box{background:#fff;padding:14px;border-radius:10px;margin-bottom:10px;}
+/* ── TABLES ─────────────────────────────────────────── */
+.tbl{width:100%;border-collapse:collapse;}
+.tbl th{text-align:left;padding:9px 12px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border);font-weight:500;}
+.tbl td{padding:10px 12px;font-size:12px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.tbl tbody tr:last-child td{border-bottom:none;}
+.tbl tbody tr:hover td{background:rgba(0,0,0,.02);}
+[data-theme="dark"] .tbl tbody tr:hover td{background:rgba(255,255,255,.02);}
 
-/* TABLES */
-.dtable{width:100%;border-collapse:collapse;}
-.dtable th{text-align:left;padding:9px 13px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border);font-weight:500;}
-.dtable td{padding:11px 13px;font-size:12px;border-bottom:1px solid rgba(30,45,69,.4);vertical-align:middle;}
-.dtable tr:last-child td{border-bottom:none;}
-.dtable tr:hover td{background:rgba(0,212,255,.015);}
+/* ── MODAL ──────────────────────────────────────────── */
+.mov{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:500;opacity:0;pointer-events:none;transition:opacity .18s;}
+.mov.open{opacity:1;pointer-events:auto;}
+.mo{background:var(--surface);border:1px solid var(--border);border-radius:15px;padding:24px;width:490px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.35);transform:scale(.95);transition:transform .18s;}
+.mov.open .mo{transform:scale(1);}
+.mohdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.motitle{font-family:var(--fd);font-size:16px;font-weight:700;}
+.mox{background:none;border:none;color:var(--text3);cursor:pointer;font-size:17px;transition:color .2s;padding:2px 6px;}
+.mox:hover{color:var(--danger);}
 
-/* STAT CARDS */
-.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;position:relative;overflow:hidden;}
-.stat-card::after{content:'';position:absolute;bottom:-20px;right:-20px;width:70px;height:70px;border-radius:50%;background:radial-gradient(circle,var(--ac,var(--accent)) 0%,transparent 70%);opacity:.08;}
-.stat-lbl{font-size:10px;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;}
-.stat-val{font-family:var(--fd);font-size:30px;font-weight:800;}
-.stat-sub{font-size:11px;color:var(--text2);margin-top:3px;}
-.stat-icon{position:absolute;top:18px;right:18px;font-size:18px;opacity:.35;}
-
-/* MODAL */
-.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:500;opacity:0;pointer-events:none;transition:opacity .2s;}
-.modal-ov.open{opacity:1;pointer-events:auto;}
-.modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:26px;width:500px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.5);transform:scale(.96);transition:transform .2s;}
-.modal-ov.open .modal{transform:scale(1);}
-.modal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
-.modal-title{font-family:var(--fd);font-size:17px;font-weight:700;}
-.modal-close{background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;transition:color .2s;}
-.modal-close:hover{color:var(--danger);}
-
-/* TOASTS */
-.toast-ct{position:fixed;top:18px;right:18px;z-index:9999;display:flex;flex-direction:column;gap:7px;}
-.toast{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:11px 14px;font-size:12px;max-width:300px;box-shadow:0 4px 20px rgba(0,0,0,.3);animation:slideIn .3s ease;display:flex;align-items:center;gap:9px;}
+/* ── TOAST ──────────────────────────────────────────── */
+.toastct{position:fixed;top:16px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:6px;}
+.toast{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:10px 13px;font-size:12px;max-width:290px;box-shadow:var(--shadow);animation:tin .25s ease;display:flex;align-items:center;gap:8px;}
 .toast.success{border-left:3px solid var(--success);}
 .toast.error{border-left:3px solid var(--danger);}
 .toast.info{border-left:3px solid var(--accent);}
-@keyframes slideIn{from{opacity:0;transform:translateX(20px);}to{opacity:1;transform:translateX(0);}}
+@keyframes tin{from{opacity:0;transform:translateX(16px);}to{opacity:1;transform:translateX(0);}}
 
-/* CHECKIN */
-.ci-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:36px;text-align:center;max-width:480px;margin:0 auto;}
-.ci-icon{font-size:56px;margin-bottom:16px;}
-.ci-title{font-family:var(--fd);font-size:22px;font-weight:700;margin-bottom:6px;}
-.ci-sub{color:var(--text2);margin-bottom:20px;font-size:12px;line-height:1.6;}
-.ci-result{padding:18px;border-radius:10px;margin-top:16px;}
-.ci-result.ok{background:rgba(46,213,115,.1);border:1px solid rgba(46,213,115,.3);}
-.ci-result.err{background:rgba(255,71,87,.1);border:1px solid rgba(255,71,87,.3);}
+/* ── CHECKIN ────────────────────────────────────────── */
+.cic{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:32px;text-align:center;max-width:460px;margin:0 auto;}
+.ci-res{padding:16px;border-radius:10px;margin-top:14px;}
+.ci-res.ok{background:rgba(26,158,74,.08);border:1px solid rgba(26,158,74,.25);}
+.ci-res.err{background:rgba(214,48,49,.08);border:1px solid rgba(214,48,49,.25);}
 
-/* DISABLE BANNER */
-.disable-banner{background:rgba(255,71,87,.08);border:1px solid rgba(255,71,87,.25);border-radius:var(--r);padding:10px 14px;font-size:12px;color:var(--danger);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+/* ── NO CREDITS BANNER ──────────────────────────────── */
+.nc-banner{background:rgba(214,48,49,.07);border:1px solid rgba(214,48,49,.2);border-radius:10px;padding:16px 18px;margin-bottom:18px;display:flex;align-items:flex-start;gap:12px;}
+.nc-banner .nc-icon{font-size:22px;flex-shrink:0;}
+.nc-banner .nc-text{flex:1;}
+.nc-banner .nc-title{font-family:var(--fd);font-weight:700;color:var(--danger);margin-bottom:4px;}
+.nc-banner .nc-sub{font-size:11px;color:var(--text2);line-height:1.5;}
 
-/* MISC */
+/* ── LOC TABS ───────────────────────────────────────── */
+.loctabs{display:flex;gap:7px;margin-bottom:18px;flex-wrap:wrap;}
+.ltab{padding:7px 18px;border-radius:var(--r);font-family:var(--fm);font-size:12px;cursor:pointer;border:1px solid var(--border);background:var(--surface2);color:var(--text2);transition:all .18s;}
+.ltab.active{background:rgba(0,153,204,.08);border-color:var(--accent);color:var(--accent);}
+[data-theme="light"] .ltab.active{background:rgba(0,153,204,.06);}
+
+/* ── DISABLE BANNER ─────────────────────────────────── */
+.dis-banner{background:rgba(214,48,49,.07);border:1px solid rgba(214,48,49,.2);border-radius:var(--r);padding:9px 13px;font-size:12px;color:var(--danger);margin-bottom:12px;display:flex;align-items:center;gap:7px;}
+
+/* ── ADMIN TABS ─────────────────────────────────────── */
+.atabs{display:flex;gap:7px;margin-bottom:20px;flex-wrap:wrap;}
+.atab{padding:7px 14px;border-radius:var(--r);font-family:var(--fm);font-size:11px;cursor:pointer;border:1px solid var(--border);background:var(--surface2);color:var(--text2);transition:all .18s;}
+.atab.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+
+/* ── GROUP BADGE ────────────────────────────────────── */
+.grp-badge{font-size:10px;padding:2px 8px;border-radius:10px;background:var(--surface2);border:1px solid var(--border);color:var(--text2);font-weight:500;}
+
+/* ── QR ─────────────────────────────────────────────── */
+.qr-wrap{display:flex;flex-direction:column;align-items:center;padding:12px;}
+.qr-box{background:#fff;padding:12px;border-radius:9px;margin-bottom:9px;}
+
+/* ── MISC ───────────────────────────────────────────── */
 ::-webkit-scrollbar{width:5px;height:5px;}
 ::-webkit-scrollbar-track{background:var(--bg);}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px;}
-input[type="date"]{color-scheme:dark;}
 .hidden{display:none!important;}
-.mb16{margin-bottom:16px;} .mb24{margin-bottom:24px;}
-.flex{display:flex;align-items:center;gap:10px;}
-.flex-b{display:flex;align-items:center;justify-content:space-between;}
-.text-accent{color:var(--accent);}
-.text-danger{color:var(--danger);}
-.text-success{color:var(--success);}
-.text-warning{color:var(--warning);}
+.mb16{margin-bottom:16px;}.mb22{margin-bottom:22px;}
+.flex{display:flex;align-items:center;gap:9px;}
+.flexb{display:flex;align-items:center;justify-content:space-between;}
+.ta{color:var(--accent);}
+.td{color:var(--danger);}
+.ts{color:var(--success);}
+.tw{color:var(--warning);}
+.t2{color:var(--text2);}
+.t3{color:var(--text3);}
+.fsm{font-size:11px;}
+.fxs{font-size:10px;}
+.ffd{font-family:var(--fd);}
+.empty{text-align:center;padding:44px 20px;color:var(--text3);}
+.empty-icon{font-size:38px;margin-bottom:12px;opacity:.45;}
+.ovx{overflow-x:auto;}
 .tag{font-size:10px;padding:2px 7px;border-radius:3px;background:var(--surface2);border:1px solid var(--border);color:var(--text2);}
-.empty-state{text-align:center;padding:50px 20px;color:var(--text3);}
-.empty-state-icon{font-size:42px;margin-bottom:14px;opacity:.5;}
 </style>
 </head>
 <body>
 
-<!-- CONFIG SCREEN -->
-<div id="cfgScreen" class="cfg-overlay">
-  <div class="cfg-modal">
+<!-- CONFIG -->
+<div id="cfgSc" class="cfg-ov">
+  <div class="cfg-box">
     <h2>⚙ System Setup</h2>
-    <p>Connect your Google Sheets backend. This only needs to be done once.</p>
-    <div class="cfg-step">
-      <label>Google Sheets — Spreadsheet ID</label>
-      <input type="text" class="form-input" id="cfg-sid" placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms">
-      <div style="font-size:11px;color:var(--text3);margin-top:5px;">Found in your Sheet URL: docs.google.com/spreadsheets/d/<b>[THIS]</b>/edit</div>
-    </div>
-    <div class="cfg-step">
-      <label>Google Sheets — API Key (read-only)</label>
-      <input type="text" class="form-input" id="cfg-key" placeholder="AIza...">
-    </div>
-    <div class="cfg-step">
-      <label>Google Apps Script Web App URL (writes)</label>
-      <input type="text" class="form-input" id="cfg-gas" placeholder="https://script.google.com/macros/s/.../exec">
-    </div>
-    <div class="cfg-step">
-      <label>Admin Emails (comma-separated)</label>
-      <input type="text" class="form-input" id="cfg-admins" placeholder="admin@sp.edu.sg">
-    </div>
-    <div class="cfg-step">
-      <label>System / Lab Name</label>
-      <input type="text" class="form-input" id="cfg-name" value="FabLab" placeholder="FabLab">
-    </div>
-    <div style="display:flex;gap:10px;margin-top:18px;">
+    <p>Connect your Google Sheets backend. Only needs to be done once — saved in browser storage.</p>
+    <div class="cfg-row"><label>Spreadsheet ID</label><input class="fi" id="c-sid" placeholder="1BxiMVs0..."></div>
+    <div class="cfg-row"><label>Google Sheets API Key (read)</label><input class="fi" id="c-key" placeholder="AIzaSy..."></div>
+    <div class="cfg-row"><label>Apps Script Web App URL (writes)</label><input class="fi" id="c-gas" placeholder="https://script.google.com/macros/s/.../exec"></div>
+    <div class="cfg-row"><label>Admin Emails (comma-separated)</label><input class="fi" id="c-adm" placeholder="admin@sp.edu.sg"></div>
+    <div class="cfg-row"><label>System / Lab Name</label><input class="fi" id="c-nm" value="FabLab" placeholder="FabLab"></div>
+    <div style="display:flex;gap:9px;margin-top:16px;">
       <button class="btn btn-primary" onclick="saveConfig()" style="flex:1">Save & Connect →</button>
-      <button class="btn btn-secondary" onclick="useDemoMode()">Demo Mode</button>
+      <button class="btn btn-secondary" onclick="demoMode()">Demo Mode</button>
     </div>
-    <div style="margin-top:10px;font-size:10px;color:var(--text3);text-align:center;">Settings saved in localStorage · <a href="#" onclick="resetConfig()" style="color:var(--accent);">Reset config</a></div>
+    <div style="margin-top:9px;font-size:10px;color:var(--text3);text-align:center;">
+      Stored in localStorage · <a href="#" onclick="resetCfg()" style="color:var(--accent);">Reset</a>
+    </div>
   </div>
 </div>
 
 <!-- LOGIN -->
-<div id="loginScreen" class="hidden">
+<div id="loginSc" class="hidden">
   <div class="login-wrap">
     <div class="login-card">
-      <div class="login-logo"><span>Fab</span>Lab</div>
-      <div class="login-sub" id="loginSubtitle">Booking System · Enter your institutional email to proceed.</div>
-      <div class="form-group">
-        <label class="form-label">Email Address</label>
-        <input type="email" class="form-input" id="loginEmail" placeholder="student@edu.sg" onkeyup="if(event.key==='Enter')doLogin()">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+        <div>
+          <div class="login-logo"><span id="loginLogo">Fab</span>Lab</div>
+          <div style="font-size:10px;color:var(--text3);letter-spacing:.05em;">BOOKING SYSTEM</div>
+        </div>
+        <button class="btn-icon" onclick="toggleTheme()" title="Toggle theme" id="themeBtn">🌙</button>
       </div>
-      <button class="btn btn-primary" style="width:100%;margin-bottom:8px;" onclick="doLogin()">→ Access Booking System</button>
-      <div class="login-divider">or upload whitelist</div>
-      <div style="margin-bottom:14px;">
-        <label class="form-label">Upload Whitelist CSV (admin setup)</label>
-        <input type="file" class="form-input" id="wlCsvUpload" accept=".csv" onchange="loadWhitelistCSV(event)" style="padding:7px;">
-        <div style="font-size:10px;color:var(--text3);margin-top:4px;">CSV format: email,name,role · Replaces current whitelist in Demo Mode</div>
+      <div class="login-sub">Enter your institutional email to access. Only whitelisted emails are permitted.</div>
+      <div class="fg">
+        <label class="fl">Email Address</label>
+        <input type="email" class="fi" id="loginEmail" placeholder="student@edu.sg" onkeyup="if(event.key==='Enter')doLogin()">
       </div>
-      <button class="btn btn-secondary" style="width:100%" onclick="goCheckinOnly()">📷 Walk-in QR Check-In</button>
-      <div style="margin-top:16px;font-size:10px;color:var(--text3);text-align:center;">Restricted to whitelisted emails. Contact admin for access.</div>
+      <button class="btn btn-primary" style="width:100%;margin-bottom:8px;" onclick="doLogin()">→ Access System</button>
+      <div class="divider">or</div>
+      <div class="fg">
+        <label class="fl">Admin: Upload Whitelist CSV</label>
+        <input type="file" class="fi" accept=".csv" onchange="uploadCSV(event)" style="padding:7px;">
+        <div style="font-size:10px;color:var(--text3);margin-top:4px;">Format: <code style="color:var(--accent)">email,name,role,group</code></div>
+      </div>
+      <button class="btn btn-secondary" style="width:100%;margin-top:6px;" onclick="goCIOnly()">📷 Walk-In QR Check-In</button>
+      <div style="margin-top:14px;font-size:10px;color:var(--text3);text-align:center;">
+        Access restricted to whitelisted emails only
+      </div>
     </div>
   </div>
 </div>
 
 <!-- MAIN APP -->
 <div id="mainApp" class="app hidden">
-  <div class="toast-ct" id="toastCt"></div>
+  <div class="toastct" id="toastCt"></div>
 
-  <div class="header">
-    <div class="flex" style="gap:20px;">
-      <div class="logo"><span id="hdrLogoName">Fab</span>Lab <sub id="hdrSubName">Booking</sub></div>
+  <div class="hdr">
+    <div class="flex">
+      <div class="logo"><span id="hdrLogo">Fab</span>Lab <sub>Booking</sub></div>
     </div>
-    <div class="flex" style="gap:12px;">
-      <div class="pool-badge">
-        <span class="lbl">Shared Credit Pool</span>
-        <span class="val" id="hdrPool">-- credits</span>
+    <div class="hdr-right">
+      <div class="pool-pill" id="hdrPoolPill">
+        <span class="pl">Credit Pool</span>
+        <span class="pv" id="hdrPool">—</span>
       </div>
       <div class="user-pill">
-        <div class="user-avatar" id="hdrAv">?</div>
+        <div class="uav" id="hdrAv">?</div>
         <div>
-          <div class="user-name" id="hdrName">—</div>
-          <div class="user-role" id="hdrRole">User</div>
+          <div class="uname" id="hdrName">—</div>
+          <div class="urole" id="hdrRole">—</div>
         </div>
-        <button class="btn-logout" onclick="doLogout()" title="Logout">⏻</button>
       </div>
+      <button class="btn-icon" onclick="toggleTheme()" id="themeBtn2" title="Toggle theme">🌙</button>
+      <button class="btn-icon" onclick="doLogout()" title="Logout">⏻</button>
     </div>
   </div>
 
-  <div class="nav-tabs">
-    <button class="nav-tab active" data-pg="dashboard" onclick="goPage('dashboard')">◈ Dashboard</button>
-    <button class="nav-tab" data-pg="book" onclick="goPage('book')">＋ Book</button>
-    <button class="nav-tab" data-pg="mybookings" onclick="goPage('mybookings')">≡ My Bookings</button>
-    <button class="nav-tab" data-pg="checkin" onclick="goPage('checkin')">◉ Check-In</button>
-    <button class="nav-tab admin-only hidden" data-pg="admin" onclick="goPage('admin')">⬡ Admin</button>
+  <div class="nav" id="mainNav">
+    <!-- tabs injected by JS based on role -->
   </div>
 
   <div class="main">
 
-    <!-- DASHBOARD -->
-    <div class="page active" id="page-dashboard">
-      <div class="sec-hdr">
-        <div class="sec-title">Welcome, <span id="dashName">—</span></div>
+    <!-- ══ USER: DASHBOARD ══ -->
+    <div class="page" id="pg-dashboard">
+      <div class="shdr">
+        <div class="stitle">Welcome, <span id="dashName">—</span></div>
+        <div class="flex">
+          <span class="grp-badge" id="dashGroup">—</span>
+        </div>
       </div>
-      <div class="grid-4 mb24">
-        <div class="stat-card" style="--ac:var(--accent)"><div class="stat-icon">⬡</div><div class="stat-lbl">Shared Credit Pool</div><div class="stat-val text-accent" id="dstPool">—</div><div class="stat-sub">total credits available</div></div>
-        <div class="stat-card" style="--ac:var(--accent2)"><div class="stat-icon">📅</div><div class="stat-lbl">My Bookings</div><div class="stat-val" id="dstMine">—</div><div class="stat-sub">this month</div></div>
-        <div class="stat-card" style="--ac:var(--accent3)"><div class="stat-icon">✓</div><div class="stat-lbl">Upcoming</div><div class="stat-val" id="dstUp">—</div><div class="stat-sub">confirmed sessions</div></div>
-        <div class="stat-card" style="--ac:var(--warning)"><div class="stat-icon">⬤</div><div class="stat-lbl">Check-Ins</div><div class="stat-val" id="dstCI">—</div><div class="stat-sub">verified visits</div></div>
+      <!-- No credits warning -->
+      <div id="ncBanner" class="nc-banner hidden">
+        <div class="nc-icon">⚠</div>
+        <div class="nc-text">
+          <div class="nc-title">No Credits Remaining</div>
+          <div class="nc-sub">Your group's credit pool is empty. You cannot make new equipment bookings until credits are topped up. <a href="#" onclick="emailAdmin()" style="color:var(--accent);">Email the administrator →</a></div>
+        </div>
       </div>
-      <div class="grid-2">
+      <div class="g4 mb22">
+        <div class="sc" style="--sc-c:var(--accent)"><div class="sc-icon">⬡</div><div class="sc-lbl">Group Pool Credits</div><div class="sc-val ta" id="dpool">—</div><div class="sc-sub" id="dgroupname">—</div></div>
+        <div class="sc" style="--sc-c:var(--accent2)"><div class="sc-icon">📅</div><div class="sc-lbl">My Bookings</div><div class="sc-val" id="dmine">—</div><div class="sc-sub">this month</div></div>
+        <div class="sc" style="--sc-c:var(--success)"><div class="sc-icon">✓</div><div class="sc-lbl">Upcoming</div><div class="sc-val" id="dup">—</div><div class="sc-sub">confirmed</div></div>
+        <div class="sc" style="--sc-c:var(--warning)"><div class="sc-icon">◉</div><div class="sc-lbl">Check-Ins</div><div class="sc-val" id="dci">—</div><div class="sc-sub">verified visits</div></div>
+      </div>
+      <div class="g2">
         <div>
-          <div class="flex-b mb16"><div style="font-family:var(--fd);font-weight:700;">Recent Bookings</div><button class="btn btn-secondary btn-sm" onclick="goPage('mybookings')">View All →</button></div>
+          <div class="flexb mb16"><div class="ffd" style="font-weight:700;">My Recent Bookings</div><button class="btn btn-secondary btn-sm" onclick="goPage('mybookings')">View All →</button></div>
           <div id="dashRecent"></div>
         </div>
         <div>
-          <div class="flex-b mb16"><div style="font-family:var(--fd);font-weight:700;">Lab Status Now</div><button class="btn btn-secondary btn-sm" onclick="goPage('book')">Book →</button></div>
-          <div id="dashLabStatus"></div>
+          <div class="flexb mb16"><div class="ffd" style="font-weight:700;">Lab Status</div><button class="btn btn-secondary btn-sm" onclick="goPage('book')">Book Now →</button></div>
+          <div id="dashLab"></div>
         </div>
       </div>
     </div>
 
-    <!-- BOOK PAGE -->
-    <div class="page" id="page-book">
-      <div class="sec-hdr">
-        <div class="sec-title">New <span>Booking</span></div>
+    <!-- ══ USER: BOOK ══ -->
+    <div class="page" id="pg-book">
+      <div class="shdr"><div class="stitle">New <span>Booking</span></div></div>
+      <div id="bookNcBanner" class="nc-banner hidden">
+        <div class="nc-icon">⚠</div>
+        <div class="nc-text">
+          <div class="nc-title">Insufficient Credits for Equipment Booking</div>
+          <div class="nc-sub">Your group's pool has <strong id="bncRemaining">0</strong> credits remaining. Equipment booking requires credits. You can still book <strong>Staff Consultancy for free</strong>. <a href="#" onclick="emailAdmin()" style="color:var(--accent);">Request credit top-up →</a></div>
+        </div>
       </div>
-      <div style="display:flex;gap:10px;margin-bottom:24px;">
-        <button class="btn btn-primary" id="btnTypeEquip" onclick="setBookType('equipment')">🔧 Equipment</button>
-        <button class="btn btn-secondary" id="btnTypeConsult" onclick="setBookType('consultancy')">👤 Consultancy</button>
+      <div style="display:flex;gap:9px;margin-bottom:22px;">
+        <button class="btn btn-primary" id="btEquip" onclick="setBookType('equipment')">🔧 Equipment</button>
+        <button class="btn btn-secondary" id="btConsult" onclick="setBookType('consultancy')">👤 Consultancy <span style="font-size:10px;opacity:.7;">(Free)</span></button>
       </div>
-      <!-- Wizard Steps -->
-      <div class="wiz-steps">
-        <div class="wiz-step active" id="ws1"><div class="wiz-num">1</div><span>Select</span></div>
-        <div class="wiz-conn"></div>
-        <div class="wiz-step" id="ws2"><div class="wiz-num">2</div><span>Schedule</span></div>
-        <div class="wiz-conn"></div>
-        <div class="wiz-step" id="ws3"><div class="wiz-num">3</div><span>Details</span></div>
-        <div class="wiz-conn"></div>
-        <div class="wiz-step" id="ws4"><div class="wiz-num">4</div><span>Confirm</span></div>
+      <div class="wiz">
+        <div class="ws active" id="ws1"><div class="wnum">1</div><span>Select</span></div>
+        <div class="wconn"></div>
+        <div class="ws" id="ws2"><div class="wnum">2</div><span>Schedule</span></div>
+        <div class="wconn"></div>
+        <div class="ws" id="ws3"><div class="wnum">3</div><span>Details</span></div>
+        <div class="wconn"></div>
+        <div class="ws" id="ws4"><div class="wnum">4</div><span>Confirm</span></div>
       </div>
-
-      <!-- Step 1: Select -->
-      <div class="wiz-panel active" id="wp1">
-        <div class="loc-tabs" id="locTabs"></div>
-        <div id="resourceGrid"></div>
-        <div style="margin-top:18px;text-align:right;"><button class="btn btn-primary" id="s1next" disabled onclick="goWiz(2)">Next →</button></div>
+      <div class="wp active" id="wp1">
+        <div class="loctabs" id="locTabs"></div>
+        <div id="resGrid"></div>
+        <div style="margin-top:16px;text-align:right;"><button class="btn btn-primary" id="s1n" disabled onclick="goWiz(2)">Next →</button></div>
       </div>
-
-      <!-- Step 2: Schedule -->
-      <div class="wiz-panel" id="wp2">
-        <div class="grid-2">
+      <div class="wp" id="wp2">
+        <div class="g2">
           <div>
-            <div style="font-family:var(--fd);font-weight:700;margin-bottom:14px;">Select Date</div>
-            <div class="cal-month-nav">
-              <button class="btn btn-secondary btn-sm" onclick="calPrev()">‹</button>
-              <span class="cal-month-title" id="calMonthLabel"></span>
-              <button class="btn btn-secondary btn-sm" onclick="calNext()">›</button>
+            <div class="ffd mb16" style="font-weight:700;">Select Date</div>
+            <div class="cal-nav"><button class="btn btn-secondary btn-sm" onclick="calPrev()">‹</button><span class="cal-title" id="calLbl"></span><button class="btn btn-secondary btn-sm" onclick="calNext()">›</button></div>
+            <div class="cg">
+              <div class="cdh">Su</div><div class="cdh">Mo</div><div class="cdh">Tu</div>
+              <div class="cdh">We</div><div class="cdh">Th</div><div class="cdh">Fr</div><div class="cdh">Sa</div>
+              <div id="calDays" style="display:contents;"></div>
             </div>
-            <div class="cal-grid">
-              <div class="cal-day-hdr">Sun</div><div class="cal-day-hdr">Mon</div><div class="cal-day-hdr">Tue</div>
-              <div class="cal-day-hdr">Wed</div><div class="cal-day-hdr">Thu</div><div class="cal-day-hdr">Fri</div><div class="cal-day-hdr">Sat</div>
-              <div id="calDays"></div>
+            <div style="font-size:10px;color:var(--text3);margin-top:7px;line-height:1.7;">
+              <span style="color:var(--accent2);">●</span> Public Holiday &nbsp;·&nbsp; Weekends unavailable
             </div>
-            <div style="font-size:10px;color:var(--text3);margin-top:6px;line-height:1.6;">
-              🔴 Weekends / PH not available &nbsp;·&nbsp; <span style="color:var(--accent2);">●</span> Public Holiday
-            </div>
-            <div class="form-group" style="margin-top:14px;">
-              <label class="form-label">Duration</label>
-              <select class="form-select" id="bookDur" onchange="renderSlots()">
-                <option value="1" selected>1 hour (1 credit)</option>
+            <div class="fg" style="margin-top:13px;">
+              <label class="fl">Duration</label>
+              <select class="fs" id="bookDur" onchange="renderSlots()">
+                <option value="1">1 hour (1 credit)</option>
                 <option value="1.5">1.5 hours (1.5 credits)</option>
                 <option value="2">2 hours (2 credits)</option>
                 <option value="3">3 hours (3 credits)</option>
@@ -434,73 +467,45 @@ input[type="date"]{color-scheme:dark;}
             </div>
           </div>
           <div>
-            <div style="font-family:var(--fd);font-weight:700;margin-bottom:14px;">Available Time Slots</div>
-            <div id="slotContainer"><div style="color:var(--text3);font-size:12px;padding:12px;">Select a date to see available slots</div></div>
-            <div class="slot-legend" id="slotLegend" style="display:none;">
-              <div class="slot-legend-item"><div class="slot-dot" style="background:var(--accent)"></div><span>Selected</span></div>
-              <div class="slot-legend-item"><div class="slot-dot" style="background:var(--danger)"></div><span>Booked</span></div>
-              <div class="slot-legend-item"><div class="slot-dot" style="background:var(--warning)"></div><span>Buffer / Lunch</span></div>
+            <div class="ffd mb16" style="font-weight:700;">Time Slots <span class="fsm t3">9:00–16:30 · Lunch 12:00–13:30 blocked</span></div>
+            <div id="slotCt"><div class="t3 fsm" style="padding:10px;">Select a date first</div></div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;font-size:10px;" id="slotLeg" style="display:none">
+              <span>🟦 Selected</span><span>🔴 Booked</span><span>🟡 Buffer/Lunch</span>
             </div>
           </div>
         </div>
-        <div style="margin-top:18px;display:flex;gap:10px;justify-content:flex-end;">
+        <div style="margin-top:16px;display:flex;gap:9px;justify-content:flex-end;">
           <button class="btn btn-secondary" onclick="goWiz(1)">← Back</button>
-          <button class="btn btn-primary" id="s2next" disabled onclick="goWiz(3)">Next →</button>
+          <button class="btn btn-primary" id="s2n" disabled onclick="goWiz(3)">Next →</button>
         </div>
       </div>
-
-      <!-- Step 3: Details -->
-      <div class="wiz-panel" id="wp3">
-        <div class="form-group">
-          <label class="form-label">Purpose / Project Description</label>
-          <textarea class="form-textarea" id="bkPurpose" placeholder="What will you be working on?"></textarea>
-        </div>
-        <div class="form-group" id="grpGroupSize">
-          <label class="form-label">Group Size</label>
-          <input type="number" class="form-input" id="bkGroup" value="1" min="1" max="30">
-        </div>
-        <div class="form-group hidden" id="grpTopic">
-          <label class="form-label">Consultation Topic</label>
-          <input type="text" class="form-input" id="bkTopic" placeholder="e.g. Laser cutter calibration, FDM settings...">
-        </div>
-        <div style="margin-top:18px;display:flex;gap:10px;justify-content:flex-end;">
+      <div class="wp" id="wp3">
+        <div class="fg"><label class="fl">Purpose / Project Description</label><textarea class="fta" id="bkPurpose" placeholder="What will you be working on?"></textarea></div>
+        <div class="fg" id="grpSize"><label class="fl">Group Size</label><input type="number" class="fi" id="bkGroup" value="1" min="1" max="30"></div>
+        <div class="fg hidden" id="grpTopic"><label class="fl">Consultation Topic</label><input type="text" class="fi" id="bkTopic" placeholder="e.g. Laser cutter setup, FDM settings..."></div>
+        <div style="margin-top:16px;display:flex;gap:9px;justify-content:flex-end;">
           <button class="btn btn-secondary" onclick="goWiz(2)">← Back</button>
           <button class="btn btn-primary" onclick="goWiz(4)">Review →</button>
         </div>
       </div>
-
-      <!-- Step 4: Confirm -->
-      <div class="wiz-panel" id="wp4">
-        <div class="grid-2">
-          <div>
-            <div style="font-family:var(--fd);font-weight:700;margin-bottom:14px;">Booking Summary</div>
-            <div class="sum-box" id="bkSummary"></div>
-            <div style="margin-top:12px;font-size:11px;color:var(--text3);line-height:1.7;">
-              ⬡ Credits deducted from the shared pool on confirmation.<br>
-              Staff consultancy bookings do not consume credits.
-            </div>
-          </div>
-          <div>
-            <div style="font-family:var(--fd);font-weight:700;margin-bottom:14px;">Credit Impact</div>
-            <div class="sum-box" id="bkCost"></div>
-          </div>
+      <div class="wp" id="wp4">
+        <div class="g2">
+          <div><div class="ffd mb16" style="font-weight:700;">Booking Summary</div><div class="sumbox" id="bkSum"></div><div style="margin-top:10px;font-size:11px;color:var(--text3);line-height:1.7;">Credits deducted from your group's shared pool.<br>Staff consultancy is always free.</div></div>
+          <div><div class="ffd mb16" style="font-weight:700;">Credit Impact</div><div class="sumbox" id="bkCost"></div></div>
         </div>
-        <div style="margin-top:22px;display:flex;gap:10px;justify-content:flex-end;">
+        <div style="margin-top:20px;display:flex;gap:9px;justify-content:flex-end;">
           <button class="btn btn-secondary" onclick="goWiz(3)">← Back</button>
-          <button class="btn btn-primary" onclick="confirmBooking()" id="btnConfirm">✓ Confirm Booking</button>
+          <button class="btn btn-primary" id="btnConfirm" onclick="confirmBooking()">✓ Confirm Booking</button>
         </div>
       </div>
     </div>
 
-    <!-- MY BOOKINGS -->
-    <div class="page" id="page-mybookings">
-      <div class="sec-hdr">
-        <div class="sec-title">My <span>Bookings</span></div>
-        <button class="btn btn-primary" onclick="goPage('book')">＋ New</button>
-      </div>
-      <div style="display:flex;gap:10px;margin-bottom:18px;">
-        <select class="form-select" style="width:auto" id="mybkFilter" onchange="renderMyBookings()">
-          <option value="all">All</option>
+    <!-- ══ USER: MY BOOKINGS ══ -->
+    <div class="page" id="pg-mybookings">
+      <div class="shdr"><div class="stitle">My <span>Bookings</span></div><button class="btn btn-primary" onclick="goPage('book')">＋ New</button></div>
+      <div style="display:flex;gap:9px;margin-bottom:16px;">
+        <select class="fs" style="width:auto" id="mybkF" onchange="renderMyBk()">
+          <option value="all">All Bookings</option>
           <option value="upcoming">Upcoming</option>
           <option value="past">Past</option>
           <option value="cancelled">Cancelled</option>
@@ -509,22 +514,22 @@ input[type="date"]{color-scheme:dark;}
       <div id="mybkList"></div>
     </div>
 
-    <!-- CHECK-IN -->
-    <div class="page" id="page-checkin">
-      <div class="sec-hdr"><div class="sec-title">Session <span>Check-In</span></div></div>
-      <div class="ci-card">
-        <div class="ci-icon">📷</div>
-        <div class="ci-title">Confirm Your Arrival</div>
-        <div class="ci-sub">Enter your Booking ID or scan the QR code from your confirmation to mark yourself as present.</div>
-        <div style="display:flex;gap:8px;margin-bottom:10px;">
-          <input type="text" class="form-input" id="ciCode" placeholder="e.g. BK-2025-1234" onkeyup="if(event.key==='Enter')doCheckin()">
-          <button class="btn btn-primary" onclick="doCheckin()">→</button>
+    <!-- ══ CHECK-IN ══ -->
+    <div class="page" id="pg-checkin">
+      <div class="shdr"><div class="stitle">Session <span>Check-In</span></div></div>
+      <div class="cic">
+        <div style="font-size:52px;margin-bottom:14px;">📷</div>
+        <div style="font-family:var(--fd);font-size:20px;font-weight:700;margin-bottom:6px;">Confirm Your Arrival</div>
+        <div style="color:var(--text2);font-size:12px;margin-bottom:18px;line-height:1.6;">Enter your Booking ID or scan the QR code from your confirmation email to mark yourself as present.</div>
+        <div style="display:flex;gap:8px;margin-bottom:9px;">
+          <input type="text" class="fi" id="ciCode" placeholder="BK-2025-XXXX" onkeyup="if(event.key==='Enter')doCI()">
+          <button class="btn btn-primary" onclick="doCI()">→</button>
         </div>
-        <div id="ciResult"></div>
-        <div style="border-top:1px solid var(--border);margin-top:24px;padding-top:20px;">
-          <div style="font-size:12px;color:var(--text2);margin-bottom:10px;">Or look up today's bookings by email:</div>
+        <div id="ciRes"></div>
+        <div style="border-top:1px solid var(--border);margin-top:22px;padding-top:18px;">
+          <div style="font-size:12px;color:var(--text2);margin-bottom:9px;">Look up by email:</div>
           <div style="display:flex;gap:8px;">
-            <input type="email" class="form-input" id="ciEmail" placeholder="your@email.sg">
+            <input type="email" class="fi" id="ciEmail" placeholder="your@email.sg">
             <button class="btn btn-secondary" onclick="ciLookup()">Look Up</button>
           </div>
           <div id="ciLookup"></div>
@@ -532,405 +537,369 @@ input[type="date"]{color-scheme:dark;}
       </div>
     </div>
 
-    <!-- ADMIN -->
-    <div class="page" id="page-admin">
-      <div class="sec-hdr"><div class="sec-title">Admin <span>Console</span></div></div>
-      <div style="display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap;">
-        <button class="btn btn-primary btn-sm" id="at-overview" onclick="adminTab('overview')">Overview</button>
-        <button class="btn btn-secondary btn-sm" id="at-users" onclick="adminTab('users')">Whitelist & Credits</button>
-        <button class="btn btn-secondary btn-sm" id="at-equipment" onclick="adminTab('equipment')">Equipment</button>
-        <button class="btn btn-secondary btn-sm" id="at-staff" onclick="adminTab('staff')">Staff</button>
-        <button class="btn btn-secondary btn-sm" id="at-bookings" onclick="adminTab('bookings')">All Bookings</button>
-        <button class="btn btn-secondary btn-sm" id="at-disable" onclick="adminTab('disable')">Disable / Maintenance</button>
+    <!-- ══ ADMIN: DASHBOARD ══ -->
+    <div class="page" id="pg-admin-dash">
+      <div class="shdr"><div class="stitle">Admin <span>Overview</span></div></div>
+      <div class="g4 mb22">
+        <div class="sc" style="--sc-c:var(--accent)"><div class="sc-icon">👥</div><div class="sc-lbl">Whitelisted Users</div><div class="sc-val" id="asu">—</div></div>
+        <div class="sc" style="--sc-c:var(--accent2)"><div class="sc-icon">📅</div><div class="sc-lbl">Bookings Today</div><div class="sc-val" id="asbk">—</div></div>
+        <div class="sc" style="--sc-c:var(--success)"><div class="sc-icon">✓</div><div class="sc-lbl">Check-Ins Today</div><div class="sc-val" id="ascii">—</div></div>
+        <div class="sc" style="--sc-c:var(--warning)"><div class="sc-icon">⬡</div><div class="sc-lbl">Credit Groups</div><div class="sc-val" id="asgrp">—</div></div>
       </div>
-
-      <div id="atab-overview">
-        <div class="grid-4 mb24">
-          <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-lbl">Whitelisted Users</div><div class="stat-val" id="asu">—</div></div>
-          <div class="stat-card"><div class="stat-icon">⬡</div><div class="stat-lbl">Pool Credits</div><div class="stat-val text-accent" id="aspool">—</div></div>
-          <div class="stat-card"><div class="stat-icon">📅</div><div class="stat-lbl">Bookings Today</div><div class="stat-val" id="asbk">—</div></div>
-          <div class="stat-card"><div class="stat-icon">✓</div><div class="stat-lbl">Check-Ins Today</div><div class="stat-val" id="ascii">—</div></div>
+      <!-- Upcoming bookings by others -->
+      <div class="g2">
+        <div>
+          <div class="flexb mb16"><div class="ffd" style="font-weight:700;">Upcoming Bookings</div>
+            <select class="fs" style="width:auto;font-size:11px;" id="adminUpFilter" onchange="renderAdminUpcoming()">
+              <option value="all">All Equipment</option>
+              <option value="T14">T14 Only</option>
+              <option value="T11C01">T11C01 Only</option>
+            </select>
+          </div>
+          <div id="adminUpcoming"></div>
         </div>
-        <div style="font-family:var(--fd);font-weight:700;margin-bottom:14px;">Today's Schedule</div>
-        <div id="adminTodayList"></div>
+        <div>
+          <div class="flexb mb16"><div class="ffd" style="font-weight:700;">Today's Schedule</div></div>
+          <div id="adminToday"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ ADMIN: USERS ══ -->
+    <div class="page" id="pg-admin-users">
+      <div class="shdr">
+        <div class="stitle">Whitelist & <span>Credits</span></div>
+        <div class="flex">
+          <label class="btn btn-secondary btn-sm" style="cursor:pointer;">📄 Import CSV <input type="file" accept=".csv" onchange="adminCSV(event)" style="display:none"></label>
+          <button class="btn btn-primary btn-sm" onclick="openMo('addUsrMo')">＋ Add User</button>
+        </div>
       </div>
 
-      <div id="atab-users" class="hidden">
-        <div class="flex-b mb16">
-          <div style="font-family:var(--fd);font-weight:700;">Whitelist Management</div>
-          <div style="display:flex;gap:8px;">
-            <label class="btn btn-secondary btn-sm" style="cursor:pointer;">
-              📄 Import CSV <input type="file" accept=".csv" onchange="adminImportCSV(event)" style="display:none">
-            </label>
-            <button class="btn btn-primary btn-sm" onclick="openModal('addUserMo')">＋ Add User</button>
+      <!-- Credit Groups -->
+      <div class="card mb22">
+        <div class="flexb mb16">
+          <div class="ffd" style="font-weight:700;font-size:14px;">Credit Groups</div>
+          <button class="btn btn-primary btn-sm" onclick="openMo('addGrpMo')">＋ New Group</button>
+        </div>
+        <div id="grpList"></div>
+      </div>
+
+      <!-- Users Table -->
+      <div class="card">
+        <div class="flexb mb16">
+          <div class="ffd" style="font-weight:700;font-size:14px;">Whitelisted Users</div>
+          <div class="flex">
+            <select class="fs" style="width:auto;font-size:11px;" id="usrGrpFilter" onchange="renderAdminUsers()">
+              <option value="all">All Groups</option>
+            </select>
+            <select class="fs" style="width:auto;font-size:11px;" id="usrStatusFilter" onchange="renderAdminUsers()">
+              <option value="all">All Status</option>
+              <option value="active">Active</option>
+              <option value="disabled">Disabled</option>
+            </select>
           </div>
         </div>
-        <div style="margin-bottom:14px;" class="flex-b">
-          <div style="font-size:12px;color:var(--text2);">CSV format: <code style="color:var(--accent)">email,name,role</code> (role: student/staff/external/admin)</div>
-          <div>
-            <label class="form-label" style="display:inline;margin-right:8px;">Pool Credits:</label>
-            <input type="number" id="poolCreditsInput" style="width:80px;display:inline-block;" class="form-input" min="0" onchange="updatePoolCredits()">
-            <span style="font-size:11px;color:var(--text2);margin-left:6px;">total shared</span>
-          </div>
+        <!-- Bulk actions -->
+        <div class="flex mb16" id="bulkActions" style="display:none!important;">
+          <span class="fsm t2" id="bulkCount">0 selected</span>
+          <button class="btn btn-warning btn-sm" onclick="bulkDisable()">Disable Selected</button>
+          <button class="btn btn-danger btn-sm" onclick="bulkDelete()">Delete Selected</button>
         </div>
-        <div class="card"><div id="adminUsersTable"></div></div>
+        <div id="usrTable"></div>
       </div>
+    </div>
 
-      <div id="atab-equipment" class="hidden">
-        <div class="flex-b mb16">
-          <div style="font-family:var(--fd);font-weight:700;">Equipment & Machines</div>
-          <button class="btn btn-primary btn-sm" onclick="openModal('addEquipMo')">＋ Add Equipment</button>
-        </div>
-        <div class="card"><div id="adminEquipTable"></div></div>
+    <!-- ══ ADMIN: EQUIPMENT ══ -->
+    <div class="page" id="pg-admin-equip">
+      <div class="shdr">
+        <div class="stitle">Equipment <span>Management</span></div>
+        <button class="btn btn-primary btn-sm" onclick="openMo('addEqMo')">＋ Add Equipment</button>
       </div>
+      <div class="card"><div id="eqTable"></div></div>
+    </div>
 
-      <div id="atab-staff" class="hidden">
-        <div class="flex-b mb16">
-          <div style="font-family:var(--fd);font-weight:700;">Consultancy Staff</div>
-          <button class="btn btn-primary btn-sm" onclick="openModal('addStaffMo')">＋ Add Staff</button>
-        </div>
-        <div class="card"><div id="adminStaffTable"></div></div>
+    <!-- ══ ADMIN: BOOKINGS ══ -->
+    <div class="page" id="pg-admin-bookings">
+      <div class="shdr"><div class="stitle">All <span>Bookings</span></div></div>
+      <div style="display:flex;gap:9px;margin-bottom:16px;flex-wrap:wrap;">
+        <select class="fs" style="width:auto" id="abkStatus" onchange="renderAdminBk()"><option value="all">All Status</option><option value="confirmed">Confirmed</option><option value="checked-in">Checked In</option><option value="cancelled">Cancelled</option></select>
+        <select class="fs" style="width:auto" id="abkLoc" onchange="renderAdminBk()"><option value="all">All Locations</option><option value="T14">T14</option><option value="T11C01">T11C01</option></select>
+        <input type="date" class="fi" id="abkDate" style="width:auto" onchange="renderAdminBk()">
       </div>
+      <div class="card"><div id="abkTable"></div></div>
+    </div>
 
-      <div id="atab-bookings" class="hidden">
-        <div class="flex-b mb16">
-          <div style="font-family:var(--fd);font-weight:700;">All Bookings</div>
-          <select class="form-select" style="width:auto" id="adminBkFilter" onchange="renderAdminBookings()">
-            <option value="all">All Status</option>
-            <option value="confirmed">Confirmed</option>
-            <option value="checked-in">Checked In</option>
-            <option value="cancelled">Cancelled</option>
-          </select>
+    <!-- ══ ADMIN: DISABLE ══ -->
+    <div class="page" id="pg-admin-disable">
+      <div class="shdr"><div class="stitle">Disable / <span>Maintenance</span></div></div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:20px;">Disable locations or individual equipment. Affects new bookings only — existing bookings are preserved.</div>
+      <div class="g2 mb22">
+        <div>
+          <div class="ffd mb16" style="font-weight:700;font-size:14px;">By Location</div>
+          <div id="disLocList"></div>
         </div>
-        <div class="card"><div id="adminBkTable"></div></div>
-      </div>
-
-      <div id="atab-disable" class="hidden">
-        <div style="font-family:var(--fd);font-weight:700;margin-bottom:6px;">Disable Bookings — Maintenance / Events</div>
-        <div style="font-size:12px;color:var(--text2);margin-bottom:18px;">Disable individual equipment or an entire location. Affects new bookings only — existing bookings are NOT cancelled.</div>
-        <div class="grid-2">
-          <div>
-            <div style="font-family:var(--fd);font-weight:600;margin-bottom:12px;font-size:14px;">By Location</div>
-            <div id="disableLocList"></div>
-          </div>
-          <div>
-            <div style="font-family:var(--fd);font-weight:600;margin-bottom:12px;font-size:14px;">By Individual Equipment</div>
-            <div id="disableEquipList"></div>
-          </div>
-        </div>
-        <div style="margin-top:24px;">
-          <div style="font-family:var(--fd);font-weight:600;margin-bottom:12px;font-size:14px;">Schedule Disable Period</div>
-          <div class="card">
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">Start Date</label>
-                <input type="date" class="form-input" id="disStart">
-              </div>
-              <div class="form-group">
-                <label class="form-label">End Date</label>
-                <input type="date" class="form-input" id="disEnd">
-              </div>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Affected (select)</label>
-              <select class="form-select" id="disTarget">
-                <option value="all">All Locations</option>
-                <option value="T14">T14 — 3D Printing Lab</option>
-                <option value="T11C01">T11C01 — Laser Lab</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Reason</label>
-              <input type="text" class="form-input" id="disReason" placeholder="e.g. Annual maintenance, MakerConnect event...">
-            </div>
-            <button class="btn btn-warning" onclick="scheduleDisable()">Schedule Disable Period</button>
-          </div>
-        </div>
-        <div style="margin-top:20px;">
-          <div style="font-family:var(--fd);font-weight:600;margin-bottom:12px;font-size:14px;">Active Disable Periods</div>
-          <div id="disablePeriodList"></div>
+        <div>
+          <div class="ffd mb16" style="font-weight:700;font-size:14px;">By Equipment</div>
+          <div id="disEqList"></div>
         </div>
       </div>
+      <div class="card mb22">
+        <div class="ffd mb16" style="font-weight:700;font-size:14px;">Schedule Disable Period</div>
+        <div class="frow">
+          <div class="fg"><label class="fl">Start Date</label><input type="date" class="fi" id="disStart"></div>
+          <div class="fg"><label class="fl">End Date</label><input type="date" class="fi" id="disEnd"></div>
+        </div>
+        <div class="fg"><label class="fl">Affects</label>
+          <select class="fs" id="disTgt"><option value="all">All Locations</option><option value="T14">T14 — 3D Printing Lab</option><option value="T11C01">T11C01 — Laser Lab</option></select>
+        </div>
+        <div class="fg"><label class="fl">Reason</label><input type="text" class="fi" id="disReason" placeholder="e.g. Annual maintenance, MakerConnect 2026..."></div>
+        <button class="btn btn-warning" onclick="scheduleDisable()">Schedule Disable Period</button>
+      </div>
+      <div class="ffd mb16" style="font-weight:700;font-size:14px;">Scheduled Periods</div>
+      <div id="disPeriods"></div>
+    </div>
 
-    </div><!-- /main -->
-  </div>
+    <!-- ══ ADMIN: STAFF ══ -->
+    <div class="page" id="pg-admin-staff">
+      <div class="shdr">
+        <div class="stitle">Consultancy <span>Staff</span></div>
+        <button class="btn btn-primary btn-sm" onclick="openMo('addStMo')">＋ Add Staff</button>
+      </div>
+      <div class="card"><div id="stTable"></div></div>
+    </div>
+
+  </div><!-- /main -->
 </div><!-- /mainApp -->
 
-<!-- QR MODAL -->
-<div class="modal-ov" id="qrModal">
-  <div class="modal" style="max-width:360px;text-align:center;">
-    <div class="modal-hdr">
-      <div class="modal-title">✓ Booking Confirmed</div>
-      <button class="modal-close" onclick="closeModal('qrModal')">✕</button>
-    </div>
-    <div class="qr-wrap">
-      <div class="qr-box" id="qrBox"></div>
-      <div style="font-size:11px;color:var(--text2);margin-bottom:4px;">Scan this QR code at check-in to confirm your presence</div>
-      <div style="font-size:14px;color:var(--accent);font-weight:600;" id="qrBkId"></div>
-    </div>
-    <div style="font-size:11px;color:var(--text2);margin:12px 0;">Screenshot this QR code. You can also access it from My Bookings.</div>
-    <button class="btn btn-primary" style="width:100%" onclick="closeModal('qrModal');goPage('mybookings')">View My Bookings →</button>
-  </div>
-</div>
+<!-- ══ MODALS ══ -->
 
-<!-- ADD USER MODAL -->
-<div class="modal-ov" id="addUserMo">
-  <div class="modal">
-    <div class="modal-hdr"><div class="modal-title">Add to Whitelist</div><button class="modal-close" onclick="closeModal('addUserMo')">✕</button></div>
-    <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="nuEmail" placeholder="student@edu.sg"></div>
-    <div class="form-group"><label class="form-label">Name</label><input type="text" class="form-input" id="nuName" placeholder="Full Name"></div>
-    <div class="form-group"><label class="form-label">Role</label>
-      <select class="form-select" id="nuRole"><option value="student">Student</option><option value="staff">Staff</option><option value="external">External</option><option value="admin">Admin</option></select>
-    </div>
-    <button class="btn btn-primary" style="width:100%" onclick="addUser()">Add to Whitelist</button>
+<!-- QR -->
+<div class="mov" id="qrMo"><div class="mo" style="max-width:340px;text-align:center;">
+  <div class="mohdr"><div class="motitle">✓ Booking Confirmed</div><button class="mox" onclick="closeMo('qrMo')">✕</button></div>
+  <div class="qr-wrap"><div class="qr-box" id="qrBox"></div>
+    <div class="fsm t2" style="margin-bottom:4px;">Show this QR code at check-in</div>
+    <div style="font-size:14px;color:var(--accent);font-weight:600;" id="qrId"></div>
   </div>
-</div>
+  <div style="font-size:11px;color:var(--text2);margin:10px 0;">Screenshot this or access it anytime from My Bookings.</div>
+  <button class="btn btn-primary" style="width:100%" onclick="closeMo('qrMo');goPage('mybookings')">View My Bookings →</button>
+</div></div>
 
-<!-- ADD EQUIPMENT MODAL -->
-<div class="modal-ov" id="addEquipMo">
-  <div class="modal">
-    <div class="modal-hdr"><div class="modal-title" id="equipMoTitle">Add Equipment</div><button class="modal-close" onclick="closeModal('addEquipMo')">✕</button></div>
-    <div class="form-group"><label class="form-label">Name</label><input type="text" class="form-input" id="neqName" placeholder="e.g. Bambu Lab X1C #01"></div>
-    <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" id="neqDesc" placeholder="Brief description"></textarea></div>
-    <div class="form-row">
-      <div class="form-group"><label class="form-label">Location</label>
-        <select class="form-select" id="neqLoc">
-          <option value="T14">T14 — 3D Printing Lab</option>
-          <option value="T11C01">T11C01 — Laser Lab</option>
-        </select>
-      </div>
-      <div class="form-group"><label class="form-label">Credits / Hour</label><input type="number" class="form-input" id="neqCredits" value="1" min="0.5" step="0.5"></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label class="form-label">Icon (emoji)</label><input type="text" class="form-input" id="neqIcon" placeholder="🖨" maxlength="4"></div>
-      <div class="form-group"><label class="form-label">Category</label>
-        <select class="form-select" id="neqCat">
-          <option value="3dprinting">3D Printing</option>
-          <option value="laser">Laser Cutting</option>
-          <option value="other">Other</option>
-        </select>
-      </div>
-    </div>
-    <input type="hidden" id="neqId">
-    <button class="btn btn-primary" style="width:100%;margin-top:6px;" onclick="saveEquip()">Save</button>
-  </div>
-</div>
+<!-- Booking Detail -->
+<div class="mov" id="bkDMo"><div class="mo">
+  <div class="mohdr"><div class="motitle">Booking Details</div><button class="mox" onclick="closeMo('bkDMo')">✕</button></div>
+  <div id="bkDContent"></div>
+</div></div>
 
-<!-- ADD STAFF MODAL -->
-<div class="modal-ov" id="addStaffMo">
-  <div class="modal">
-    <div class="modal-hdr"><div class="modal-title">Add Consultancy Staff</div><button class="modal-close" onclick="closeModal('addStaffMo')">✕</button></div>
-    <div class="form-row">
-      <div class="form-group"><label class="form-label">Name</label><input type="text" class="form-input" id="nstName" placeholder="Staff Name"></div>
-      <div class="form-group"><label class="form-label">Title / Role</label><input type="text" class="form-input" id="nstRole" placeholder="e.g. Fabrication Specialist"></div>
-    </div>
-    <div class="form-group"><label class="form-label">Email (for notifications)</label><input type="email" class="form-input" id="nstEmail" placeholder="staff@sp.edu.sg"></div>
-    <div class="form-group"><label class="form-label">Expertise (comma-separated)</label><input type="text" class="form-input" id="nstExp" placeholder="Laser Cutting, 3D Printing, Arduino"></div>
-    <div class="form-row">
-      <div class="form-group"><label class="form-label">Credits/hr (0 = free)</label><input type="number" class="form-input" id="nstCredits" value="0" min="0" step="0.5"></div>
-      <div class="form-group"><label class="form-label">Available Days</label><input type="text" class="form-input" id="nstDays" placeholder="Mon-Fri"></div>
-    </div>
-    <button class="btn btn-primary" style="width:100%;margin-top:6px;" onclick="saveStaff()">Add Staff</button>
+<!-- Add User -->
+<div class="mov" id="addUsrMo"><div class="mo">
+  <div class="mohdr"><div class="motitle">Add to Whitelist</div><button class="mox" onclick="closeMo('addUsrMo')">✕</button></div>
+  <div class="fg"><label class="fl">Email</label><input type="email" class="fi" id="nuEmail" placeholder="student@edu.sg"></div>
+  <div class="fg"><label class="fl">Name</label><input type="text" class="fi" id="nuName" placeholder="Full Name"></div>
+  <div class="frow">
+    <div class="fg"><label class="fl">Role</label><select class="fs" id="nuRole"><option value="student">Student</option><option value="staff">Staff</option><option value="external">External</option><option value="admin">Admin</option></select></div>
+    <div class="fg"><label class="fl">Credit Group</label><select class="fs" id="nuGrp"></select></div>
   </div>
-</div>
+  <button class="btn btn-primary" style="width:100%" onclick="addUser()">Add to Whitelist</button>
+</div></div>
 
-<!-- BOOKING DETAIL MODAL -->
-<div class="modal-ov" id="bkDetailMo">
-  <div class="modal">
-    <div class="modal-hdr"><div class="modal-title">Booking Details</div><button class="modal-close" onclick="closeModal('bkDetailMo')">✕</button></div>
-    <div id="bkDetailContent"></div>
+<!-- Add Group -->
+<div class="mov" id="addGrpMo"><div class="mo" style="max-width:380px;">
+  <div class="mohdr"><div class="motitle" id="grpMoTitle">New Credit Group</div><button class="mox" onclick="closeMo('addGrpMo')">✕</button></div>
+  <div class="fg"><label class="fl">Group Name</label><input type="text" class="fi" id="ngName" placeholder="e.g. Year 1 Students, External Users"></div>
+  <div class="fg"><label class="fl">Initial Pool Credits</label><input type="number" class="fi" id="ngCredits" value="100" min="0"></div>
+  <div class="fg"><label class="fl">Description (optional)</label><input type="text" class="fi" id="ngDesc" placeholder="Brief description"></div>
+  <input type="hidden" id="ngId">
+  <button class="btn btn-primary" style="width:100%" onclick="saveGroup()">Save Group</button>
+</div></div>
+
+<!-- Edit Credits -->
+<div class="mov" id="editCrMo"><div class="mo" style="max-width:360px;">
+  <div class="mohdr"><div class="motitle">Edit Group Credits</div><button class="mox" onclick="closeMo('editCrMo')">✕</button></div>
+  <div style="margin-bottom:13px;font-size:12px;color:var(--text2);" id="crGrpInfo"></div>
+  <div class="frow">
+    <div class="fg"><label class="fl">Action</label><select class="fs" id="crAction"><option value="set">Set to</option><option value="add">Add</option><option value="subtract">Subtract</option></select></div>
+    <div class="fg"><label class="fl">Amount</label><input type="number" class="fi" id="crAmt" value="10" min="0"></div>
   </div>
-</div>
+  <div class="fg"><label class="fl">Reason (optional)</label><input type="text" class="fi" id="crReason" placeholder="Top-up, adjustment..."></div>
+  <input type="hidden" id="crGrpId">
+  <button class="btn btn-primary" style="width:100%" onclick="applyCredits()">Apply</button>
+</div></div>
+
+<!-- Add Equipment -->
+<div class="mov" id="addEqMo"><div class="mo">
+  <div class="mohdr"><div class="motitle" id="eqMoTitle">Add Equipment</div><button class="mox" onclick="closeMo('addEqMo')">✕</button></div>
+  <div class="fg"><label class="fl">Name</label><input type="text" class="fi" id="neqName" placeholder="e.g. Bambu Lab X1C #01"></div>
+  <div class="fg"><label class="fl">Description</label><textarea class="fta" id="neqDesc" placeholder="Brief description"></textarea></div>
+  <div class="frow">
+    <div class="fg"><label class="fl">Location</label><select class="fs" id="neqLoc"><option value="T14">T14 — 3D Printing</option><option value="T11C01">T11C01 — Laser Lab</option></select></div>
+    <div class="fg"><label class="fl">Credits/hr</label><input type="number" class="fi" id="neqCr" value="1" min="0.5" step="0.5"></div>
+  </div>
+  <div class="frow">
+    <div class="fg"><label class="fl">Icon (emoji)</label><input type="text" class="fi" id="neqIcon" placeholder="🖨" maxlength="4"></div>
+    <div class="fg"><label class="fl">Category</label><select class="fs" id="neqCat"><option value="3dprinting">3D Printing</option><option value="laser">Laser Cutting</option><option value="other">Other</option></select></div>
+  </div>
+  <input type="hidden" id="neqId">
+  <button class="btn btn-primary" style="width:100%;margin-top:6px;" onclick="saveEquip()">Save</button>
+</div></div>
+
+<!-- Add Staff -->
+<div class="mov" id="addStMo"><div class="mo">
+  <div class="mohdr"><div class="motitle">Add Staff</div><button class="mox" onclick="closeMo('addStMo')">✕</button></div>
+  <div class="frow">
+    <div class="fg"><label class="fl">Name</label><input type="text" class="fi" id="nstName" placeholder="Staff Name"></div>
+    <div class="fg"><label class="fl">Title</label><input type="text" class="fi" id="nstRole" placeholder="Fabrication Specialist"></div>
+  </div>
+  <div class="fg"><label class="fl">Email (for notifications)</label><input type="email" class="fi" id="nstEmail" placeholder="staff@sp.edu.sg"></div>
+  <div class="fg"><label class="fl">Expertise (comma-separated)</label><input type="text" class="fi" id="nstExp" placeholder="Laser Cutting, 3D Printing, Arduino"></div>
+  <div class="frow">
+    <div class="fg"><label class="fl">Credits/hr (0 = free)</label><input type="number" class="fi" id="nstCr" value="0" min="0" step="0.5"></div>
+    <div class="fg"><label class="fl">Available Days</label><input type="text" class="fi" id="nstDays" placeholder="Mon-Fri"></div>
+  </div>
+  <button class="btn btn-primary" style="width:100%;margin-top:6px;" onclick="saveStaff()">Add Staff</button>
+</div></div>
 
 <script>
 // ═══════════════════════════════════════════════════════
-// DATA STRUCTURES
+// CONFIG & STATE
 // ═══════════════════════════════════════════════════════
 let CFG = { sheetId:'', apiKey:'', gasUrl:'', admins:[], sysName:'FabLab', demoMode:false };
 
 let S = {
-  user: null,
-  users: [],
-  equipment: [],
-  staff: [],
-  bookings: [],
-  poolCredits: 100,
-  disabledPeriods: [],      // {id, start, end, target, reason}
-  disabledEquip: new Set(), // equipment IDs manually disabled
-  disabledLocs: new Set(),  // location IDs disabled
-
-  // wizard
-  bookType: 'equipment',
-  selResource: null,
-  selDate: null,
-  selTime: null,
-  duration: 1,
-  calYear: null,
-  calMonth: null,
+  user:null, users:[], equipment:[], staff:[], bookings:[], groups:[],
+  disabledEquip:new Set(), disabledLocs:new Set(), disabledPeriods:[],
+  bookType:'equipment', selRes:null, selDate:null, selTime:null, duration:1,
+  calYear:null, calMonth:null, _activeLoc:'T14',
+  selectedUsers: new Set(),
 };
 
-// ─── SG PUBLIC HOLIDAYS (2024-2025) ───────────────────
-// We hardcode a generous set and also fetch current year from API
-const SG_PH_STATIC = new Set([
-  // 2024
-  '2024-01-01','2024-02-10','2024-02-11','2024-02-12',
-  '2024-03-29','2024-04-10','2024-05-01','2024-05-23',
-  '2024-06-17','2024-08-09','2024-10-31','2024-12-25',
-  // 2025
-  '2025-01-01','2025-01-29','2025-01-30','2025-03-31',
-  '2025-04-18','2025-05-01','2025-05-12','2025-06-07',
-  '2025-08-09','2025-10-20','2025-10-21','2025-12-25',
-  // 2026
-  '2026-01-01','2026-01-17','2026-01-18','2026-02-27',
-  '2026-03-21','2026-04-03','2026-05-01','2026-05-24',
-  '2026-07-14','2026-08-09','2026-11-09','2026-12-25',
+// SG Public Holidays 2024-2026
+const SG_PH = new Set([
+  '2024-01-01','2024-02-10','2024-02-11','2024-02-12','2024-03-29','2024-04-10',
+  '2024-05-01','2024-05-23','2024-06-17','2024-08-09','2024-10-31','2024-12-25',
+  '2025-01-01','2025-01-29','2025-01-30','2025-03-31','2025-04-18','2025-05-01',
+  '2025-05-12','2025-06-07','2025-08-09','2025-10-20','2025-10-21','2025-12-25',
+  '2026-01-01','2026-01-17','2026-01-18','2026-02-27','2026-03-21','2026-04-03',
+  '2026-05-01','2026-05-24','2026-07-14','2026-08-09','2026-11-09','2026-12-25',
 ]);
 
-function isSGHoliday(dateStr) { return SG_PH_STATIC.has(dateStr); }
-function isWeekend(dateStr) { const d = new Date(dateStr + 'T00:00'); return d.getDay() === 0 || d.getDay() === 6; }
-function isBookableDate(dateStr) {
-  if (isWeekend(dateStr)) return false;
-  if (isSGHoliday(dateStr)) return false;
-  if (dateStr < todayStr()) return false;
-  // Check disable periods
-  for (const dp of S.disabledPeriods) {
-    if (dp.target === 'all' && dateStr >= dp.start && dateStr <= dp.end) return false;
-  }
-  return true;
-}
-
 // ─── DEMO DATA ─────────────────────────────────────────
+const DEMO_GROUPS = [
+  { id:'G1', name:'Year 1 Students', credits:150, desc:'SP first-year students' },
+  { id:'G2', name:'Year 2 Students', credits:80,  desc:'SP second-year students' },
+  { id:'G3', name:'External / Industry', credits:40, desc:'Industry partners' },
+];
 const DEMO_USERS = [
-  { email:'admin@fablab.sg', name:'Lab Admin', role:'admin', active:true },
-  { email:'alex@sp.edu.sg',  name:'Alex Tan',  role:'student', active:true },
-  { email:'jane@sp.edu.sg',  name:'Jane Lim',  role:'student', active:true },
-  { email:'bob@company.sg',  name:'Bob Chen',  role:'external', active:true },
+  { id:'U001', email:'admin@fablab.sg',  name:'Lab Admin',  role:'admin',    group:'G1', active:true },
+  { id:'U002', email:'alex@sp.edu.sg',   name:'Alex Tan',   role:'student',  group:'G1', active:true },
+  { id:'U003', email:'jane@sp.edu.sg',   name:'Jane Lim',   role:'student',  group:'G2', active:true },
+  { id:'U004', email:'bob@company.sg',   name:'Bob Chen',   role:'external', group:'G3', active:true },
 ];
-
 const DEMO_EQUIPMENT = [
-  // T14 — 3D Printing
-  ...[...Array(13)].map((_,i)=>({ id:`BX${i+1}`, name:`Bambu Lab X1C #${String(i+1).padStart(2,'0')}`, desc:'High-speed multi-material FDM, 256×256×256mm', loc:'T14', cat:'3dprinting', icon:'🖨', creditsPerHour:1, active:true })),
-  ...[...Array(10)].map((_,i)=>({ id:`BA${i+1}`, name:`Bambu A1 #${String(i+1).padStart(2,'0')}`, desc:'Large format FDM, 256×256×256mm', loc:'T14', cat:'3dprinting', icon:'🖨', creditsPerHour:1, active:true })),
-  ...[...Array(3)].map((_,i)=>({ id:`PM4${i+1}`, name:`Prusa MK4 #${String(i+1).padStart(2,'0')}`, desc:'Reliable open-source FDM, 250×210×220mm', loc:'T14', cat:'3dprinting', icon:'🖨', creditsPerHour:1, active:true })),
-  ...[...Array(3)].map((_,i)=>({ id:`PM35${i+1}`, name:`Prusa MK3.5 #${String(i+1).padStart(2,'0')}`, desc:'Versatile open-source FDM, 250×210×210mm', loc:'T14', cat:'3dprinting', icon:'🖨', creditsPerHour:1, active:true })),
-  // T11C01 — Laser
-  { id:'EPI01', name:'Epilog Fusion Pro', desc:'Top-spec CO₂+fiber laser, up to 812×508mm', loc:'T11C01', cat:'laser', icon:'⚡', creditsPerHour:2, active:true },
-  { id:'EPM01', name:'Epilog M2 #01', desc:'CO₂ laser engraver/cutter, up to 610×610mm', loc:'T11C01', cat:'laser', icon:'⚡', creditsPerHour:2, active:true },
-  { id:'EPM02', name:'Epilog M2 #02', desc:'CO₂ laser engraver/cutter, up to 610×610mm', loc:'T11C01', cat:'laser', icon:'⚡', creditsPerHour:2, active:true },
+  ...[...Array(13)].map((_,i)=>({id:`BX${i+1}`,name:`Bambu Lab X1C #${String(i+1).padStart(2,'0')}`,desc:'High-speed multi-material FDM',loc:'T14',cat:'3dprinting',icon:'🖨',creditsPerHour:1,active:true})),
+  ...[...Array(10)].map((_,i)=>({id:`BA${i+1}`,name:`Bambu A1 #${String(i+1).padStart(2,'0')}`,desc:'Large format FDM',loc:'T14',cat:'3dprinting',icon:'🖨',creditsPerHour:1,active:true})),
+  ...[...Array(3)].map((_,i)=>({id:`PM4${i+1}`,name:`Prusa MK4 #${String(i+1).padStart(2,'0')}`,desc:'Open-source FDM',loc:'T14',cat:'3dprinting',icon:'🖨',creditsPerHour:1,active:true})),
+  ...[...Array(3)].map((_,i)=>({id:`PM35${i+1}`,name:`Prusa MK3.5 #${String(i+1).padStart(2,'0')}`,desc:'Versatile FDM',loc:'T14',cat:'3dprinting',icon:'🖨',creditsPerHour:1,active:true})),
+  {id:'EPI01',name:'Epilog Fusion Pro',desc:'CO₂+fiber laser, 812×508mm',loc:'T11C01',cat:'laser',icon:'⚡',creditsPerHour:2,active:true},
+  {id:'EPM01',name:'Epilog M2 #01',desc:'CO₂ laser, 610×610mm',loc:'T11C01',cat:'laser',icon:'⚡',creditsPerHour:2,active:true},
+  {id:'EPM02',name:'Epilog M2 #02',desc:'CO₂ laser, 610×610mm',loc:'T11C01',cat:'laser',icon:'⚡',creditsPerHour:2,active:true},
 ];
-
 const DEMO_STAFF = [
-  { id:'S001', name:'Dr. Priya Nair',  role:'Fabrication Lead',          email:'priya@fablab.sg',  expertise:['Laser Cutting','CNC','Digital Fabrication'], creditsPerHour:0, days:'Mon–Thu' },
-  { id:'S002', name:'Marcus Ong',      role:'3D Printing Specialist',     email:'marcus@fablab.sg', expertise:['FDM','SLA','Slicing Software'],               creditsPerHour:0, days:'Mon–Fri' },
-  { id:'S003', name:'Sarah Wijaya',    role:'Electronics & Prototyping',  email:'sarah@fablab.sg',  expertise:['Arduino','micro:bit','PCB Design','IoT'],     creditsPerHour:0, days:'Tue–Fri' },
+  {id:'S001',name:'Dr. Priya Nair',role:'Fabrication Lead',email:'priya@fablab.sg',expertise:['Laser Cutting','CNC','Digital Fabrication'],creditsPerHour:0,days:'Mon–Thu'},
+  {id:'S002',name:'Marcus Ong',role:'3D Printing Specialist',email:'marcus@fablab.sg',expertise:['FDM','SLA','Slicing Software'],creditsPerHour:0,days:'Mon–Fri'},
+  {id:'S003',name:'Sarah Wijaya',role:'Electronics & Prototyping',email:'sarah@fablab.sg',expertise:['Arduino','micro:bit','PCB Design'],creditsPerHour:0,days:'Tue–Fri'},
 ];
-
 let DEMO_BOOKINGS = [];
-let POOL_CREDITS = 200;
 
 // ═══════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════
 window.onload = () => {
-  const saved = localStorage.getItem('fablabCFG');
-  if (saved) { CFG = { ...CFG, ...JSON.parse(saved) }; }
-  const savedPool = localStorage.getItem('fablabPool');
-  if (savedPool) POOL_CREDITS = parseFloat(savedPool);
-  const savedDis = localStorage.getItem('fablabDisabledEquip');
-  if (savedDis) S.disabledEquip = new Set(JSON.parse(savedDis));
-  const savedDisLoc = localStorage.getItem('fablabDisabledLocs');
-  if (savedDisLoc) S.disabledLocs = new Set(JSON.parse(savedDisLoc));
-  const savedDisP = localStorage.getItem('fablabDisPeriods');
-  if (savedDisP) S.disabledPeriods = JSON.parse(savedDisP);
-
-  if (CFG.sheetId || CFG.demoMode) {
-    hide('cfgScreen'); showLogin();
-  }
+  const saved = localStorage.getItem('fablabCFG3');
+  if (saved) CFG = {...CFG,...JSON.parse(saved)};
+  const dis  = localStorage.getItem('fablabDisEq');   if (dis)  S.disabledEquip   = new Set(JSON.parse(dis));
+  const disL = localStorage.getItem('fablabDisLoc');  if (disL) S.disabledLocs    = new Set(JSON.parse(disL));
+  const disP = localStorage.getItem('fablabDisP');    if (disP) S.disabledPeriods = JSON.parse(disP);
+  const theme = localStorage.getItem('fablabTheme') || 'dark';
+  document.documentElement.setAttribute('data-theme', theme);
+  updateThemeBtn();
+  if (CFG.sheetId || CFG.demoMode) { hide('cfgSc'); show('loginSc'); }
 };
 
-function showLogin() { show('loginScreen'); }
-
 function saveConfig() {
-  CFG.sheetId = val('cfg-sid').trim();
-  CFG.apiKey  = val('cfg-key').trim();
-  CFG.gasUrl  = val('cfg-gas').trim();
-  CFG.admins  = val('cfg-admins').split(',').map(e=>e.trim()).filter(Boolean);
-  CFG.sysName = val('cfg-name').trim() || 'FabLab';
-  if (!CFG.sheetId) { toast('Enter your Google Sheet ID','error'); return; }
-  localStorage.setItem('fablabCFG', JSON.stringify(CFG));
-  hide('cfgScreen'); showLogin();
-  toast('Config saved!','success');
+  CFG.sheetId = v('c-sid').trim(); CFG.apiKey = v('c-key').trim();
+  CFG.gasUrl  = v('c-gas').trim(); CFG.sysName = v('c-nm').trim()||'FabLab';
+  CFG.admins  = v('c-adm').split(',').map(e=>e.trim()).filter(Boolean);
+  if (!CFG.sheetId) { toast('Enter Spreadsheet ID','error'); return; }
+  localStorage.setItem('fablabCFG3', JSON.stringify(CFG));
+  hide('cfgSc'); show('loginSc'); toast('Config saved!','success');
+}
+function demoMode() {
+  CFG.demoMode=true; CFG.sysName=v('c-nm').trim()||'FabLab';
+  localStorage.setItem('fablabCFG3', JSON.stringify(CFG));
+  hide('cfgSc'); show('loginSc'); toast('Demo Mode active','info');
+}
+function resetCfg() {
+  localStorage.removeItem('fablabCFG3');
+  CFG={sheetId:'',apiKey:'',gasUrl:'',admins:[],sysName:'FabLab',demoMode:false};
+  hide('loginSc'); show('cfgSc');
 }
 
-function useDemoMode() {
-  CFG.demoMode = true;
-  CFG.sysName  = val('cfg-name').trim() || 'FabLab';
-  localStorage.setItem('fablabCFG', JSON.stringify(CFG));
-  hide('cfgScreen'); showLogin();
-  toast('Demo Mode — data not persisted','info');
+// ─── THEME ─────────────────────────────────────────────
+function toggleTheme() {
+  const cur = document.documentElement.getAttribute('data-theme');
+  const next = cur==='dark'?'light':'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('fablabTheme', next);
+  updateThemeBtn();
 }
-
-function resetConfig() {
-  localStorage.removeItem('fablabCFG');
-  CFG = { sheetId:'', apiKey:'', gasUrl:'', admins:[], sysName:'FabLab', demoMode:false };
-  hide('loginScreen'); show('cfgScreen');
+function updateThemeBtn() {
+  const isDark = document.documentElement.getAttribute('data-theme')==='dark';
+  const icon = isDark ? '☀️' : '🌙';
+  if (el('themeBtn'))  el('themeBtn').textContent  = icon;
+  if (el('themeBtn2')) el('themeBtn2').textContent = icon;
 }
 
 // ═══════════════════════════════════════════════════════
 // AUTH
 // ═══════════════════════════════════════════════════════
 async function doLogin() {
-  const email = val('loginEmail').trim().toLowerCase();
-  if (!email || !email.includes('@')) { toast('Enter a valid email','error'); return; }
+  const email = v('loginEmail').trim().toLowerCase();
+  if (!email||!email.includes('@')) { toast('Enter a valid email','error'); return; }
   await loadAll();
-  const u = S.users.find(u => u.email.toLowerCase() === email && u.active);
-  if (!u) { toast('Email not on whitelist. Contact your admin.','error'); return; }
+  const u = S.users.find(u=>u.email.toLowerCase()===email && u.active);
+  if (!u) { toast('Email not on whitelist or account is disabled. Contact admin.','error'); return; }
   S.user = u;
-  hide('loginScreen');
-  show('mainApp');
+  hide('loginSc'); show('mainApp');
   initApp();
 }
+function doLogout() { S.user=null; hide('mainApp'); show('loginSc'); el('loginEmail').value=''; }
+function goCIOnly() { hide('loginSc'); show('mainApp'); buildNav(null); goPage('checkin'); }
 
-function doLogout() {
-  S.user = null;
-  hide('mainApp'); show('loginScreen');
-  el('loginEmail').value = '';
-}
-
-function goCheckinOnly() {
-  hide('loginScreen'); show('mainApp');
-  goPage('checkin');
-  hide('page-dashboard'); hide('page-book'); hide('page-mybookings');
-  el('page-checkin').classList.add('active');
-}
-
-// ─── CSV WHITELIST UPLOAD ─────────────────────────────
-function loadWhitelistCSV(evt) {
+// ─── CSV UPLOAD ────────────────────────────────────────
+function uploadCSV(evt) { processCSV(evt, false); }
+function adminCSV(evt)  { processCSV(evt, true);  }
+function processCSV(evt, notify) {
   const file = evt.target.files[0]; if (!file) return;
   const reader = new FileReader();
   reader.onload = e => {
     const lines = e.target.result.split('\n').map(l=>l.trim()).filter(Boolean);
-    let added = 0;
+    let added=0;
     for (const line of lines) {
-      if (line.toLowerCase().startsWith('email')) continue; // skip header
-      const [email, name, role] = line.split(',').map(s=>s.trim());
-      if (!email || !email.includes('@')) continue;
+      if (line.toLowerCase().startsWith('email')) continue;
+      const [email,name,role,group] = line.split(',').map(s=>s.trim());
+      if (!email||!email.includes('@')) continue;
+      const entry = {id:'U'+Date.now()+Math.random().toString(36).slice(2,5), email:email.toLowerCase(), name:name||email, role:(role||'student').toLowerCase(), group:group||'', active:true};
       if (CFG.demoMode) {
-        const existing = DEMO_USERS.findIndex(u => u.email.toLowerCase() === email.toLowerCase());
-        const entry = { email: email.toLowerCase(), name: name||email, role: (role||'student').toLowerCase(), active:true };
-        if (existing > -1) DEMO_USERS[existing] = entry; else DEMO_USERS.push(entry);
-        added++;
+        const idx = DEMO_USERS.findIndex(u=>u.email.toLowerCase()===email.toLowerCase());
+        if (idx>-1) DEMO_USERS[idx]=entry; else DEMO_USERS.push(entry);
       }
+      added++;
     }
     S.users = CFG.demoMode ? DEMO_USERS : S.users;
-    toast(`Imported ${added} users from CSV`, 'success');
+    toast(`Imported ${added} users`,'success');
+    if (notify) renderAdminUsers();
   };
   reader.readAsText(file);
-}
-
-function adminImportCSV(evt) {
-  loadWhitelistCSV(evt);
-  setTimeout(() => renderAdminUsers(), 500);
 }
 
 // ═══════════════════════════════════════════════════════
@@ -940,96 +909,117 @@ async function sheetsGet(range) {
   if (CFG.demoMode) return null;
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${CFG.sheetId}/values/${encodeURIComponent(range)}?key=${CFG.apiKey}`;
   const r = await fetch(url);
-  if (!r.ok) throw new Error('Sheets API '+r.status);
-  return (await r.json()).values || [];
+  if (!r.ok) throw new Error('Sheets '+r.status);
+  return (await r.json()).values||[];
 }
-
 async function sheetsWrite(action, data) {
-  if (CFG.demoMode) { applyDemo(action, data); return { success:true }; }
-  if (!CFG.gasUrl) { toast('No Apps Script URL — writes disabled','error'); return null; }
-  const r = await fetch(CFG.gasUrl, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({action,data}) });
+  if (CFG.demoMode) { applyDemo(action,data); return {success:true}; }
+  if (!CFG.gasUrl) { toast('No Apps Script URL configured','error'); return null; }
+  const r = await fetch(CFG.gasUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,data})});
   return await r.json();
 }
-
 function applyDemo(action, data) {
-  if (action === 'addBooking') {
+  if (action==='addBooking') {
     DEMO_BOOKINGS.push(data);
-    if (data.credits > 0) POOL_CREDITS = Math.max(0, POOL_CREDITS - data.credits);
-    localStorage.setItem('fablabPool', POOL_CREDITS);
+    if (data.credits>0) {
+      const grp = DEMO_GROUPS.find(g=>g.id===data.groupId);
+      if (grp) grp.credits = Math.max(0, grp.credits-data.credits);
+    }
   }
-  if (action === 'cancelBooking') {
-    const b = DEMO_BOOKINGS.find(x=>x.id===data.id);
-    if (b) { b.status='cancelled'; if (b.credits>0) { POOL_CREDITS+=b.credits; localStorage.setItem('fablabPool',POOL_CREDITS); } }
+  if (action==='cancelBooking') {
+    const b=DEMO_BOOKINGS.find(x=>x.id===data.id);
+    if (b) {
+      b.status='cancelled';
+      if (b.credits>0) { const g=DEMO_GROUPS.find(g=>g.id===b.groupId); if(g) g.credits+=b.credits; }
+    }
   }
-  if (action === 'checkin') {
-    const b = DEMO_BOOKINGS.find(x=>x.id===data.id);
-    if (b) { b.status='checked-in'; b.checkinTime=new Date().toISOString(); }
-  }
-  if (action === 'addUser')    { DEMO_USERS.push(data); }
-  if (action === 'removeUser') { const i=DEMO_USERS.findIndex(u=>u.email===data.email); if(i>-1) DEMO_USERS.splice(i,1); }
-  if (action === 'setPool')    { POOL_CREDITS=data.credits; localStorage.setItem('fablabPool',POOL_CREDITS); }
-  if (action === 'addEquip')   { DEMO_EQUIPMENT.push(data); }
-  if (action === 'removeEquip'){ const i=DEMO_EQUIPMENT.findIndex(e=>e.id===data.id); if(i>-1) DEMO_EQUIPMENT.splice(i,1); }
-  if (action === 'addStaff')   { DEMO_STAFF.push(data); }
-  if (action === 'removeStaff'){ const i=DEMO_STAFF.findIndex(s=>s.id===data.id); if(i>-1) DEMO_STAFF.splice(i,1); }
+  if (action==='checkin') { const b=DEMO_BOOKINGS.find(x=>x.id===data.id); if(b){b.status='checked-in';b.checkinTime=new Date().toISOString();} }
+  if (action==='addUser')    { DEMO_USERS.push(data); }
+  if (action==='updateUser') { const i=DEMO_USERS.findIndex(u=>u.id===data.id); if(i>-1) DEMO_USERS[i]={...DEMO_USERS[i],...data}; }
+  if (action==='removeUser') { const i=DEMO_USERS.findIndex(u=>u.id===data.id); if(i>-1) DEMO_USERS.splice(i,1); }
+  if (action==='disableUser'){ const u=DEMO_USERS.find(u=>u.id===data.id); if(u) u.active=!u.active; }
+  if (action==='addGroup')   { DEMO_GROUPS.push(data); }
+  if (action==='updateGroup'){ const i=DEMO_GROUPS.findIndex(g=>g.id===data.id); if(i>-1) DEMO_GROUPS[i]={...DEMO_GROUPS[i],...data}; }
+  if (action==='removeGroup'){ const i=DEMO_GROUPS.findIndex(g=>g.id===data.id); if(i>-1) DEMO_GROUPS.splice(i,1); }
+  if (action==='addEquip')   { DEMO_EQUIPMENT.push(data); }
+  if (action==='updateEquip'){ const i=DEMO_EQUIPMENT.findIndex(e=>e.id===data.id); if(i>-1) DEMO_EQUIPMENT[i]={...DEMO_EQUIPMENT[i],...data}; }
+  if (action==='removeEquip'){ const i=DEMO_EQUIPMENT.findIndex(e=>e.id===data.id); if(i>-1) DEMO_EQUIPMENT.splice(i,1); }
+  if (action==='addStaff')   { DEMO_STAFF.push(data); }
+  if (action==='removeStaff'){ const i=DEMO_STAFF.findIndex(s=>s.id===data.id); if(i>-1) DEMO_STAFF.splice(i,1); }
 }
 
 async function loadAll() {
   if (CFG.demoMode) {
-    S.users     = DEMO_USERS;
-    S.equipment = DEMO_EQUIPMENT;
-    S.staff     = DEMO_STAFF;
-    S.bookings  = DEMO_BOOKINGS;
-    S.poolCredits = POOL_CREDITS;
-    return;
+    S.users=DEMO_USERS; S.equipment=DEMO_EQUIPMENT; S.staff=DEMO_STAFF;
+    S.bookings=DEMO_BOOKINGS; S.groups=DEMO_GROUPS; return;
   }
   try {
-    const [uR, eR, stR, bR, cfR] = await Promise.all([
-      sheetsGet('Users!A2:E'),
-      sheetsGet('Equipment!A2:H'),
-      sheetsGet('Staff!A2:H'),
-      sheetsGet('Bookings!A2:R'),
-      sheetsGet('Config!A2:B'),
+    const [uR,eR,stR,bR,gR] = await Promise.all([
+      sheetsGet('Users!A2:F'), sheetsGet('Equipment!A2:H'), sheetsGet('Staff!A2:H'),
+      sheetsGet('Bookings!A2:S'), sheetsGet('Groups!A2:D'),
     ]);
-    S.users     = (uR||[]).map(r=>({id:r[0],email:r[1],name:r[2],role:r[3],active:r[4]==='TRUE'}));
+    S.users     = (uR||[]).map(r=>({id:r[0],email:r[1],name:r[2],role:r[3],group:r[4],active:r[5]==='TRUE'}));
     S.equipment = (eR||[]).map(r=>({id:r[0],name:r[1],desc:r[2],loc:r[3],cat:r[4],icon:r[5],creditsPerHour:parseFloat(r[6])||1,active:r[7]==='TRUE'}));
     S.staff     = (stR||[]).map(r=>({id:r[0],name:r[1],role:r[2],email:r[3],expertise:(r[4]||'').split(',').map(x=>x.trim()),creditsPerHour:parseFloat(r[5])||0,days:r[6]}));
-    S.bookings  = (bR||[]).map(r=>({id:r[0],userEmail:r[1],userName:r[2],type:r[3],resourceId:r[4],resourceName:r[5],loc:r[6],date:r[7],startTime:r[8],endTime:r[9],duration:parseFloat(r[10]),credits:parseFloat(r[11])||0,status:r[12],purpose:r[13],topic:r[14],checkinTime:r[15],createdAt:r[16]}));
-    const poolRow = (cfR||[]).find(r=>r[0]==='poolCredits');
-    S.poolCredits = poolRow ? parseFloat(poolRow[1]) : 100;
-  } catch(e) {
-    toast('Sheets load error: '+e.message,'error');
-  }
+    S.bookings  = (bR||[]).map(r=>({id:r[0],userEmail:r[1],userName:r[2],type:r[3],resourceId:r[4],resourceName:r[5],loc:r[6],date:r[7],startTime:r[8],endTime:r[9],duration:parseFloat(r[10]),credits:parseFloat(r[11])||0,status:r[12],purpose:r[13],topic:r[14],groupId:r[15],checkinTime:r[16],createdAt:r[17]}));
+    S.groups    = (gR||[]).map(r=>({id:r[0],name:r[1],credits:parseFloat(r[2])||0,desc:r[3]}));
+  } catch(e) { toast('Load error: '+e.message,'error'); }
 }
 
 // ═══════════════════════════════════════════════════════
 // APP INIT
 // ═══════════════════════════════════════════════════════
 function initApp() {
-  const u = S.user;
-  const isAdm = isAdmin(u);
-  el('hdrLogoName').textContent = CFG.sysName.replace('Lab','') || 'Fab';
-  el('hdrSubName').textContent  = 'Booking';
-  el('hdrAv').textContent       = u.name.charAt(0).toUpperCase();
-  el('hdrName').textContent     = u.name;
-  el('hdrRole').textContent     = u.role.charAt(0).toUpperCase()+u.role.slice(1);
+  const u = S.user; const adm = isAdmin(u);
+  el('hdrLogo').textContent = CFG.sysName.replace('Lab','')||'Fab';
+  el('hdrAv').textContent   = u.name.charAt(0).toUpperCase();
+  el('hdrName').textContent = u.name;
+  el('hdrRole').textContent = u.role.charAt(0).toUpperCase()+u.role.slice(1);
+  buildNav(u);
   updatePoolDisplay();
-  if (isAdm) els('.admin-only').forEach(e=>e.classList.remove('hidden'));
-  const now = new Date();
-  S.calYear  = now.getFullYear();
-  S.calMonth = now.getMonth();
-  renderDashboard();
+  const now=new Date(); S.calYear=now.getFullYear(); S.calMonth=now.getMonth();
+  if (adm) { goPage('admin-dash'); renderAdminDash(); }
+  else      { goPage('dashboard'); renderDashboard(); }
 }
+function isAdmin(u) { return u&&(u.role==='admin'||CFG.admins.includes(u.email)); }
 
-function isAdmin(u) {
-  return u && (u.role==='admin' || CFG.admins.includes(u.email));
+function getUserGroup(u) {
+  if (!u) return null;
+  return S.groups.find(g=>g.id===u.group)||null;
+}
+function getPoolCredits(groupId) {
+  if (CFG.demoMode) { const g=DEMO_GROUPS.find(g=>g.id===groupId); return g?g.credits:0; }
+  const g=S.groups.find(g=>g.id===groupId); return g?g.credits:0;
 }
 
 function updatePoolDisplay() {
-  const pool = CFG.demoMode ? POOL_CREDITS : S.poolCredits;
-  el('hdrPool').textContent = pool + ' credits';
-  if (el('dstPool')) el('dstPool').textContent = pool;
-  if (el('aspool'))  el('aspool').textContent  = pool;
+  if (!S.user) return;
+  if (isAdmin(S.user)) { el('hdrPool').textContent='Admin'; el('hdrPoolPill').title='Admins manage group pools'; return; }
+  const grp = getUserGroup(S.user);
+  const credits = grp ? grp.credits : 0;
+  el('hdrPool').textContent = credits + ' credits';
+}
+
+function buildNav(u) {
+  const adm = isAdmin(u);
+  const navEl = el('mainNav');
+  if (!u) { navEl.innerHTML=`<button class="ntab active" data-pg="checkin" onclick="goPage('checkin')">◉ Check-In</button>`; return; }
+  if (adm) {
+    navEl.innerHTML = `
+      <button class="ntab" data-pg="admin-dash"     onclick="goPage('admin-dash')">◈ Overview</button>
+      <button class="ntab" data-pg="admin-users"    onclick="goPage('admin-users')">👥 Users</button>
+      <button class="ntab" data-pg="admin-equip"    onclick="goPage('admin-equip')">🔧 Equipment</button>
+      <button class="ntab" data-pg="admin-bookings" onclick="goPage('admin-bookings')">📅 Bookings</button>
+      <button class="ntab" data-pg="admin-staff"    onclick="goPage('admin-staff')">👤 Staff</button>
+      <button class="ntab" data-pg="admin-disable"  onclick="goPage('admin-disable')">⚠ Disable</button>
+      <button class="ntab" data-pg="checkin"        onclick="goPage('checkin')">◉ Check-In</button>`;
+  } else {
+    navEl.innerHTML = `
+      <button class="ntab" data-pg="dashboard"   onclick="goPage('dashboard')">◈ Dashboard</button>
+      <button class="ntab" data-pg="book"         onclick="goPage('book')">＋ Book</button>
+      <button class="ntab" data-pg="mybookings"   onclick="goPage('mybookings')">≡ My Bookings</button>
+      <button class="ntab" data-pg="checkin"      onclick="goPage('checkin')">◉ Check-In</button>`;
+  }
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1037,156 +1027,143 @@ function updatePoolDisplay() {
 // ═══════════════════════════════════════════════════════
 function goPage(pg) {
   els('.page').forEach(p=>p.classList.remove('active'));
-  els('.nav-tab').forEach(t=>t.classList.remove('active'));
-  el('page-'+pg).classList.add('active');
-  const t = document.querySelector(`[data-pg="${pg}"]`);
-  if (t) t.classList.add('active');
-  if (pg==='dashboard') renderDashboard();
-  if (pg==='mybookings') renderMyBookings();
-  if (pg==='checkin') {}
-  if (pg==='book') { resetWiz(); renderResourceGrid(); }
-  if (pg==='admin') { adminTab('overview'); renderAdminAll(); }
+  els('.ntab').forEach(t=>t.classList.remove('active'));
+  el('pg-'+pg)?.classList.add('active');
+  document.querySelector(`[data-pg="${pg}"]`)?.classList.add('active');
+  if (pg==='dashboard')      renderDashboard();
+  if (pg==='mybookings')     renderMyBk();
+  if (pg==='book')           { resetWiz(); renderResGrid(); checkNoBudget(); }
+  if (pg==='admin-dash')     renderAdminDash();
+  if (pg==='admin-users')    { renderAdminUsers(); renderGroups(); }
+  if (pg==='admin-equip')    renderAdminEquip();
+  if (pg==='admin-bookings') renderAdminBk();
+  if (pg==='admin-staff')    renderAdminStaff();
+  if (pg==='admin-disable')  renderDisable();
 }
 
 // ═══════════════════════════════════════════════════════
-// DASHBOARD
+// USER DASHBOARD
 // ═══════════════════════════════════════════════════════
 function renderDashboard() {
-  const pool  = CFG.demoMode ? POOL_CREDITS : S.poolCredits;
-  const mine  = S.bookings.filter(b=>b.userEmail===S.user.email);
-  const now   = new Date();
-  const month = now.getMonth();
-  const monthBks = mine.filter(b=>new Date(b.date+'T00:00').getMonth()===month);
-  const upcoming  = mine.filter(b=>b.date>=todayStr()&&b.status==='confirmed');
-  const checkins  = mine.filter(b=>b.status==='checked-in');
+  const u=S.user, grp=getUserGroup(u);
+  const credits = grp?grp.credits:0;
+  const mine=S.bookings.filter(b=>b.userEmail===u.email);
+  const now=new Date(), month=now.getMonth();
+  const monthBks=mine.filter(b=>new Date(b.date+'T00:00').getMonth()===month);
+  const upcoming=mine.filter(b=>b.date>=today()&&b.status==='confirmed');
+  const cis=mine.filter(b=>b.status==='checked-in');
 
-  el('dashName').textContent = S.user.name.split(' ')[0];
-  el('dstPool').textContent  = pool;
-  el('dstMine').textContent  = monthBks.length;
-  el('dstUp').textContent    = upcoming.length;
-  el('dstCI').textContent    = checkins.length;
+  el('dashName').textContent  = u.name.split(' ')[0];
+  el('dashGroup').textContent = grp?grp.name:'No group';
+  el('dpool').textContent     = credits;
+  el('dgroupname').textContent= grp?grp.name+' pool':'No group assigned';
+  el('dmine').textContent     = monthBks.length;
+  el('dup').textContent       = upcoming.length;
+  el('dci').textContent       = cis.length;
 
-  const recentEl = el('dashRecent');
-  const recent   = [...mine].sort((a,b)=>b.createdAt?.localeCompare(a.createdAt||'')||0).slice(0,4);
-  recentEl.innerHTML = recent.length ? recent.map(b=>bkItemHTML(b)).join('') :
-    `<div class="empty-state"><div class="empty-state-icon">📅</div><p>No bookings yet</p></div>`;
+  el('ncBanner').classList.toggle('hidden', credits>0 || !grp);
 
-  // Lab status
-  const labEl = el('dashLabStatus');
-  const locs  = ['T14','T11C01'];
-  labEl.innerHTML = locs.map(loc=>{
-    const equip = S.equipment.filter(e=>e.loc===loc && e.active);
-    const busyNow = equip.filter(e=>S.bookings.some(b=>b.resourceId===e.id&&b.date===todayStr()&&['confirmed','checked-in'].includes(b.status)&&isNowInRange(b.startTime,b.endTime))).length;
-    const locDisabled = S.disabledLocs.has(loc);
-    return `<div class="card" style="margin-bottom:10px;">
-      <div class="flex-b" style="margin-bottom:6px;">
-        <div style="font-family:var(--fd);font-weight:700;font-size:14px;">${loc}</div>
-        ${locDisabled ? '<span style="font-size:10px;padding:2px 7px;border-radius:3px;background:rgba(255,71,87,.15);color:var(--danger);border:1px solid rgba(255,71,87,.3);">DISABLED</span>' : `<span style="font-size:12px;color:var(--text2);">${busyNow}/${equip.length} in use</span>`}
+  const recent=[...mine].sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||'')).slice(0,4);
+  el('dashRecent').innerHTML = recent.length?recent.map(b=>bkiHTML(b)).join(''):`<div class="empty"><div class="empty-icon">📅</div><p>No bookings yet</p></div>`;
+
+  const locs=['T14','T11C01'];
+  el('dashLab').innerHTML = locs.map(loc=>{
+    const equip=S.equipment.filter(e=>e.loc===loc&&e.active);
+    const busy=equip.filter(e=>S.bookings.some(b=>b.resourceId===e.id&&b.date===today()&&['confirmed','checked-in'].includes(b.status)&&nowInRange(b.startTime,b.endTime))).length;
+    const dis=S.disabledLocs.has(loc);
+    return `<div class="card mb16">
+      <div class="flexb"><div class="ffd" style="font-weight:700">${loc}</div>
+        ${dis?'<span class="badge badge-dis">Disabled</span>':`<span class="t2 fsm">${busy}/${equip.length} in use</span>`}
       </div>
-      <div style="font-size:11px;color:var(--text3);">${loc==='T14'?'3D Printing Lab':'Laser Cutting Lab'}</div>
+      <div class="t3 fxs" style="margin-top:3px;">${loc==='T14'?'3D Printing Lab':'Laser Cutting Lab'}</div>
     </div>`;
   }).join('');
-}
-
-function isNowInRange(st, en) {
-  const now  = new Date();
-  const nowM = now.getHours()*60+now.getMinutes();
-  const [sh,sm] = st.split(':').map(Number);
-  const [eh,em] = en.split(':').map(Number);
-  return nowM>=sh*60+sm && nowM<eh*60+em;
 }
 
 // ═══════════════════════════════════════════════════════
 // BOOKING WIZARD
 // ═══════════════════════════════════════════════════════
-function setBookType(t) {
-  S.bookType = t; S.selResource = null;
-  el('btnTypeEquip').className    = t==='equipment' ? 'btn btn-primary' : 'btn btn-secondary';
-  el('btnTypeConsult').className  = t==='consultancy' ? 'btn btn-primary' : 'btn btn-secondary';
-  el('grpTopic').classList.toggle('hidden', t!=='consultancy');
-  el('grpGroupSize').classList.toggle('hidden', t==='consultancy');
-  goWiz(1); renderResourceGrid();
+function checkNoBudget() {
+  if (!S.user || isAdmin(S.user)) return;
+  const grp=getUserGroup(S.user);
+  const credits=grp?grp.credits:0;
+  const banner=el('bookNcBanner');
+  if (banner) {
+    banner.classList.toggle('hidden', credits>0);
+    if (credits===0 && el('bncRemaining')) el('bncRemaining').textContent=credits;
+  }
 }
 
-function renderResourceGrid() {
-  const grid = el('resourceGrid');
-  const locTabsEl = el('locTabs');
+function setBookType(t) {
+  S.bookType=t; S.selRes=null;
+  el('btEquip').className    = t==='equipment'?'btn btn-primary':'btn btn-secondary';
+  el('btConsult').className  = t==='consultancy'?'btn btn-primary':'btn btn-secondary';
+  el('grpTopic').classList.toggle('hidden',t!=='consultancy');
+  el('grpSize').classList.toggle('hidden',t==='consultancy');
+  goWiz(1); renderResGrid();
+}
 
-  if (S.bookType === 'consultancy') {
-    locTabsEl.innerHTML = '';
-    if (!S.staff.length) { grid.innerHTML=`<div class="empty-state"><div class="empty-state-icon">👤</div><p>No staff configured</p></div>`; return; }
-    grid.innerHTML = `<div class="grid-3">${S.staff.map(s=>staffCardHTML(s)).join('')}</div>`;
+function renderResGrid() {
+  const locTabsEl=el('locTabs'), gridEl=el('resGrid');
+  if (S.bookType==='consultancy') {
+    locTabsEl.innerHTML='';
+    gridEl.innerHTML=S.staff.length?`<div class="g3">${S.staff.map(stcHTML).join('')}</div>`:`<div class="empty"><div class="empty-icon">👤</div><p>No staff configured</p></div>`;
     return;
   }
-
-  // Equipment — by location
-  const locs = ['T14','T11C01'];
-  locTabsEl.innerHTML = locs.map(l=>`
-    <div class="loc-tab ${l===S._activeLoc?'active':''}" onclick="switchLoc('${l}')">
-      ${l} <span class="loc-badge">${S.equipment.filter(e=>e.loc===l&&e.active).length}</span>
-    </div>`).join('');
-  if (!S._activeLoc) S._activeLoc = 'T14';
+  const locs=['T14','T11C01'];
+  locTabsEl.innerHTML=locs.map(l=>`<div class="ltab ${l===S._activeLoc?'active':''}" onclick="switchLoc('${l}')">${l} <span style="font-size:10px;opacity:.6;">${S.equipment.filter(e=>e.loc===l&&e.active).length}</span></div>`).join('');
+  if (!S._activeLoc) S._activeLoc='T14';
   renderEquipForLoc(S._activeLoc);
 }
 
 function switchLoc(loc) {
-  S._activeLoc = loc;
-  els('.loc-tab').forEach(t=>t.classList.toggle('active', t.textContent.trim().startsWith(loc)));
+  S._activeLoc=loc;
+  els('.ltab').forEach(t=>t.classList.toggle('active',t.textContent.trim().startsWith(loc)));
   renderEquipForLoc(loc);
 }
 
 function renderEquipForLoc(loc) {
-  const items = S.equipment.filter(e=>e.loc===loc && e.active);
-  const locDisabled = S.disabledLocs.has(loc);
-
-  // Check disable periods for today
-  const todayDisabled = S.disabledPeriods.some(dp=>(dp.target===loc||dp.target==='all')&&todayStr()>=dp.start&&todayStr()<=dp.end);
-
-  el('resourceGrid').innerHTML = `
-    ${locDisabled||todayDisabled ? `<div class="disable-banner">⚠ ${loc} is currently disabled — ${locDisabled?'manual disable':'scheduled maintenance/event'}</div>` : ''}
-    <div class="grid-3">${items.map(e=>equipCardHTML(e, locDisabled||todayDisabled)).join('')}</div>`;
+  const items=S.equipment.filter(e=>e.loc===loc&&e.active);
+  const locDis=S.disabledLocs.has(loc)||S.disabledPeriods.some(dp=>(dp.target===loc||dp.target==='all')&&today()>=dp.start&&today()<=dp.end);
+  el('resGrid').innerHTML=`${locDis?`<div class="dis-banner">⚠ ${loc} is currently disabled — no new bookings</div>`:''}<div class="g3">${items.map(e=>ecHTML(e,locDis)).join('')}</div>`;
 }
 
-function equipCardHTML(e, locForced=false) {
-  const isDisabled = locForced || S.disabledEquip.has(e.id);
-  const sel = S.selResource && S.selResource.id===e.id;
-  const busyToday = S.bookings.filter(b=>b.resourceId===e.id&&b.date===todayStr()&&['confirmed','checked-in'].includes(b.status)).length;
-  return `<div class="equip-card ${sel?'selected':''} ${isDisabled?'disabled-card':''}" onclick="${isDisabled?'':'selectRes(\''+e.id+'\',\'equipment\')'}">
-    <div class="equip-icon">${e.icon}</div>
-    <div class="equip-name">${e.name}</div>
-    <div class="equip-loc">📍 ${e.loc}</div>
-    <div class="equip-qty">${e.desc}</div>
-    <div class="equip-meta">
-      <span class="equip-cost">⬡ ${e.creditsPerHour}/hr</span>
-      <span class="equip-status ${busyToday>0?'booked-status':'available'}">${busyToday>0?'Booked Today':'Free'}</span>
-    </div>
+function ecHTML(e, locForced=false) {
+  const dis=locForced||S.disabledEquip.has(e.id);
+  const sel=S.selRes&&S.selRes.id===e.id;
+  const busyToday=S.bookings.filter(b=>b.resourceId===e.id&&b.date===today()&&['confirmed','checked-in'].includes(b.status)).length;
+  return `<div class="ec ${sel?'sel':''} ${dis?'dis':''}" onclick="${dis?'':'selRes(\''+e.id+'\',\'equipment\')'}">
+    <div class="ec-icon">${e.icon}</div>
+    <div class="ec-name">${e.name}</div>
+    <div class="ec-loc">📍 ${e.loc}</div>
+    <div class="ec-desc">${e.desc}</div>
+    <div class="ec-foot"><span class="ec-cost">⬡ ${e.creditsPerHour}/hr</span><span class="badge ${busyToday?'badge-busy':'badge-ok'}">${busyToday?'Booked':'Free'}</span></div>
   </div>`;
 }
 
-function staffCardHTML(s) {
-  const sel = S.selResource && S.selResource.id===s.id;
-  return `<div class="staff-card ${sel?'selected':''}" onclick="selectRes('${s.id}','consultancy')">
-    <div class="staff-av">${s.name.charAt(0)}</div>
-    <div class="staff-name">${s.name}</div>
-    <div class="staff-role">${s.role}</div>
+function stcHTML(s) {
+  const sel=S.selRes&&S.selRes.id===s.id;
+  return `<div class="stc ${sel?'sel':''}" onclick="selRes('${s.id}','consultancy')">
+    <div class="stc-av">${s.name.charAt(0)}</div>
+    <div class="stc-name">${s.name}</div>
+    <div class="stc-role">${s.role}</div>
     <div style="display:flex;flex-wrap:wrap;gap:4px;margin:6px 0 10px;">${(s.expertise||[]).map(ex=>`<span class="exp-tag">${ex}</span>`).join('')}</div>
-    <div style="font-size:12px;color:var(--accent2);">${s.creditsPerHour>0?`⬡ ${s.creditsPerHour}/hr`:'Free · No credits required'} &nbsp;·&nbsp; ${s.days||'Flexible'}</div>
+    <div style="font-size:12px;color:var(--accent2);">${s.creditsPerHour>0?`⬡ ${s.creditsPerHour}/hr`:'Free · No credits'} · ${s.days||'Flexible'}</div>
   </div>`;
 }
 
-function selectRes(id, type) {
-  const list = type==='equipment' ? S.equipment : S.staff;
-  S.selResource = list.find(x=>x.id===id);
-  renderResourceGrid();
-  el('s1next').disabled = false;
+function selRes(id, type) {
+  const list=type==='equipment'?S.equipment:S.staff;
+  S.selRes=list.find(x=>x.id===id);
+  renderResGrid();
+  el('s1n').disabled=false;
 }
 
 function goWiz(step) {
-  S.wizStep = step;
+  S.wizStep=step;
   for (let i=1;i<=4;i++) {
-    el('wp'+i).classList.toggle('active', i===step);
-    const s = el('ws'+i);
-    s.classList.remove('active','done');
+    el('wp'+i).classList.toggle('active',i===step);
+    const s=el('ws'+i); s.classList.remove('active','done');
     if (i<step) s.classList.add('done');
     if (i===step) s.classList.add('active');
   }
@@ -1196,439 +1173,447 @@ function goWiz(step) {
 
 // ─── CALENDAR ─────────────────────────────────────────
 function renderCal() {
-  const y = S.calYear, m = S.calMonth;
-  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-  el('calMonthLabel').textContent = `${monthNames[m]} ${y}`;
-
-  const firstDay = new Date(y, m, 1).getDay(); // 0=Sun
-  const daysInMonth = new Date(y, m+1, 0).getDate();
-  const calEl = el('calDays');
-
-  let html = '';
-  // Empty cells before first day
-  for (let i=0;i<firstDay;i++) html += `<div class="cal-day cal-empty" style="grid-column:${i+1}"></div>`;
-
-  for (let d=1; d<=daysInMonth; d++) {
-    const dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const isToday    = dateStr===todayStr();
-    const isSel      = dateStr===S.selDate;
-    const isPH       = isSGHoliday(dateStr);
-    const isWE       = isWeekend(dateStr);
-    const isPast     = dateStr<todayStr();
-    const bookable   = isBookableDate(dateStr);
-
-    let cls = 'cal-day';
-    if (isToday)  cls += ' cal-today';
-    if (isSel)    cls += ' cal-selected';
-    if (isPH)     cls += ' cal-holiday';
-    if (!bookable) cls += ' cal-disabled';
-
-    const cb = bookable ? `onclick="selectCalDay('${dateStr}')"` : '';
-    html += `<div class="${cls}" ${cb} title="${isPH?'Public Holiday':''}">${d}</div>`;
+  const y=S.calYear,m=S.calMonth;
+  const mns=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  el('calLbl').textContent=`${mns[m]} ${y}`;
+  const first=new Date(y,m,1).getDay();
+  const days=new Date(y,m+1,0).getDate();
+  let html='';
+  for (let i=0;i<first;i++) html+=`<div class="cd cde"></div>`;
+  for (let d=1;d<=days;d++) {
+    const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isT=ds===today(), isSel=ds===S.selDate, isPH=SG_PH.has(ds);
+    const isWE=new Date(ds+'T00:00').getDay()%6===0;
+    const bookable=!isWE&&!isPH&&ds>=today()&&!S.disabledPeriods.some(dp=>(dp.target==='all')&&ds>=dp.start&&ds<=dp.end);
+    let cls='cd';
+    if (isT) cls+=' cdt'; if (isSel) cls+=' cds'; if (isPH) cls+=' cdph';
+    if (!bookable) cls+=' cdd';
+    html+=`<div class="${cls}" ${bookable?`onclick="pickDay('${ds}')"`:''}>${d}</div>`;
   }
-
-  calEl.innerHTML = html;
+  el('calDays').innerHTML=html;
 }
+function calPrev(){S.calMonth--;if(S.calMonth<0){S.calMonth=11;S.calYear--;}renderCal();}
+function calNext(){S.calMonth++;if(S.calMonth>11){S.calMonth=0;S.calYear++;}renderCal();}
+function pickDay(ds){S.selDate=ds;S.selTime=null;el('s2n').disabled=true;renderCal();renderSlots();}
 
-function calPrev() {
-  S.calMonth--;
-  if (S.calMonth<0) { S.calMonth=11; S.calYear--; }
-  renderCal();
-}
-function calNext() {
-  S.calMonth++;
-  if (S.calMonth>11) { S.calMonth=0; S.calYear++; }
-  renderCal();
-}
-
-function selectCalDay(dateStr) {
-  S.selDate = dateStr; S.selTime = null;
-  el('s2next').disabled = true;
-  renderCal();
-  renderSlots();
-}
-
-// ─── TIME SLOTS ────────────────────────────────────────
-// 9:00 – 16:30, skip lunch 12:00–13:30
-const LUNCH_START = 12*60;
-const LUNCH_END   = 13*60+30;
-const DAY_START   = 9*60;
-const DAY_END     = 16*60+30;
+// ─── SLOTS ─────────────────────────────────────────────
+const LUNCH_S=12*60, LUNCH_E=13*60+30, DAY_S=9*60, DAY_E=16*60+30;
 
 function renderSlots() {
-  if (!S.selDate || !S.selResource) return;
-  S.duration = parseFloat(el('bookDur').value)||1;
-  const slotEl = el('slotContainer');
-  el('slotLegend').style.display = 'flex';
-
-  // Check if this date is disabled for the resource/location
-  const locDis  = S.disabledLocs.has(S.selResource.loc);
-  const equipDis = S.disabledEquip.has(S.selResource.id);
-  const periodDis = S.disabledPeriods.some(dp=>(dp.target===S.selResource.loc||dp.target==='all')&&S.selDate>=dp.start&&S.selDate<=dp.end);
-
-  if (locDis||equipDis||periodDis) {
-    slotEl.innerHTML = `<div class="disable-banner">⚠ This equipment/location is disabled on ${S.selDate}</div>`;
-    return;
-  }
-
-  const slots = generateSlots(S.selDate, S.duration);
-  if (!slots.length) { slotEl.innerHTML=`<div style="color:var(--text3);font-size:12px;padding:10px;">No slots available for this date.</div>`; return; }
-  slotEl.innerHTML = `<div class="slot-grid">${slots.map(s=>`
-    <div class="slot ${s.status}" onclick="${s.status==='available'?`pickSlot('${s.time}')`:''}" title="${s.label||''}">${s.time}</div>`).join('')}</div>`;
+  if (!S.selDate||!S.selRes) return;
+  S.duration=parseFloat(el('bookDur').value)||1;
+  const slotEl=el('slotCt');
+  el('slotLeg').style.display='flex';
+  // Check disable
+  const locDis=S.disabledLocs.has(S.selRes.loc);
+  const eqDis=S.disabledEquip.has(S.selRes.id);
+  const perDis=S.disabledPeriods.some(dp=>(dp.target===S.selRes.loc||dp.target==='all')&&S.selDate>=dp.start&&S.selDate<=dp.end);
+  if (locDis||eqDis||perDis) { slotEl.innerHTML=`<div class="dis-banner">⚠ Disabled on ${S.selDate}</div>`; return; }
+  const slots=genSlots(S.selDate,S.duration);
+  slotEl.innerHTML=`<div class="slotg">${slots.map(s=>`<div class="slot ${s.status}" onclick="${s.status==='available'?`pickSlot('${s.time}')`:''}" title="${s.label||''}">${s.time}</div>`).join('')}</div>`;
 }
 
-function generateSlots(date, dur) {
-  const durMin = dur*60;
-  const taken  = S.bookings.filter(b=>b.resourceId===S.selResource.id&&b.date===date&&['confirmed','checked-in'].includes(b.status));
-  const slots  = [];
-
-  for (let t=DAY_START; t+durMin<=DAY_END; t+=30) {
-    const endT = t+durMin;
-    const timeStr = minsToTime(t);
-    let status = 'available';
-    let label  = '';
-
-    // Lunch block — if slot or its range overlaps lunch
-    if (overlaps(t, endT, LUNCH_START, LUNCH_END)) { status='lunch'; label='Lunch break (12:00–13:30)'; }
-
-    // Past time today
-    if (date===todayStr()) {
-      const now = new Date();
-      const nowM = now.getHours()*60+now.getMinutes();
-      if (t<=nowM) { status='taken'; label='Already passed'; }
-    }
-
-    // Booked by others
+function genSlots(date, dur) {
+  const durM=dur*60;
+  const taken=S.bookings.filter(b=>b.resourceId===S.selRes.id&&b.date===date&&['confirmed','checked-in'].includes(b.status));
+  const slots=[];
+  for (let t=DAY_S;t+durM<=DAY_E;t+=30) {
+    const endT=t+durM, ts=minsToT(t);
+    let status='available', label='';
+    if (overlaps(t,endT,LUNCH_S,LUNCH_E)){status='slunch';label='Lunch break 12:00–13:30';}
+    if (date===today()){const n=new Date();const nm=n.getHours()*60+n.getMinutes();if(t<=nm){status='staken';label='Past';}}
     if (status==='available') {
       for (const b of taken) {
-        const [bsh,bsm] = b.startTime.split(':').map(Number);
-        const [beh,bem] = b.endTime.split(':').map(Number);
-        const bS = bsh*60+bsm, bE = beh*60+bem;
-        if (overlaps(t,endT,bS,bE)) { status='taken'; label='Already booked'; break; }
-        // 30-min buffer (adjacent)
-        if (endT===bS||t===bE) { status='adjacent'; label='30-min buffer required'; break; }
+        const bS=tMins(b.startTime),bE=tMins(b.endTime);
+        if (overlaps(t,endT,bS,bE)){status='staken';label='Already booked';break;}
+        if (endT===bS||t===bE){status='sadj';label='30-min buffer required';break;}
       }
     }
-
-    // Cross-check: if the machine is fully booked on this date, mark all remaining as taken
-    if (status==='available') {
-      // Already handled above per-slot
-    }
-
-    slots.push({ time:timeStr, status, label });
+    slots.push({time:ts,status,label});
   }
   return slots;
 }
 
-function overlaps(s1,e1,s2,e2) { return s1<e2 && e1>s2; }
-function minsToTime(m) { return `${String(Math.floor(m/60)).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`; }
-function timeMins(t) { const [h,m]=t.split(':').map(Number); return h*60+m; }
-function addMins(t, m) { return minsToTime(timeMins(t)+m); }
-
-function pickSlot(time) {
-  S.selTime = time;
-  els('.slot').forEach(s=>s.classList.toggle('sel', s.textContent.trim()===time));
-  el('s2next').disabled = false;
-}
+function overlaps(s1,e1,s2,e2){return s1<e2&&e1>s2;}
+function minsToT(m){return `${String(Math.floor(m/60)).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`;}
+function tMins(t){const[h,m]=t.split(':').map(Number);return h*60+m;}
+function addMins(t,m){return minsToT(tMins(t)+m);}
+function pickSlot(time){S.selTime=time;els('.slot').forEach(s=>s.classList.toggle('ssel',s.textContent.trim()===time));el('s2n').disabled=false;}
 
 // ─── SUMMARY ──────────────────────────────────────────
 function buildSummary() {
-  const r = S.selResource;
-  const dur = S.duration;
-  const credits = S.bookType==='consultancy' ? r.creditsPerHour*dur : r.creditsPerHour*dur;
-  const endTime = addMins(S.selTime, dur*60);
-  const pool = CFG.demoMode ? POOL_CREDITS : S.poolCredits;
-  const canAfford = credits===0 || pool>=credits;
+  const r=S.selRes, dur=S.duration, isConsult=S.bookType==='consultancy';
+  const credits=isConsult?0:r.creditsPerHour*dur;
+  const endTime=addMins(S.selTime,dur*60);
+  const grp=getUserGroup(S.user);
+  const pool=grp?grp.credits:0;
+  const canAfford=credits===0||pool>=credits;
 
-  el('bkSummary').innerHTML = `
-    <div class="sum-row"><span class="sum-lbl">Type</span><span class="sum-val">${S.bookType==='equipment'?'🔧 Equipment':'👤 Consultancy'}</span></div>
-    <div class="sum-row"><span class="sum-lbl">Resource</span><span class="sum-val">${r.name}</span></div>
-    <div class="sum-row"><span class="sum-lbl">Location</span><span class="sum-val">${r.loc||'—'}</span></div>
-    <div class="sum-row"><span class="sum-lbl">Date</span><span class="sum-val">${fmtDate(S.selDate)}</span></div>
-    <div class="sum-row"><span class="sum-lbl">Time</span><span class="sum-val">${S.selTime} – ${endTime}</span></div>
-    <div class="sum-row"><span class="sum-lbl">Duration</span><span class="sum-val">${dur} hr${dur!==1?'s':''}</span></div>
-    <div class="sum-row sum-total"><span class="sum-lbl">Credits</span><span class="sum-val">${credits===0?'Free':'⬡ '+credits}</span></div>
-  `;
+  el('bkSum').innerHTML=`
+    <div class="sumrow"><span class="suml">Type</span><span class="sumv">${isConsult?'👤 Consultancy':'🔧 Equipment'}</span></div>
+    <div class="sumrow"><span class="suml">Resource</span><span class="sumv">${r.name}</span></div>
+    <div class="sumrow"><span class="suml">Location</span><span class="sumv">${r.loc||'—'}</span></div>
+    <div class="sumrow"><span class="suml">Date</span><span class="sumv">${fmtDate(S.selDate)}</span></div>
+    <div class="sumrow"><span class="suml">Time</span><span class="sumv">${S.selTime}–${endTime}</span></div>
+    <div class="sumrow"><span class="suml">Duration</span><span class="sumv">${dur} hr${dur!==1?'s':''}</span></div>
+    <div class="sumrow total"><span class="suml">Cost</span><span class="sumv">${credits===0?'Free ✓':'⬡ '+credits}</span></div>`;
 
-  el('bkCost').innerHTML = credits===0 ? `
-    <div class="sum-row"><span class="sum-lbl">Staff Consultancy</span><span class="sum-val text-success">No credits needed</span></div>
-    <div class="sum-row"><span class="sum-lbl">Pool Balance</span><span class="sum-val text-accent">⬡ ${pool}</span></div>
-    <div class="sum-row"><span class="sum-lbl">After Booking</span><span class="sum-val">⬡ ${pool} (unchanged)</span></div>
-  ` : `
-    <div class="sum-row"><span class="sum-lbl">Rate</span><span class="sum-val">⬡ ${r.creditsPerHour}/hr</span></div>
-    <div class="sum-row"><span class="sum-lbl">Duration</span><span class="sum-val">× ${dur} hr</span></div>
-    <div class="sum-row sum-total"><span class="sum-lbl">Cost</span><span class="sum-val">⬡ ${credits}</span></div>
-    <div class="sum-row"><span class="sum-lbl">Pool Balance</span><span class="sum-val" style="color:${canAfford?'var(--accent)':'var(--danger)'}">⬡ ${pool}</span></div>
-    <div class="sum-row"><span class="sum-lbl">After Booking</span><span class="sum-val" style="color:${canAfford?'var(--text)':'var(--danger)'}">⬡ ${pool-credits}</span></div>
-  `;
+  el('bkCost').innerHTML=credits===0?`
+    <div class="sumrow"><span class="suml">Consultancy</span><span class="sumv ts">Free — no credits used</span></div>
+    <div class="sumrow"><span class="suml">Group Pool</span><span class="sumv ta">⬡ ${pool}</span></div>
+    <div class="sumrow"><span class="suml">After Booking</span><span class="sumv">⬡ ${pool} (unchanged)</span></div>`:`
+    <div class="sumrow"><span class="suml">Rate</span><span class="sumv">⬡ ${r.creditsPerHour}/hr</span></div>
+    <div class="sumrow"><span class="suml">×</span><span class="sumv">${dur} hr</span></div>
+    <div class="sumrow total"><span class="suml">Deducted</span><span class="sumv">⬡ ${credits}</span></div>
+    <div class="sumrow"><span class="suml">Group Pool Now</span><span class="sumv" style="color:${canAfford?'var(--accent)':'var(--danger)'}">⬡ ${pool}</span></div>
+    <div class="sumrow"><span class="suml">After Booking</span><span class="sumv" style="color:${canAfford?'var(--text)':'var(--danger)'}">⬡ ${pool-credits}</span></div>`;
 
-  el('btnConfirm').disabled = !canAfford;
-  if (!canAfford) el('btnConfirm').title = 'Insufficient pool credits';
+  el('btnConfirm').disabled=!canAfford;
+  if (!canAfford) el('btnConfirm').title='Insufficient group credits';
 }
 
 async function confirmBooking() {
-  const r = S.selResource;
-  const dur = S.duration;
-  const credits = r.creditsPerHour * dur;
-  const endTime = addMins(S.selTime, dur*60);
-  const id = genId();
+  const r=S.selRes, dur=S.duration, isConsult=S.bookType==='consultancy';
+  const credits=isConsult?0:r.creditsPerHour*dur;
+  const endTime=addMins(S.selTime,dur*60);
+  const id=genId();
+  const grp=getUserGroup(S.user);
 
   // Final overlap check
-  const conflict = S.bookings.some(b=>b.resourceId===r.id&&b.date===S.selDate&&['confirmed','checked-in'].includes(b.status)&&overlaps(timeMins(S.selTime),timeMins(endTime),timeMins(b.startTime),timeMins(b.endTime)));
-  if (conflict) { toast('Slot just got booked by someone else. Please re-select.','error'); goWiz(2); return; }
+  if (S.bookings.some(b=>b.resourceId===r.id&&b.date===S.selDate&&['confirmed','checked-in'].includes(b.status)&&overlaps(tMins(S.selTime),tMins(endTime),tMins(b.startTime),tMins(b.endTime)))){toast('Slot just got booked. Please re-select.','error');goWiz(2);return;}
 
-  const booking = {
-    id, userEmail:S.user.email, userName:S.user.name, type:S.bookType,
-    resourceId:r.id, resourceName:r.name, loc:r.loc||'',
-    date:S.selDate, startTime:S.selTime, endTime, duration:dur, credits,
-    status:'confirmed', purpose:val('bkPurpose'), topic:val('bkTopic'),
-    groupSize:val('bkGroup')||1, checkinTime:null, createdAt:new Date().toISOString()
-  };
+  const booking={id,userEmail:S.user.email,userName:S.user.name,type:S.bookType,resourceId:r.id,resourceName:r.name,loc:r.loc||'',date:S.selDate,startTime:S.selTime,endTime,duration:dur,credits,status:'confirmed',purpose:v('bkPurpose'),topic:v('bkTopic'),groupId:grp?grp.id:'',checkinTime:null,createdAt:new Date().toISOString()};
 
-  el('btnConfirm').disabled = true;
-  el('btnConfirm').textContent = 'Processing...';
-
+  el('btnConfirm').disabled=true; el('btnConfirm').textContent='Processing...';
   try {
-    await sheetsWrite('addBooking', booking);
-    if (S.bookType==='consultancy') await sendConsultEmail(booking, r);
+    await sheetsWrite('addBooking',booking);
+    if (isConsult) await sendConsultEmail(booking,r);
     toast(`Booking ${id} confirmed!`,'success');
-    showQR(id);
-    resetWiz();
-    updatePoolDisplay();
+    showQR(id); resetWiz(); updatePoolDisplay();
   } catch(e) {
-    toast('Booking error: '+e.message,'error');
+    toast('Error: '+e.message,'error');
     el('btnConfirm').disabled=false; el('btnConfirm').textContent='✓ Confirm Booking';
   }
 }
 
 async function sendConsultEmail(booking, staff) {
-  if (CFG.demoMode) { toast(`📧 Simulated email to ${staff.email}`,'info'); return; }
+  if (CFG.demoMode){toast(`📧 Email simulated to ${staff.email}`,'info');return;}
   try {
-    await fetch('https://api.anthropic.com/v1/messages', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514', max_tokens:500,
-        mcp_servers:[{type:'url',url:'https://gmail.mcp.claude.com/mcp',name:'gmail'}],
-        messages:[{role:'user',content:`Send an email via Gmail to ${staff.email} with subject "New Consultancy Booking: ${booking.id}" and this body:\n\nHi ${staff.name},\n\nYou have a new consultancy booking.\n\nBooking ID: ${booking.id}\nStudent: ${booking.userName} (${booking.userEmail})\nDate: ${booking.date}\nTime: ${booking.startTime}–${booking.endTime}\nTopic: ${booking.topic||booking.purpose}\n\nPlease be at the FabLab at the above time.\n\nFabLab Booking System`}]
-      })
-    });
-  } catch(e) { toast('Email notification failed (booking still confirmed)','error'); }
+    await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:500,mcp_servers:[{type:'url',url:'https://gmail.mcp.claude.com/mcp',name:'gmail'}],messages:[{role:'user',content:`Send an email via Gmail to ${staff.email} with subject "New Consultancy Booking: ${booking.id}" and body:\n\nHi ${staff.name},\n\nNew consultancy booking:\n\nID: ${booking.id}\nStudent: ${booking.userName} (${booking.userEmail})\nDate: ${booking.date}\nTime: ${booking.startTime}–${booking.endTime}\nTopic: ${booking.topic||booking.purpose}\n\nFabLab Booking System`}]})});
+  } catch(e){toast('Email notification failed (booking still confirmed)','error');}
+}
+
+function emailAdmin() {
+  const admins = S.users.filter(u=>isAdmin(u)).map(u=>u.email);
+  const emails = admins.length ? admins.join(',') : CFG.admins.join(',');
+  const grp = getUserGroup(S.user);
+  window.location.href = `mailto:${emails}?subject=Credit Top-Up Request&body=Hi Admin,%0A%0AI would like to request a credit top-up for my group (${grp?grp.name:'unknown'}).%0A%0AUser: ${S.user.name} (${S.user.email})%0A%0AThank you.`;
 }
 
 function showQR(id) {
-  el('qrBkId').textContent = id;
-  el('qrBox').innerHTML = '';
-  new QRCode(el('qrBox'), { text:id, width:180, height:180, colorDark:'#000', colorLight:'#fff', correctLevel:QRCode.CorrectLevel.M });
-  openModal('qrModal');
+  el('qrId').textContent=id; el('qrBox').innerHTML='';
+  new QRCode(el('qrBox'),{text:id,width:170,height:170,colorDark:'#000',colorLight:'#fff',correctLevel:QRCode.CorrectLevel.M});
+  openMo('qrMo');
 }
 
 function resetWiz() {
-  S.selResource=null; S.selTime=null; S.selDate=null;
-  el('s1next').disabled=true; el('s2next').disabled=true;
-  el('btnConfirm').disabled=false; el('btnConfirm').textContent='✓ Confirm Booking';
-  el('bkPurpose').value=''; el('bkTopic').value='';
+  S.selRes=null;S.selTime=null;S.selDate=null;
+  el('s1n').disabled=true;el('s2n').disabled=true;
+  el('btnConfirm').disabled=false;el('btnConfirm').textContent='✓ Confirm Booking';
+  el('bkPurpose').value='';el('bkTopic').value='';
   goWiz(1);
 }
 
 // ═══════════════════════════════════════════════════════
 // MY BOOKINGS
 // ═══════════════════════════════════════════════════════
-function renderMyBookings() {
-  const filter = el('mybkFilter').value;
-  const today  = todayStr();
-  let bks = S.bookings.filter(b=>b.userEmail===S.user.email);
-  if (filter==='upcoming') bks = bks.filter(b=>b.date>=today&&b.status==='confirmed');
-  else if (filter==='past') bks = bks.filter(b=>b.date<today||b.status==='checked-in');
-  else if (filter==='cancelled') bks = bks.filter(b=>b.status==='cancelled');
+function renderMyBk() {
+  const filter=el('mybkF').value, td=today();
+  let bks=S.bookings.filter(b=>b.userEmail===S.user.email);
+  if (filter==='upcoming') bks=bks.filter(b=>b.date>=td&&b.status==='confirmed');
+  else if (filter==='past') bks=bks.filter(b=>b.date<td||b.status==='checked-in');
+  else if (filter==='cancelled') bks=bks.filter(b=>b.status==='cancelled');
   bks.sort((a,b)=>b.date.localeCompare(a.date));
-
-  el('mybkList').innerHTML = bks.length ? bks.map(b=>bkItemHTML(b,true)).join('')
-    : `<div class="empty-state"><div class="empty-state-icon">📅</div><p>No bookings found.</p></div>`;
+  el('mybkList').innerHTML=bks.length?bks.map(b=>bkiHTML(b,true)).join(''):`<div class="empty"><div class="empty-icon">📅</div><p>No bookings found</p></div>`;
 }
 
-function bkItemHTML(b, showAct=false) {
-  const acts = showAct ? `<div style="display:flex;gap:6px;margin-top:8px;">
+function bkiHTML(b, showAct=false) {
+  const acts=showAct?`<div style="display:flex;gap:6px;margin-top:7px;">
     <button class="btn btn-secondary btn-sm" onclick="viewBkDetail('${b.id}')">QR / Details</button>
     ${b.status==='confirmed'?`<button class="btn btn-danger btn-sm" onclick="cancelBk('${b.id}')">Cancel</button>`:''}
-  </div>` : '';
-  return `<div class="bk-item">
-    <div class="bk-dot ${b.type}"></div>
-    <div class="bk-info">
-      <div class="bk-title">${b.resourceName}</div>
-      <div class="bk-meta">${fmtDate(b.date)} · ${b.startTime}–${b.endTime} · ${b.type==='equipment'?'🔧':'👤'} ${b.type}${b.loc?' · '+b.loc:''}</div>
+  </div>`:'';
+  return `<div class="bki">
+    <div class="bkdot ${b.type}"></div>
+    <div class="bki-info">
+      <div class="bki-title">${b.resourceName}</div>
+      <div class="bki-meta">${fmtDate(b.date)} · ${b.startTime}–${b.endTime}${b.loc?' · '+b.loc:''}</div>
       ${acts}
     </div>
     <div style="text-align:right;">
-      <div style="font-size:12px;color:var(--text2);margin-bottom:4px;">${b.credits>0?`⬡ ${b.credits}`:'Free'}</div>
-      <span class="bk-status ${b.status}">${b.status.replace('-',' ')}</span>
+      <div class="fsm t2" style="margin-bottom:4px;">${b.credits>0?`⬡ ${b.credits}`:'Free'}</div>
+      <span class="bk-st ${b.status}">${b.status.replace('-',' ')}</span>
     </div>
   </div>`;
 }
 
 function viewBkDetail(id) {
-  const b = S.bookings.find(b=>b.id===id); if (!b) return;
-  el('bkDetailContent').innerHTML = `
-    <div class="sum-box mb16">
-      <div class="sum-row"><span class="sum-lbl">Booking ID</span><span class="sum-val text-accent">${b.id}</span></div>
-      <div class="sum-row"><span class="sum-lbl">Resource</span><span class="sum-val">${b.resourceName}</span></div>
-      <div class="sum-row"><span class="sum-lbl">Location</span><span class="sum-val">${b.loc||'—'}</span></div>
-      <div class="sum-row"><span class="sum-lbl">Date</span><span class="sum-val">${fmtDate(b.date)}</span></div>
-      <div class="sum-row"><span class="sum-lbl">Time</span><span class="sum-val">${b.startTime}–${b.endTime}</span></div>
-      <div class="sum-row"><span class="sum-lbl">Status</span><span class="bk-status ${b.status}">${b.status}</span></div>
-      ${b.checkinTime?`<div class="sum-row"><span class="sum-lbl">Checked In</span><span class="sum-val text-success">${new Date(b.checkinTime).toLocaleString()}</span></div>`:''}
+  const b=S.bookings.find(b=>b.id===id); if (!b) return;
+  el('bkDContent').innerHTML=`
+    <div class="sumbox mb16">
+      <div class="sumrow"><span class="suml">ID</span><span class="sumv ta">${b.id}</span></div>
+      <div class="sumrow"><span class="suml">Resource</span><span class="sumv">${b.resourceName}</span></div>
+      <div class="sumrow"><span class="suml">Location</span><span class="sumv">${b.loc||'—'}</span></div>
+      <div class="sumrow"><span class="suml">Date</span><span class="sumv">${fmtDate(b.date)}</span></div>
+      <div class="sumrow"><span class="suml">Time</span><span class="sumv">${b.startTime}–${b.endTime}</span></div>
+      <div class="sumrow"><span class="suml">Status</span><span class="bk-st ${b.status}">${b.status}</span></div>
+      ${b.checkinTime?`<div class="sumrow"><span class="suml">Checked In</span><span class="sumv ts">${new Date(b.checkinTime).toLocaleString()}</span></div>`:''}
     </div>
-    <div class="qr-wrap"><div class="qr-box" id="detailQR"></div><div style="font-size:11px;color:var(--text2);margin-top:6px;">Show this QR code to check in</div></div>
-  `;
-  openModal('bkDetailMo');
-  setTimeout(()=>{
-    new QRCode(el('detailQR'),{text:b.id,width:160,height:160,colorDark:'#000',colorLight:'#fff',correctLevel:QRCode.CorrectLevel.M});
-  },100);
+    <div class="qr-wrap"><div class="qr-box" id="detailQR"></div><div class="fsm t2 mt-1">Show at check-in</div></div>`;
+  openMo('bkDMo');
+  setTimeout(()=>{ new QRCode(el('detailQR'),{text:b.id,width:150,height:150,colorDark:'#000',colorLight:'#fff',correctLevel:QRCode.CorrectLevel.M}); },100);
 }
 
 async function cancelBk(id) {
   if (!confirm('Cancel this booking?')) return;
   await sheetsWrite('cancelBooking',{id});
-  toast('Booking cancelled','info');
-  updatePoolDisplay();
-  renderMyBookings();
-  renderDashboard();
+  toast('Booking cancelled','info'); updatePoolDisplay(); renderMyBk(); renderDashboard();
 }
 
 // ═══════════════════════════════════════════════════════
 // CHECK-IN
 // ═══════════════════════════════════════════════════════
-async function doCheckin() {
-  const code = val('ciCode').trim().toUpperCase();
-  if (!code) return;
-  const b = S.bookings.find(b=>b.id===code);
-  const out = el('ciResult');
-  if (!b) { out.innerHTML=`<div class="ci-result err"><div style="font-size:24px">✕</div><div style="font-weight:600;margin-top:6px;">Booking not found</div></div>`; return; }
-  if (b.status==='checked-in') { out.innerHTML=`<div class="ci-result err"><div style="font-size:24px">⚠</div><div style="font-weight:600;margin-top:6px;">Already checked in</div><div style="font-size:12px;color:var(--text2);margin-top:4px;">${new Date(b.checkinTime).toLocaleString()}</div></div>`; return; }
-  if (b.status==='cancelled') { out.innerHTML=`<div class="ci-result err"><div style="font-size:24px">✕</div><div style="font-weight:600;margin-top:6px;">Booking is cancelled</div></div>`; return; }
+async function doCI() {
+  const code=v('ciCode').trim().toUpperCase(); if (!code) return;
+  const b=S.bookings.find(b=>b.id===code);
+  const out=el('ciRes');
+  if (!b){out.innerHTML=`<div class="ci-res err"><div style="font-size:22px">✕</div><div style="font-weight:600;margin-top:5px;">Booking not found</div></div>`;return;}
+  if (b.status==='checked-in'){out.innerHTML=`<div class="ci-res err"><div style="font-size:22px">⚠</div><div style="font-weight:600;margin-top:5px;">Already checked in at ${new Date(b.checkinTime).toLocaleTimeString()}</div></div>`;return;}
+  if (b.status==='cancelled'){out.innerHTML=`<div class="ci-res err"><div style="font-size:22px">✕</div><div style="font-weight:600;margin-top:5px;">Booking is cancelled</div></div>`;return;}
   await sheetsWrite('checkin',{id:b.id});
-  out.innerHTML=`<div class="ci-result ok">
-    <div style="font-size:36px">✓</div>
-    <div style="font-weight:600;margin-top:8px;color:var(--success);font-family:var(--fd);font-size:18px;">Checked In!</div>
-    <div style="color:var(--text2);font-size:12px;margin-top:8px;">${b.userName}</div>
-    <div style="color:var(--text2);font-size:12px;">${b.resourceName} · ${b.startTime}–${b.endTime}</div>
-    <div style="color:var(--text2);font-size:12px;">${fmtDate(b.date)}</div>
+  out.innerHTML=`<div class="ci-res ok">
+    <div style="font-size:34px">✓</div>
+    <div style="font-weight:700;margin-top:7px;color:var(--success);font-family:var(--fd);font-size:17px;">Checked In!</div>
+    <div class="t2 fsm" style="margin-top:7px;">${b.userName}</div>
+    <div class="t2 fsm">${b.resourceName} · ${b.startTime}–${b.endTime}</div>
+    <div class="t2 fsm">${fmtDate(b.date)}</div>
   </div>`;
   toast('✓ Checked in: '+b.userName,'success');
 }
 
 function ciLookup() {
-  const email = val('ciEmail').trim().toLowerCase();
-  if (!email) return;
-  const today = todayStr();
-  const bks = S.bookings.filter(b=>b.userEmail===email&&b.date===today&&b.status==='confirmed');
-  const out = el('ciLookup');
-  if (!bks.length) { out.innerHTML=`<div style="margin-top:10px;font-size:12px;color:var(--text2);">No confirmed bookings today for ${email}</div>`; return; }
-  out.innerHTML = `<div style="margin-top:10px;">${bks.map(b=>`
-    <div class="bk-item" style="margin-bottom:6px;">
-      <div class="bk-info"><div class="bk-title">${b.resourceName}</div><div class="bk-meta">${b.startTime}–${b.endTime}</div></div>
-      <button class="btn btn-success btn-sm" onclick="el('ciCode').value='${b.id}';doCheckin();">Check In</button>
-    </div>`).join('')}</div>`;
+  const email=v('ciEmail').trim().toLowerCase(); if (!email) return;
+  const bks=S.bookings.filter(b=>b.userEmail===email&&b.date===today()&&b.status==='confirmed');
+  el('ciLookup').innerHTML=bks.length?`<div style="margin-top:10px;">${bks.map(b=>`
+    <div class="bki" style="margin-bottom:6px;">
+      <div class="bki-info"><div class="bki-title">${b.resourceName}</div><div class="bki-meta">${b.startTime}–${b.endTime}</div></div>
+      <button class="btn btn-success btn-sm" onclick="el('ciCode').value='${b.id}';doCI();">Check In</button>
+    </div>`).join('')}</div>`:
+    `<div style="margin-top:9px;font-size:12px;color:var(--text2);">No confirmed bookings today for ${email}</div>`;
 }
 
 // ═══════════════════════════════════════════════════════
-// ADMIN
+// ADMIN — DASHBOARD
 // ═══════════════════════════════════════════════════════
-function adminTab(tab) {
-  ['overview','users','equipment','staff','bookings','disable'].forEach(t=>{
-    el('atab-'+t).classList.toggle('hidden',t!==tab);
-    el('at-'+t).className = t===tab?'btn btn-primary btn-sm':'btn btn-secondary btn-sm';
-  });
-  if (tab==='users')     renderAdminUsers();
-  if (tab==='equipment') renderAdminEquip();
-  if (tab==='staff')     renderAdminStaff();
-  if (tab==='bookings')  renderAdminBookings();
-  if (tab==='disable')   renderDisablePanel();
+function renderAdminDash() {
+  const td=today();
+  const todayBks=S.bookings.filter(b=>b.date===td);
+  el('asu').textContent  = S.users.filter(u=>u.active).length;
+  el('asbk').textContent = todayBks.length;
+  el('ascii').textContent= todayBks.filter(b=>b.status==='checked-in').length;
+  el('asgrp').textContent= S.groups.length;
+  renderAdminUpcoming();
+  renderAdminToday();
 }
 
-function renderAdminAll() {
-  const today = todayStr();
-  const todayBks = S.bookings.filter(b=>b.date===today);
-  const pool = CFG.demoMode ? POOL_CREDITS : S.poolCredits;
+function renderAdminUpcoming() {
+  const locF=el('adminUpFilter')?.value||'all';
+  const upcoming=S.bookings.filter(b=>b.date>=today()&&b.status==='confirmed'&&(locF==='all'||b.loc===locF)).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,12);
+  el('adminUpcoming').innerHTML=upcoming.length?upcoming.map(b=>`
+    <div class="bki">
+      <div class="bkdot ${b.type}"></div>
+      <div class="bki-info">
+        <div class="bki-title">${b.resourceName} <span class="tag">${b.loc||'—'}</span></div>
+        <div class="bki-meta">${b.userName} · ${fmtDate(b.date)} · ${b.startTime}–${b.endTime}</div>
+      </div>
+      <span class="bk-st confirmed">confirmed</span>
+    </div>`).join(''):`<div class="empty"><div class="empty-icon">📅</div><p>No upcoming bookings</p></div>`;
+}
 
-  el('asu').textContent    = S.users.filter(u=>u.active).length;
-  el('aspool').textContent = pool;
-  el('asbk').textContent   = todayBks.length;
-  el('ascii').textContent  = todayBks.filter(b=>b.status==='checked-in').length;
-
-  const todayEl = el('adminTodayList');
-  if (!todayBks.length) { todayEl.innerHTML=`<div class="empty-state"><div class="empty-state-icon">📅</div><p>No bookings today</p></div>`; return; }
-  todayEl.innerHTML = `<div style="overflow-x:auto;"><table class="dtable">
-    <thead><tr><th>ID</th><th>User</th><th>Resource</th><th>Loc</th><th>Time</th><th>Credits</th><th>Status</th><th>Action</th></tr></thead>
-    <tbody>${todayBks.map(b=>`<tr>
-      <td class="text-accent" style="font-size:11px">${b.id}</td>
-      <td>${b.userName}</td><td>${b.resourceName}</td><td style="color:var(--text3)">${b.loc||'—'}</td>
+function renderAdminToday() {
+  const td=today();
+  const bks=S.bookings.filter(b=>b.date===td).sort((a,b)=>a.startTime.localeCompare(b.startTime));
+  el('adminToday').innerHTML=bks.length?`<div class="ovx"><table class="tbl">
+    <thead><tr><th>User</th><th>Resource</th><th>Time</th><th>Status</th><th>Action</th></tr></thead>
+    <tbody>${bks.map(b=>`<tr>
+      <td>${b.userName}<div class="fxs t3">${b.userEmail}</div></td>
+      <td>${b.resourceName}<div class="fxs t3">${b.loc||''}</div></td>
       <td>${b.startTime}–${b.endTime}</td>
-      <td>${b.credits>0?`⬡ ${b.credits}`:'Free'}</td>
-      <td><span class="bk-status ${b.status}">${b.status}</span></td>
-      <td>${b.status==='confirmed'?`<button class="btn btn-success btn-sm" onclick="el('ciCode').value='${b.id}';goPage('checkin');doCheckin();">Check In</button>`:'—'}</td>
+      <td><span class="bk-st ${b.status}">${b.status}</span></td>
+      <td>${b.status==='confirmed'?`<button class="btn btn-success btn-sm" onclick="el('ciCode').value='${b.id}';goPage('checkin');doCI();">Check In</button>`:'—'}</td>
     </tr>`).join('')}</tbody>
-  </table></div>`;
+  </table></div>`:`<div class="empty"><div class="empty-icon">📅</div><p>No bookings today</p></div>`;
+}
+
+// ═══════════════════════════════════════════════════════
+// ADMIN — USERS & GROUPS
+// ═══════════════════════════════════════════════════════
+function renderGroups() {
+  const grpEl=el('grpList');
+  if (!S.groups.length){grpEl.innerHTML=`<div class="t3 fsm">No groups yet. Create one to assign credit pools.</div>`;return;}
+  grpEl.innerHTML=`<div class="ovx"><table class="tbl">
+    <thead><tr><th>Group Name</th><th>Description</th><th>Pool Credits</th><th>Members</th><th>Actions</th></tr></thead>
+    <tbody>${S.groups.map(g=>{
+      const members=S.users.filter(u=>u.group===g.id&&u.active).length;
+      return `<tr>
+        <td><span style="font-weight:600;">${g.name}</span></td>
+        <td class="t2">${g.desc||'—'}</td>
+        <td><span class="ta" style="font-weight:600;">⬡ ${g.credits}</span></td>
+        <td>${members} users</td>
+        <td style="display:flex;gap:6px;">
+          <button class="btn btn-secondary btn-sm" onclick="editGroup('${g.id}')">Edit</button>
+          <button class="btn btn-success btn-sm" onclick="openEditCr('${g.id}','${g.name}',${g.credits})">Credits</button>
+          <button class="btn btn-danger btn-sm" onclick="removeGroup('${g.id}')">Delete</button>
+        </td>
+      </tr>`;}).join('')}
+    </tbody></table></div>`;
+  // Update group filter
+  const gf=el('usrGrpFilter');
+  gf.innerHTML=`<option value="all">All Groups</option>${S.groups.map(g=>`<option value="${g.id}">${g.name}</option>`).join('')}`;
+  // Update add user group select
+  const ng=el('nuGrp');
+  if (ng) ng.innerHTML=S.groups.map(g=>`<option value="${g.id}">${g.name}</option>`).join('');
 }
 
 function renderAdminUsers() {
-  const poolVal = CFG.demoMode ? POOL_CREDITS : S.poolCredits;
-  el('poolCreditsInput').value = poolVal;
-  const tableEl = el('adminUsersTable');
-  if (!S.users.length) { tableEl.innerHTML=`<div class="empty-state"><p>No users. Import CSV or add manually.</p></div>`; return; }
-  tableEl.innerHTML = `<div style="overflow-x:auto;"><table class="dtable">
-    <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
-    <tbody>${S.users.map(u=>`<tr>
-      <td>${u.name}</td>
-      <td style="color:var(--text2)">${u.email}</td>
-      <td><span class="tag">${u.role}</span></td>
-      <td><span class="${u.active?'text-success':'text-danger'}">${u.active?'● Active':'○ Inactive'}</span></td>
-      <td><button class="btn btn-danger btn-sm" onclick="removeUser('${u.email}')">Remove</button></td>
-    </tr>`).join('')}</tbody>
-  </table></div>`;
+  const grpF=el('usrGrpFilter')?.value||'all';
+  const stF=el('usrStatusFilter')?.value||'all';
+  let users=[...S.users];
+  if (grpF!=='all') users=users.filter(u=>u.group===grpF);
+  if (stF==='active') users=users.filter(u=>u.active);
+  if (stF==='disabled') users=users.filter(u=>!u.active);
+
+  el('usrTable').innerHTML=users.length?`<div class="ovx"><table class="tbl">
+    <thead><tr>
+      <th><input type="checkbox" onchange="toggleAllUsers(this)"></th>
+      <th>Name</th><th>Email</th><th>Role</th><th>Group</th><th>Status</th><th>Actions</th>
+    </tr></thead>
+    <tbody>${users.map(u=>{
+      const grp=S.groups.find(g=>g.id===u.group);
+      return `<tr>
+        <td><input type="checkbox" value="${u.id}" onchange="toggleUserSel(this)" ${S.selectedUsers.has(u.id)?'checked':''}></td>
+        <td style="font-weight:500;">${u.name}</td>
+        <td class="t2 fsm">${u.email}</td>
+        <td><span class="tag">${u.role}</span></td>
+        <td>${grp?`<span class="grp-badge">${grp.name}</span>`:'<span class="t3">—</span>'}</td>
+        <td><span class="${u.active?'ts':'td'}">${u.active?'● Active':'○ Disabled'}</span></td>
+        <td style="display:flex;gap:5px;">
+          <button class="btn ${u.active?'btn-warning':'btn-success'} btn-sm" onclick="toggleUser('${u.id}')">${u.active?'Disable':'Enable'}</button>
+          <button class="btn btn-danger btn-sm" onclick="removeUser('${u.id}')">Delete</button>
+        </td>
+      </tr>`;}).join('')}
+    </tbody></table></div>`:`<div class="empty"><p>No users found</p></div>`;
+
+  // Show bulk actions if any selected
+  const bulkEl=el('bulkActions');
+  if (S.selectedUsers.size>0) { bulkEl.style.display='flex'; el('bulkCount').textContent=S.selectedUsers.size+' selected'; }
+  else bulkEl.style.display='none';
 }
 
-async function updatePoolCredits() {
-  const credits = parseFloat(el('poolCreditsInput').value)||0;
-  await sheetsWrite('setPool',{credits});
-  POOL_CREDITS = credits;
-  updatePoolDisplay();
-  toast(`Pool credits set to ⬡ ${credits}`,'success');
+function toggleAllUsers(cb) {
+  const checkboxes=document.querySelectorAll('#usrTable input[type="checkbox"]');
+  checkboxes.forEach(c=>{ c.checked=cb.checked; if(cb.checked) S.selectedUsers.add(c.value); else S.selectedUsers.delete(c.value); });
+  renderAdminUsers();
+}
+function toggleUserSel(cb) {
+  if (cb.checked) S.selectedUsers.add(cb.value); else S.selectedUsers.delete(cb.value);
+  const bulkEl=el('bulkActions');
+  if (S.selectedUsers.size>0){bulkEl.style.display='flex';el('bulkCount').textContent=S.selectedUsers.size+' selected';}else bulkEl.style.display='none';
 }
 
+async function bulkDisable() {
+  if (!S.selectedUsers.size||!confirm(`Disable ${S.selectedUsers.size} users?`)) return;
+  for (const id of S.selectedUsers) await sheetsWrite('disableUser',{id});
+  S.selectedUsers.clear(); toast('Users disabled','info'); renderAdminUsers();
+}
+async function bulkDelete() {
+  if (!S.selectedUsers.size||!confirm(`Permanently delete ${S.selectedUsers.size} users?`)) return;
+  for (const id of S.selectedUsers) await sheetsWrite('removeUser',{id});
+  S.selectedUsers.clear(); toast('Users deleted','info'); renderAdminUsers();
+}
+
+async function toggleUser(id) {
+  await sheetsWrite('disableUser',{id});
+  toast('User status updated','info'); renderAdminUsers();
+}
+async function removeUser(id) {
+  if (!confirm('Delete this user permanently?')) return;
+  await sheetsWrite('removeUser',{id});
+  toast('User deleted','info'); renderAdminUsers();
+}
 async function addUser() {
-  const email = val('nuEmail').trim().toLowerCase();
-  const name  = val('nuName').trim();
-  const role  = val('nuRole');
-  if (!email||!name) { toast('Fill in all fields','error'); return; }
-  if (S.users.find(u=>u.email===email)) { toast('Email already whitelisted','error'); return; }
-  await sheetsWrite('addUser',{email,name,role,active:true});
-  toast(name+' added to whitelist','success');
-  closeModal('addUserMo');
-  renderAdminUsers();
+  const email=v('nuEmail').trim().toLowerCase(), name=v('nuName').trim();
+  if (!email||!name){toast('Fill in all fields','error');return;}
+  if (S.users.find(u=>u.email===email)){toast('Email already whitelisted','error');return;}
+  const data={id:'U'+Date.now(),email,name,role:v('nuRole'),group:v('nuGrp'),active:true};
+  await sheetsWrite('addUser',data);
+  toast(name+' added to whitelist','success'); closeMo('addUsrMo'); renderAdminUsers();
 }
 
-async function removeUser(email) {
-  if (!confirm('Remove from whitelist?')) return;
-  await sheetsWrite('removeUser',{email});
-  toast('User removed','info');
-  renderAdminUsers();
+// ─── GROUPS ───────────────────────────────────────────
+function editGroup(id) {
+  const g=S.groups.find(g=>g.id===id); if (!g) return;
+  el('grpMoTitle').textContent='Edit Group';
+  el('ngName').value=g.name; el('ngCredits').value=g.credits; el('ngDesc').value=g.desc||''; el('ngId').value=g.id;
+  openMo('addGrpMo');
+}
+async function saveGroup() {
+  const name=v('ngName').trim(); if (!name){toast('Enter group name','error');return;}
+  const editId=v('ngId');
+  const data={id:editId||'G'+Date.now(),name,credits:parseFloat(v('ngCredits'))||0,desc:v('ngDesc')};
+  await sheetsWrite(editId?'updateGroup':'addGroup',data);
+  toast(editId?'Group updated':'Group created','success'); closeMo('addGrpMo');
+  if (CFG.demoMode) S.groups=DEMO_GROUPS;
+  renderGroups(); renderAdminUsers();
+}
+async function removeGroup(id) {
+  if (!confirm('Delete this credit group? Users in this group will lose their group assignment.')) return;
+  await sheetsWrite('removeGroup',{id});
+  toast('Group removed','info'); renderGroups();
+}
+function openEditCr(id,name,current) {
+  el('crGrpInfo').textContent=`${name} · Current: ⬡ ${current}`;
+  el('crGrpId').value=id; el('crAmt').value=10;
+  openMo('editCrMo');
+}
+async function applyCredits() {
+  const id=v('crGrpId'), action=v('crAction'), amt=parseFloat(v('crAmt'))||0;
+  const g=S.groups.find(g=>g.id===id); if (!g) return;
+  let newC=g.credits;
+  if (action==='set') newC=amt;
+  else if (action==='add') newC+=amt;
+  else if (action==='subtract') newC=Math.max(0,newC-amt);
+  await sheetsWrite('updateGroup',{id,credits:newC});
+  toast(`Credits updated: ⬡ ${newC}`,'success'); closeMo('editCrMo'); renderGroups(); updatePoolDisplay();
 }
 
+// ═══════════════════════════════════════════════════════
+// ADMIN — EQUIPMENT
+// ═══════════════════════════════════════════════════════
 function renderAdminEquip() {
-  const tableEl = el('adminEquipTable');
-  const locs = ['T14','T11C01'];
-  tableEl.innerHTML = locs.map(loc=>{
-    const items = S.equipment.filter(e=>e.loc===loc);
-    return `<div style="margin-bottom:20px;">
-      <div style="font-family:var(--fd);font-weight:700;margin-bottom:10px;font-size:14px;">${loc} <span style="color:var(--text3);font-size:11px;font-family:var(--fm);">${loc==='T14'?'3D Printing Lab':'Laser Lab'}</span></div>
-      <div style="overflow-x:auto;"><table class="dtable">
+  const locs=['T14','T11C01'];
+  el('eqTable').innerHTML=locs.map(loc=>{
+    const items=S.equipment.filter(e=>e.loc===loc);
+    return `<div style="margin-bottom:22px;">
+      <div class="ffd" style="font-weight:700;margin-bottom:10px;font-size:14px;">${loc} <span class="t3 fsm">${loc==='T14'?'3D Printing Lab':'Laser Lab'}</span></div>
+      <div class="ovx"><table class="tbl">
         <thead><tr><th></th><th>Name</th><th>Description</th><th>Credits/hr</th><th>Status</th><th>Actions</th></tr></thead>
         <tbody>${items.map(e=>`<tr>
           <td style="font-size:18px">${e.icon}</td>
-          <td>${e.name}</td><td style="color:var(--text2);font-size:11px">${e.desc}</td>
-          <td><span class="text-accent">⬡ ${e.creditsPerHour}</span></td>
-          <td><span class="${e.active?'text-success':'text-danger'}">${e.active?'● Active':'○ Inactive'}</span></td>
-          <td style="display:flex;gap:6px;">
+          <td style="font-weight:500">${e.name}</td>
+          <td class="t2 fsm">${e.desc}</td>
+          <td><span class="ta">⬡ ${e.creditsPerHour}</span></td>
+          <td><span class="${e.active?'ts':'td'}">${e.active?'● Active':'○ Inactive'}</span></td>
+          <td style="display:flex;gap:5px;">
             <button class="btn btn-secondary btn-sm" onclick="editEquip('${e.id}')">Edit</button>
             <button class="btn btn-danger btn-sm" onclick="removeEquip('${e.id}')">Remove</button>
           </td>
@@ -1637,185 +1622,155 @@ function renderAdminEquip() {
     </div>`;
   }).join('');
 }
-
-function openAddEquipModal() {
-  el('equipMoTitle').textContent='Add Equipment';
-  el('neqName').value=''; el('neqDesc').value=''; el('neqIcon').value='🖨'; el('neqCredits').value=1; el('neqId').value='';
-  openModal('addEquipMo');
-}
-
 function editEquip(id) {
-  const e = S.equipment.find(e=>e.id===id); if (!e) return;
-  el('equipMoTitle').textContent='Edit Equipment';
+  const e=S.equipment.find(e=>e.id===id); if (!e) return;
+  el('eqMoTitle').textContent='Edit Equipment';
   el('neqName').value=e.name; el('neqDesc').value=e.desc; el('neqIcon').value=e.icon;
-  el('neqCredits').value=e.creditsPerHour; el('neqLoc').value=e.loc; el('neqCat').value=e.cat; el('neqId').value=e.id;
-  openModal('addEquipMo');
+  el('neqCr').value=e.creditsPerHour; el('neqLoc').value=e.loc; el('neqCat').value=e.cat; el('neqId').value=e.id;
+  openMo('addEqMo');
 }
-
 async function saveEquip() {
-  const name = val('neqName').trim(); if (!name) { toast('Enter name','error'); return; }
-  const editId = val('neqId');
-  const data = { id:editId||'E'+Date.now().toString().slice(-6), name, desc:val('neqDesc'), loc:val('neqLoc'), cat:val('neqCat'), icon:val('neqIcon')||'🔧', creditsPerHour:parseFloat(val('neqCredits'))||1, active:true };
-  await sheetsWrite(editId?'updateEquip':'addEquip', data);
-  toast(editId?'Equipment updated':'Equipment added','success');
-  closeModal('addEquipMo'); renderAdminEquip();
+  const name=v('neqName').trim(); if (!name){toast('Enter name','error');return;}
+  const editId=v('neqId');
+  const data={id:editId||'E'+Date.now(),name,desc:v('neqDesc'),loc:v('neqLoc'),cat:v('neqCat'),icon:v('neqIcon')||'🔧',creditsPerHour:parseFloat(v('neqCr'))||1,active:true};
+  await sheetsWrite(editId?'updateEquip':'addEquip',data);
+  toast('Saved','success'); closeMo('addEqMo'); renderAdminEquip();
 }
-
 async function removeEquip(id) {
   if (!confirm('Remove this equipment?')) return;
-  await sheetsWrite('removeEquip',{id});
-  toast('Removed','info'); renderAdminEquip();
+  await sheetsWrite('removeEquip',{id}); toast('Removed','info'); renderAdminEquip();
 }
 
-function renderAdminStaff() {
-  el('adminStaffTable').innerHTML = S.staff.length ? `<div style="overflow-x:auto;"><table class="dtable">
-    <thead><tr><th>Name</th><th>Role</th><th>Email</th><th>Expertise</th><th>Credits/hr</th><th>Days</th><th>Actions</th></tr></thead>
-    <tbody>${S.staff.map(s=>`<tr>
-      <td>${s.name}</td><td style="color:var(--text2)">${s.role}</td>
-      <td style="font-size:11px;color:var(--text2)">${s.email}</td>
-      <td style="font-size:11px">${(s.expertise||[]).join(', ')}</td>
-      <td>${s.creditsPerHour>0?`⬡ ${s.creditsPerHour}`:'<span class="text-success">Free</span>'}</td>
-      <td>${s.days||'—'}</td>
-      <td><button class="btn btn-danger btn-sm" onclick="removeStaff('${s.id}')">Remove</button></td>
-    </tr>`).join('')}</tbody>
-  </table></div>` : `<div class="empty-state"><p>No staff yet</p></div>`;
-}
-
-async function saveStaff() {
-  const name = val('nstName').trim(), email=val('nstEmail').trim();
-  if (!name||!email) { toast('Name & email required','error'); return; }
-  const data = { id:'S'+Date.now().toString().slice(-6), name, role:val('nstRole'), email, expertise:val('nstExp').split(',').map(s=>s.trim()).filter(Boolean), creditsPerHour:parseFloat(val('nstCredits'))||0, days:val('nstDays') };
-  await sheetsWrite('addStaff',data);
-  toast(name+' added as staff','success');
-  closeModal('addStaffMo'); renderAdminStaff();
-}
-
-async function removeStaff(id) {
-  if (!confirm('Remove staff member?')) return;
-  await sheetsWrite('removeStaff',{id});
-  toast('Removed','info'); renderAdminStaff();
-}
-
-function renderAdminBookings() {
-  const filter = el('adminBkFilter').value;
-  let bks = filter==='all' ? [...S.bookings] : S.bookings.filter(b=>b.status===filter);
+// ═══════════════════════════════════════════════════════
+// ADMIN — BOOKINGS
+// ═══════════════════════════════════════════════════════
+function renderAdminBk() {
+  const stF=el('abkStatus').value, locF=el('abkLoc').value, dateF=v('abkDate');
+  let bks=[...S.bookings];
+  if (stF!=='all') bks=bks.filter(b=>b.status===stF);
+  if (locF!=='all') bks=bks.filter(b=>b.loc===locF);
+  if (dateF) bks=bks.filter(b=>b.date===dateF);
   bks.sort((a,b)=>b.date.localeCompare(a.date));
-  el('adminBkTable').innerHTML = bks.length ? `<div style="overflow-x:auto;"><table class="dtable">
+  el('abkTable').innerHTML=bks.length?`<div class="ovx"><table class="tbl">
     <thead><tr><th>ID</th><th>User</th><th>Resource</th><th>Loc</th><th>Date</th><th>Time</th><th>Credits</th><th>Status</th><th>Check-In</th></tr></thead>
     <tbody>${bks.map(b=>`<tr>
-      <td class="text-accent" style="font-size:11px">${b.id}</td>
-      <td>${b.userName}<div style="font-size:10px;color:var(--text3)">${b.userEmail}</div></td>
-      <td style="font-size:12px">${b.resourceName}</td>
-      <td style="color:var(--text3)">${b.loc||'—'}</td>
-      <td>${b.date}</td><td>${b.startTime}–${b.endTime}</td>
-      <td>${b.credits>0?`⬡ ${b.credits}`:'Free'}</td>
-      <td><span class="bk-status ${b.status}">${b.status}</span></td>
-      <td style="font-size:11px;color:var(--text2)">${b.checkinTime?new Date(b.checkinTime).toLocaleString():'—'}</td>
+      <td class="ta fxs">${b.id}</td>
+      <td>${b.userName}<div class="fxs t3">${b.userEmail}</div></td>
+      <td class="fsm">${b.resourceName}</td>
+      <td class="t3">${b.loc||'—'}</td>
+      <td class="fsm">${b.date}</td>
+      <td class="fsm">${b.startTime}–${b.endTime}</td>
+      <td>${b.credits>0?`⬡ ${b.credits}`:'<span class="ts">Free</span>'}</td>
+      <td><span class="bk-st ${b.status}">${b.status}</span></td>
+      <td class="fxs t2">${b.checkinTime?new Date(b.checkinTime).toLocaleString():'—'}</td>
     </tr>`).join('')}</tbody>
-  </table></div>` : `<div class="empty-state"><p>No bookings</p></div>`;
+  </table></div>`:`<div class="empty"><p>No bookings found</p></div>`;
 }
 
-// ─── DISABLE / MAINTENANCE ────────────────────────────
-function renderDisablePanel() {
-  // Location toggles
-  const locs = [{id:'T14',name:'T14 — 3D Printing Lab'},{id:'T11C01',name:'T11C01 — Laser Lab'}];
-  el('disableLocList').innerHTML = locs.map(l=>{
-    const dis = S.disabledLocs.has(l.id);
-    return `<div class="card" style="margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;">
-      <div>
-        <div style="font-weight:500">${l.name}</div>
-        <div style="font-size:11px;color:${dis?'var(--danger)':'var(--success)'};margin-top:2px;">${dis?'⚠ Disabled — no new bookings':'● Accepting bookings'}</div>
-      </div>
-      <button class="btn ${dis?'btn-success':'btn-danger'} btn-sm" onclick="toggleLocDisable('${l.id}')">${dis?'Re-enable':'Disable Now'}</button>
-    </div>`;
-  }).join('');
-
-  // Individual equipment toggles
-  const allEquip = S.equipment;
-  el('disableEquipList').innerHTML = allEquip.length ? allEquip.map(e=>{
-    const dis = S.disabledEquip.has(e.id);
-    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
-      <div>
-        <span style="font-size:14px;margin-right:8px;">${e.icon}</span>
-        <span style="font-size:12px;">${e.name}</span>
-        <span style="font-size:10px;color:var(--text3);margin-left:6px;">${e.loc}</span>
-      </div>
-      <button class="btn ${dis?'btn-success':'btn-warning'} btn-sm" onclick="toggleEquipDisable('${e.id}')">${dis?'Enable':'Disable'}</button>
-    </div>`;
-  }).join('') : `<div style="color:var(--text3);font-size:12px;padding:12px;">No equipment yet.</div>`;
-
-  // Disable periods
-  el('disablePeriodList').innerHTML = S.disabledPeriods.length ? S.disabledPeriods.map(dp=>`
-    <div class="bk-item" style="margin-bottom:8px;">
-      <div class="bk-info">
-        <div class="bk-title">${dp.target==='all'?'All Locations':dp.target}</div>
-        <div class="bk-meta">${dp.start} to ${dp.end} · ${dp.reason||'No reason given'}</div>
-      </div>
-      <button class="btn btn-danger btn-sm" onclick="removeDisablePeriod('${dp.id}')">Remove</button>
-    </div>`).join('') : `<div style="font-size:12px;color:var(--text3);">No scheduled disable periods.</div>`;
+// ═══════════════════════════════════════════════════════
+// ADMIN — STAFF
+// ═══════════════════════════════════════════════════════
+function renderAdminStaff() {
+  el('stTable').innerHTML=S.staff.length?`<div class="ovx"><table class="tbl">
+    <thead><tr><th>Name</th><th>Role</th><th>Email</th><th>Expertise</th><th>Credits/hr</th><th>Days</th><th>Actions</th></tr></thead>
+    <tbody>${S.staff.map(s=>`<tr>
+      <td style="font-weight:500">${s.name}</td>
+      <td class="t2 fsm">${s.role}</td>
+      <td class="t2 fxs">${s.email}</td>
+      <td class="fsm">${(s.expertise||[]).join(', ')}</td>
+      <td>${s.creditsPerHour>0?`⬡ ${s.creditsPerHour}`:'<span class="ts">Free</span>'}</td>
+      <td class="t2">${s.days||'—'}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="removeStaff('${s.id}')">Remove</button></td>
+    </tr>`).join('')}</tbody>
+  </table></div>`:`<div class="empty"><p>No staff yet</p></div>`;
+}
+async function saveStaff() {
+  const name=v('nstName').trim(),email=v('nstEmail').trim();
+  if (!name||!email){toast('Name & email required','error');return;}
+  const data={id:'S'+Date.now(),name,role:v('nstRole'),email,expertise:v('nstExp').split(',').map(s=>s.trim()).filter(Boolean),creditsPerHour:parseFloat(v('nstCr'))||0,days:v('nstDays')};
+  await sheetsWrite('addStaff',data);
+  toast(name+' added','success'); closeMo('addStMo'); renderAdminStaff();
+}
+async function removeStaff(id) {
+  if (!confirm('Remove staff?')) return;
+  await sheetsWrite('removeStaff',{id}); toast('Removed','info'); renderAdminStaff();
 }
 
-function toggleLocDisable(loc) {
+// ═══════════════════════════════════════════════════════
+// ADMIN — DISABLE
+// ═══════════════════════════════════════════════════════
+function renderDisable() {
+  const locs=[{id:'T14',name:'T14 — 3D Printing Lab'},{id:'T11C01',name:'T11C01 — Laser Lab'}];
+  el('disLocList').innerHTML=locs.map(l=>{
+    const dis=S.disabledLocs.has(l.id);
+    return `<div class="card mb16 flexb">
+      <div><div style="font-weight:500">${l.name}</div><div class="fxs ${dis?'td':'ts'} mt-1">${dis?'⚠ Disabled':'● Active'}</div></div>
+      <button class="btn ${dis?'btn-success':'btn-danger'} btn-sm" onclick="toggleLocDis('${l.id}')">${dis?'Re-enable':'Disable'}</button>
+    </div>`;}).join('');
+
+  el('disEqList').innerHTML=S.equipment.map(e=>{
+    const dis=S.disabledEquip.has(e.id);
+    return `<div class="flexb" style="padding:7px 0;border-bottom:1px solid var(--border);">
+      <div><span style="font-size:15px;margin-right:7px;">${e.icon}</span><span class="fsm">${e.name}</span><span class="fxs t3" style="margin-left:6px;">${e.loc}</span></div>
+      <button class="btn ${dis?'btn-success':'btn-warning'} btn-sm" onclick="toggleEqDis('${e.id}')">${dis?'Enable':'Disable'}</button>
+    </div>`;}).join('');
+
+  el('disPeriods').innerHTML=S.disabledPeriods.length?S.disabledPeriods.map(dp=>`
+    <div class="bki mb16">
+      <div class="bki-info"><div class="bki-title">${dp.target==='all'?'All Locations':dp.target}</div>
+        <div class="bki-meta">${dp.start} → ${dp.end} · ${dp.reason||'No reason'}</div></div>
+      <button class="btn btn-danger btn-sm" onclick="removeDisP('${dp.id}')">Remove</button>
+    </div>`).join(''):`<div class="t3 fsm">No scheduled periods.</div>`;
+}
+
+function toggleLocDis(loc) {
   if (S.disabledLocs.has(loc)) S.disabledLocs.delete(loc); else S.disabledLocs.add(loc);
-  localStorage.setItem('fablabDisabledLocs', JSON.stringify([...S.disabledLocs]));
-  toast(`${loc} ${S.disabledLocs.has(loc)?'disabled':'re-enabled'}`,'info');
-  renderDisablePanel();
+  localStorage.setItem('fablabDisLoc',JSON.stringify([...S.disabledLocs]));
+  toast(`${loc} ${S.disabledLocs.has(loc)?'disabled':'re-enabled'}`,'info'); renderDisable();
 }
-
-function toggleEquipDisable(id) {
+function toggleEqDis(id) {
   if (S.disabledEquip.has(id)) S.disabledEquip.delete(id); else S.disabledEquip.add(id);
-  localStorage.setItem('fablabDisabledEquip', JSON.stringify([...S.disabledEquip]));
-  const e = S.equipment.find(e=>e.id===id);
-  toast(`${e?.name||id} ${S.disabledEquip.has(id)?'disabled':'enabled'}`,'info');
-  renderDisablePanel();
+  localStorage.setItem('fablabDisEq',JSON.stringify([...S.disabledEquip]));
+  const e=S.equipment.find(e=>e.id===id);
+  toast(`${e?.name||id} ${S.disabledEquip.has(id)?'disabled':'enabled'}`,'info'); renderDisable();
 }
-
 function scheduleDisable() {
-  const start  = val('disStart'), end=val('disEnd'), target=val('disTarget'), reason=val('disReason');
-  if (!start||!end) { toast('Set start and end dates','error'); return; }
-  if (end<start) { toast('End must be after start','error'); return; }
-  const dp = { id:'DP'+Date.now(), start, end, target, reason };
-  S.disabledPeriods.push(dp);
-  localStorage.setItem('fablabDisPeriods',JSON.stringify(S.disabledPeriods));
-  toast('Disable period scheduled','success');
-  renderDisablePanel();
+  const start=v('disStart'),end=v('disEnd'),target=v('disTgt'),reason=v('disReason');
+  if (!start||!end){toast('Set start and end dates','error');return;}
+  if (end<start){toast('End must be after start','error');return;}
+  S.disabledPeriods.push({id:'DP'+Date.now(),start,end,target,reason});
+  localStorage.setItem('fablabDisP',JSON.stringify(S.disabledPeriods));
+  toast('Disable period scheduled','success'); renderDisable();
 }
-
-function removeDisablePeriod(id) {
-  S.disabledPeriods = S.disabledPeriods.filter(dp=>dp.id!==id);
-  localStorage.setItem('fablabDisPeriods',JSON.stringify(S.disabledPeriods));
-  toast('Removed','info'); renderDisablePanel();
+function removeDisP(id) {
+  S.disabledPeriods=S.disabledPeriods.filter(dp=>dp.id!==id);
+  localStorage.setItem('fablabDisP',JSON.stringify(S.disabledPeriods));
+  toast('Removed','info'); renderDisable();
 }
 
 // ═══════════════════════════════════════════════════════
 // UI HELPERS
 // ═══════════════════════════════════════════════════════
-function openModal(id) { el(id).classList.add('open'); }
-function closeModal(id) { el(id).classList.remove('open'); }
-document.addEventListener('click',e=>{ if(e.target.classList.contains('modal-ov')) e.target.classList.remove('open'); });
+function openMo(id){el(id).classList.add('open');}
+function closeMo(id){el(id).classList.remove('open');}
+document.addEventListener('click',e=>{if(e.target.classList.contains('mov'))e.target.classList.remove('open');});
 
-function toast(msg, type='info') {
-  const icons = {success:'✓',error:'✕',info:'ℹ'};
-  const d = document.createElement('div');
-  d.className = `toast ${type}`;
-  d.innerHTML = `<span>${icons[type]||'·'}</span><span>${msg}</span>`;
-  el('toastCt').appendChild(d);
-  setTimeout(()=>d.remove(), 4500);
+function toast(msg,type='info') {
+  const icons={success:'✓',error:'✕',info:'ℹ'};
+  const d=document.createElement('div'); d.className=`toast ${type}`;
+  d.innerHTML=`<span>${icons[type]}</span><span>${msg}</span>`;
+  el('toastCt').appendChild(d); setTimeout(()=>d.remove(),4500);
 }
 
-function el(id) { return document.getElementById(id); }
-function val(id) { return (el(id)||{}).value||''; }
-function els(sel) { return document.querySelectorAll(sel); }
-function show(id) { el(id).classList.remove('hidden'); }
-function hide(id) { el(id).classList.add('hidden'); }
-
-function todayStr() { return new Date().toISOString().split('T')[0]; }
-function genId() { return `BK-${new Date().getFullYear()}-${String(Math.floor(Math.random()*9000)+1000)}`; }
-function fmtDate(s) {
-  if (!s) return '—';
-  const d = new Date(s+'T00:00');
-  return d.toLocaleDateString('en-SG',{weekday:'short',year:'numeric',month:'short',day:'numeric'});
-}
+function el(id){return document.getElementById(id);}
+function v(id){return(el(id)||{}).value||'';}
+function els(sel){return document.querySelectorAll(sel);}
+function show(id){el(id)?.classList.remove('hidden');}
+function hide(id){el(id)?.classList.add('hidden');}
+function today(){return new Date().toISOString().split('T')[0];}
+function genId(){return `BK-${new Date().getFullYear()}-${String(Math.floor(Math.random()*9000)+1000)}`;}
+function fmtDate(s){if(!s)return'—';const d=new Date(s+'T00:00');return d.toLocaleDateString('en-SG',{weekday:'short',year:'numeric',month:'short',day:'numeric'});}
+function nowInRange(st,en){const n=new Date(),nm=n.getHours()*60+n.getMinutes();const[sh,sm]=st.split(':').map(Number);const[eh,em]=en.split(':').map(Number);return nm>=sh*60+sm&&nm<eh*60+em;}
 </script>
 </body>
 </html>
