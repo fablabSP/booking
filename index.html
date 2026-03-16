@@ -371,6 +371,7 @@ input[type="date"],input[type="time"]{color-scheme:inherit;}
         </div>
       </div>
       <button class="btn-icon" onclick="toggleTheme()" id="themeBtn2" title="Toggle theme">🌙</button>
+      <button class="btn-icon" onclick="manualRefresh()" id="refreshBtn" title="Refresh data from Sheets" style="font-size:15px;">↺</button>
       <button class="btn-icon" onclick="doLogout()" title="Logout">⏻</button>
     </div>
   </div>
@@ -903,20 +904,58 @@ function processCSV(evt, notify) {
 }
 
 // ═══════════════════════════════════════════════════════
-// SHEETS API
+// SHEETS API  —  with 60-second local cache
 // ═══════════════════════════════════════════════════════
-async function sheetsGet(range) {
+const CACHE_TTL = 60000; // 60 seconds
+const _cache = {};
+
+async function sheetsGet(range, forceRefresh=false) {
   if (CFG.demoMode) return null;
+  const key = range;
+  const now = Date.now();
+  // Return cached value if still fresh
+  if (!forceRefresh && _cache[key] && (now - _cache[key].ts) < CACHE_TTL) {
+    return _cache[key].data;
+  }
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${CFG.sheetId}/values/${encodeURIComponent(range)}?key=${CFG.apiKey}`;
   const r = await fetch(url);
+  if (r.status === 429) {
+    // Rate limited — return stale cache if available, otherwise throw
+    if (_cache[key]) {
+      toast('Rate limited — showing cached data','info');
+      return _cache[key].data;
+    }
+    throw new Error('Rate limited (429). Please wait 30 seconds and try again.');
+  }
   if (!r.ok) throw new Error('Sheets '+r.status);
-  return (await r.json()).values||[];
+  const data = (await r.json()).values||[];
+  _cache[key] = { data, ts: now };
+  return data;
 }
+
 async function sheetsWrite(action, data) {
   if (CFG.demoMode) { applyDemo(action,data); return {success:true}; }
   if (!CFG.gasUrl) { toast('No Apps Script URL configured','error'); return null; }
   const r = await fetch(CFG.gasUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,data})});
+  // Invalidate relevant caches after a write so next read is fresh
+  const writeInvalidates = {
+    addBooking:'Bookings', cancelBooking:'Bookings', checkin:'Bookings',
+    addUser:'Users', removeUser:'Users', updateUser:'Users', disableUser:'Users',
+    addGroup:'Groups', updateGroup:'Groups', removeGroup:'Groups',
+    addEquip:'Equipment', updateEquip:'Equipment', removeEquip:'Equipment',
+    addStaff:'Staff', removeStaff:'Staff',
+  };
+  const sheet = writeInvalidates[action];
+  if (sheet) {
+    Object.keys(_cache).forEach(k=>{ if(k.startsWith(sheet)) delete _cache[k]; });
+  }
   return await r.json();
+}
+
+// Force a full refresh (call after writes that need immediate re-read)
+async function refreshData() {
+  Object.keys(_cache).forEach(k=>delete _cache[k]);
+  await loadAll();
 }
 function applyDemo(action, data) {
   if (action==='addBooking') {
@@ -990,6 +1029,28 @@ function getUserGroup(u) {
 function getPoolCredits(groupId) {
   if (CFG.demoMode) { const g=DEMO_GROUPS.find(g=>g.id===groupId); return g?g.credits:0; }
   const g=S.groups.find(g=>g.id===groupId); return g?g.credits:0;
+}
+
+async function manualRefresh() {
+  const btn = el("refreshBtn");
+  if (btn) { btn.textContent="↻"; btn.disabled=true; }
+  try {
+    await refreshData();
+    updatePoolDisplay();
+    const activePg = document.querySelector(".page.active");
+    if (activePg) {
+      const pg = activePg.id.replace("pg-","");
+      if (pg==="dashboard") renderDashboard();
+      else if (pg==="mybookings") renderMyBk();
+      else if (pg==="admin-dash") renderAdminDash();
+      else if (pg==="admin-users") { renderAdminUsers(); renderGroups(); }
+      else if (pg==="admin-equip") renderAdminEquip();
+      else if (pg==="admin-bookings") renderAdminBk();
+      else if (pg==="admin-staff") renderAdminStaff();
+    }
+    toast("Data refreshed","success");
+  } catch(e) { toast("Refresh failed: "+e.message,"error"); }
+  finally { if (btn) { btn.textContent="↺"; btn.disabled=false; } }
 }
 
 function updatePoolDisplay() {
