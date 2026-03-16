@@ -867,7 +867,12 @@ async function doLogin() {
   const email = v('loginEmail').trim().toLowerCase();
   if (!email||!email.includes('@')) { toast('Enter a valid email','error'); return; }
   await loadAll();
+  console.log('=== LOGIN DEBUG ===');
+  console.log('Email entered:', email);
+  console.log('Users loaded:', S.users.length);
+  console.log('User emails:', S.users.map(u=>u.email+'|active:'+u.active).join(', '));
   const u = S.users.find(u=>u.email.toLowerCase()===email && u.active);
+  console.log('Match found:', u ? JSON.stringify(u) : 'NONE');
   if (!u) { toast('Email not on whitelist or account is disabled. Contact admin.','error'); return; }
   S.user = u;
   hide('loginSc'); show('mainApp');
