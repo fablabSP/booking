@@ -991,10 +991,10 @@ async function loadAll() {
       sheetsGet('Bookings!A2:R'),
       sheetsGet('Config!A2:B'),
     ]);
-    S.users     = (uR||[]).map(r=>({email:r[0],name:r[1],role:r[2],active:r[3]==='TRUE'}));
+    S.users     = (uR||[]).map(r=>({id:r[0],email:r[1],name:r[2],role:r[3],active:r[4]==='TRUE'}));
     S.equipment = (eR||[]).map(r=>({id:r[0],name:r[1],desc:r[2],loc:r[3],cat:r[4],icon:r[5],creditsPerHour:parseFloat(r[6])||1,active:r[7]==='TRUE'}));
     S.staff     = (stR||[]).map(r=>({id:r[0],name:r[1],role:r[2],email:r[3],expertise:(r[4]||'').split(',').map(x=>x.trim()),creditsPerHour:parseFloat(r[5])||0,days:r[6]}));
-    S.bookings  = (bR||[]).map(r=>({id:r[0],userEmail:r[1],userName:r[2],type:r[3],resourceId:r[4],resourceName:r[5],date:r[6],startTime:r[7],endTime:r[8],duration:parseFloat(r[9]),credits:parseFloat(r[10])||0,status:r[11],purpose:r[12],topic:r[13],checkinTime:r[14],createdAt:r[15]}));
+    S.bookings  = (bR||[]).map(r=>({id:r[0],userEmail:r[1],userName:r[2],type:r[3],resourceId:r[4],resourceName:r[5],loc:r[6],date:r[7],startTime:r[8],endTime:r[9],duration:parseFloat(r[10]),credits:parseFloat(r[11])||0,status:r[12],purpose:r[13],topic:r[14],checkinTime:r[15],createdAt:r[16]}));
     const poolRow = (cfR||[]).find(r=>r[0]==='poolCredits');
     S.poolCredits = poolRow ? parseFloat(poolRow[1]) : 100;
   } catch(e) {
