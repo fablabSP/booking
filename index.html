@@ -1030,33 +1030,39 @@ async function refreshData() {
   await loadAll();
 }
 function applyDemo(action, data) {
-  if (action==='addBooking') {
-    DEMO_BOOKINGS.push(data);
-    if (data.credits>0) {
-      const grp = DEMO_GROUPS.find(g=>g.id===data.groupId);
-      if (grp) grp.credits = Math.max(0, grp.credits-data.credits);
-    }
+  switch(action) {
+    case 'addBooking':
+      DEMO_BOOKINGS.push(data);
+      if (data.credits>0) {
+        const grp=DEMO_GROUPS.find(g=>g.id===data.groupId);
+        if (grp) grp.credits=Math.max(0,grp.credits-data.credits);
+      }
+      break;
+    case 'cancelBooking':
+      const bx=DEMO_BOOKINGS.find(x=>x.id===data.id);
+      if (bx) { bx.status='cancelled'; if(bx.credits>0){const gx=DEMO_GROUPS.find(g=>g.id===bx.groupId);if(gx)gx.credits+=bx.credits;} }
+      break;
+    case 'checkin':
+      const cx=DEMO_BOOKINGS.find(x=>x.id===data.id);
+      if (cx){cx.status='checked-in';cx.checkinTime=new Date().toISOString();}
+      break;
+    case 'addUser':    DEMO_USERS.push(data); break;
+    case 'updateUser': { const i=DEMO_USERS.findIndex(u=>u.id===data.id); if(i>-1) DEMO_USERS[i]={...DEMO_USERS[i],...data}; break; }
+    case 'removeUser': { const i=DEMO_USERS.findIndex(u=>u.id===data.id); if(i>-1) DEMO_USERS.splice(i,1); break; }
+    case 'disableUser':{ const u=DEMO_USERS.find(u=>u.id===data.id); if(u) u.active=!u.active; break; }
+    case 'addGroup':   DEMO_GROUPS.push(data); break;
+    case 'updateGroup':{ const i=DEMO_GROUPS.findIndex(g=>g.id===data.id); if(i>-1) DEMO_GROUPS[i]={...DEMO_GROUPS[i],...data}; break; }
+    case 'removeGroup':{ const i=DEMO_GROUPS.findIndex(g=>g.id===data.id); if(i>-1) DEMO_GROUPS.splice(i,1); break; }
+    case 'addEquip':   DEMO_EQUIPMENT.push(data); break;
+    case 'updateEquip':{ const i=DEMO_EQUIPMENT.findIndex(e=>e.id===data.id); if(i>-1) DEMO_EQUIPMENT[i]={...DEMO_EQUIPMENT[i],...data}; break; }
+    case 'removeEquip':{ const i=DEMO_EQUIPMENT.findIndex(e=>e.id===data.id); if(i>-1) DEMO_EQUIPMENT.splice(i,1); break; }
+    case 'addStaff':   DEMO_STAFF.push(data); break;
+    case 'removeStaff':{ const i=DEMO_STAFF.findIndex(s=>s.id===data.id); if(i>-1) DEMO_STAFF.splice(i,1); break; }
   }
-  if (action==='cancelBooking') {
-    const b=DEMO_BOOKINGS.find(x=>x.id===data.id);
-    if (b) {
-      b.status='cancelled';
-      if (b.credits>0) { const g=DEMO_GROUPS.find(g=>g.id===b.groupId); if(g) g.credits+=b.credits; }
-    }
-  }
-  if (action==='checkin') { const b=DEMO_BOOKINGS.find(x=>x.id===data.id); if(b){b.status='checked-in';b.checkinTime=new Date().toISOString();} }
-  if (action==='addUser')    { DEMO_USERS.push(data); }
-  if (action==='updateUser') { const i=DEMO_USERS.findIndex(u=>u.id===data.id); if(i>-1) DEMO_USERS[i]={...DEMO_USERS[i],...data}; }
-  if (action==='removeUser') { const i=DEMO_USERS.findIndex(u=>u.id===data.id); if(i>-1) DEMO_USERS.splice(i,1); }
-  if (action==='disableUser'){ const u=DEMO_USERS.find(u=>u.id===data.id); if(u) u.active=!u.active; }
-  if (action==='addGroup')   { DEMO_GROUPS.push(data); }
-  if (action==='updateGroup'){ const i=DEMO_GROUPS.findIndex(g=>g.id===data.id); if(i>-1) DEMO_GROUPS[i]={...DEMO_GROUPS[i],...data}; }
-  if (action==='removeGroup'){ const i=DEMO_GROUPS.findIndex(g=>g.id===data.id); if(i>-1) DEMO_GROUPS.splice(i,1); }
-  if (action==='addEquip')   { DEMO_EQUIPMENT.push(data); }
-  if (action==='updateEquip'){ const i=DEMO_EQUIPMENT.findIndex(e=>e.id===data.id); if(i>-1) DEMO_EQUIPMENT[i]={...DEMO_EQUIPMENT[i],...data}; }
-  if (action==='removeEquip'){ const i=DEMO_EQUIPMENT.findIndex(e=>e.id===data.id); if(i>-1) DEMO_EQUIPMENT.splice(i,1); }
-  if (action==='addStaff')   { DEMO_STAFF.push(data); }
-  if (action==='removeStaff'){ const i=DEMO_STAFF.findIndex(s=>s.id===data.id); if(i>-1) DEMO_STAFF.splice(i,1); }
+  // Always sync S.* from DEMO_* after any mutation
+  S.users=DEMO_USERS; S.groups=DEMO_GROUPS;
+  S.equipment=DEMO_EQUIPMENT; S.staff=DEMO_STAFF;
+  S.bookings=DEMO_BOOKINGS; S.availability=DEMO_AVAILABILITY;
 }
 
 async function loadAll() {
@@ -1689,7 +1695,7 @@ async function bulkDelete() {
 async function toggleUser(id) {
   await sheetsWrite('disableUser',{id});
   if (!CFG.demoMode) await refreshData();
-  else { S.users = DEMO_USERS; } // demo mode already mutated by applyDemo
+  // applyDemo already syncs S.users for demo mode
   toast('User status updated','info');
   renderAdminUsers();
 }
@@ -1738,7 +1744,9 @@ async function saveGroup() {
 async function removeGroup(id) {
   if (!confirm('Delete this credit group? Users in this group will lose their group assignment.')) return;
   await sheetsWrite('removeGroup',{id});
-  toast('Group removed','info'); renderGroups();
+  if (!CFG.demoMode) await refreshData();
+  toast('Group removed','info');
+  renderGroups(); renderAdminUsers();
 }
 function openEditCr(id,name,current) {
   el('crGrpInfo').textContent=`${name} · Current: ⬡ ${current}`;
@@ -1856,7 +1864,10 @@ async function saveStaff() {
 }
 async function removeStaff(id) {
   if (!confirm('Remove staff?')) return;
-  await sheetsWrite('removeStaff',{id}); toast('Removed','info'); renderAdminStaff();
+  await sheetsWrite('removeStaff',{id});
+  if (!CFG.demoMode) await refreshData();
+  toast('Staff removed','info');
+  renderAdminStaff();
 }
 
 // ═══════════════════════════════════════════════════════
@@ -2126,13 +2137,12 @@ async function toggleEquipActive(id) {
   const equip = S.equipment.find(e=>e.id===id); if (!equip) return;
   const newActive = !equip.active;
   const data = {
-    id: equip.id, name: equip.name, desc: equip.desc,
-    loc: equip.loc, cat: equip.cat, icon: equip.icon,
+    id: equip.id, name: equip.name, desc: equip.desc||'',
+    loc: equip.loc, cat: equip.cat, icon: equip.icon||'🔧',
     creditsPerHour: equip.creditsPerHour, active: newActive
   };
   await sheetsWrite('updateEquip', data);
-  // Update local state immediately so UI reflects change
-  equip.active = newActive;
+  // applyDemo already updated S.equipment for demo mode
   if (!CFG.demoMode) await refreshData();
   toast(`${equip.name} ${newActive?'enabled':'disabled'}`, 'info');
   renderAdminEquip();
