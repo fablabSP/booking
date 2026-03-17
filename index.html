@@ -961,7 +961,10 @@ async function sheetsGet(range, forceRefresh=false) {
   if (!forceRefresh && _cache[key] && (now - _cache[key].ts) < CACHE_TTL) {
     return _cache[key].data;
   }
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${CFG.sheetId}/values/${encodeURIComponent(range)}?key=${CFG.apiKey}`;
+  // Encode sheet name but preserve the ! and range (A2:H) — don't double-encode colon
+  const [sheetPart, rangePart] = range.split('!');
+  const encodedRange = encodeURIComponent(sheetPart) + '!' + rangePart;
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${CFG.sheetId}/values/${encodedRange}?key=${CFG.apiKey}`;
   const r = await fetch(url);
   if (r.status === 429) {
     // Rate limited — return stale cache if available, otherwise throw
@@ -1053,7 +1056,7 @@ async function loadAll() {
     S.groups    = (gR||[]).map(r=>({id:r[0],name:r[1],credits:parseFloat(r[2])||0,desc:r[3]}));
     // Availability is optional — won't break login if sheet missing
     try {
-      const avR = await sheetsGet('Availability!A2:H');
+      const avR = await sheetsGet('Availability!A2:H', false);
       S.availability = (avR||[]).map(r=>({id:r[0],staffId:r[1],staffName:r[2],date:r[3],startTime:r[4],endTime:r[5],label:r[6]||'',notes:r[7]||''}));
     } catch(e) { S.availability = []; }
   } catch(e) { toast('Load error: '+e.message,'error'); }
@@ -1152,7 +1155,7 @@ function goPage(pg) {
   if (pg==='admin-users')    { renderAdminUsers(); renderGroups(); }
   if (pg==='admin-equip')    renderAdminEquip();
   if (pg==='admin-bookings') renderAdminBk();
-  if (pg==='admin-staff')    renderAdminStaff();
+  if (pg==='admin-staff')    { renderAdminStaff(); renderAvailability(); populateAvailStaff(); }
   if (pg==='admin-disable')  renderDisable();
 }
 
@@ -2026,12 +2029,7 @@ function renderUserAvailability() {
       </div>`).join('')}`;
 }
 
-// Hook into goPage for staff consultancy tab
-const _origGoPage = goPage;
-function goPage(pg) {
-  _origGoPage(pg);
-  if (pg==='admin-staff') { renderAdminStaff(); renderAvailability(); populateAvailStaff(); }
-}
+// goPage hook removed - handled inline in goPage function
 
 function populateAvailStaff() {
   const sel = document.getElementById('availStaff');
