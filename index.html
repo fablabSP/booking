@@ -1049,7 +1049,7 @@ function applyDemo(action, data) {
     case 'addUser':    DEMO_USERS.push(data); break;
     case 'updateUser': { const i=DEMO_USERS.findIndex(u=>u.id===data.id); if(i>-1) DEMO_USERS[i]={...DEMO_USERS[i],...data}; break; }
     case 'removeUser': { const i=DEMO_USERS.findIndex(u=>u.id===data.id); if(i>-1) DEMO_USERS.splice(i,1); break; }
-    case 'disableUser':{ const u=DEMO_USERS.find(u=>u.id===data.id); if(u) u.active=!u.active; break; }
+    case 'disableUser':{ const u=DEMO_USERS.find(u=>u.id===data.id); if(u) u.active = (data.active !== undefined) ? data.active : !u.active; break; }
     case 'addGroup':   DEMO_GROUPS.push(data); break;
     case 'updateGroup':{ const i=DEMO_GROUPS.findIndex(g=>g.id===data.id); if(i>-1) DEMO_GROUPS[i]={...DEMO_GROUPS[i],...data}; break; }
     case 'removeGroup':{ const i=DEMO_GROUPS.findIndex(g=>g.id===data.id); if(i>-1) DEMO_GROUPS.splice(i,1); break; }
@@ -1703,14 +1703,11 @@ async function bulkDelete() {
 
 async function toggleUser(id) {
   const u = S.users.find(u=>u.id===id); if (!u) return;
-  const willDisable = u.active;
-  // Mutate immediately so UI updates right away
-  u.active = !u.active;
-  const di = DEMO_USERS.findIndex(x=>x.id===id);
-  if (di>-1) DEMO_USERS[di].active = u.active;
-  await sheetsWrite('disableUser',{id});
+  const newActive = !u.active;
+  // Pass newActive so applyDemo sets it correctly instead of toggling again
+  await sheetsWrite('disableUser', {id, active: newActive});
   if (!CFG.demoMode) await refreshData();
-  toast(`${u.name} ${willDisable?'disabled — cannot login':'re-enabled'}`, 'info');
+  toast(`${u.name} ${newActive?'re-enabled':'disabled — cannot login'}`, 'info');
   renderAdminUsers();
 }
 async function removeUser(id) {
@@ -2154,11 +2151,7 @@ async function toggleEquipActive(id) {
     loc: equip.loc, cat: equip.cat, icon: equip.icon||'🔧',
     creditsPerHour: equip.creditsPerHour, active: newActive
   };
-  // Mutate local state immediately so UI updates right away
-  equip.active = newActive;
-  // Also update DEMO_EQUIPMENT directly so applyDemo sync doesn't overwrite
-  const di = DEMO_EQUIPMENT.findIndex(e=>e.id===id);
-  if (di>-1) DEMO_EQUIPMENT[di].active = newActive;
+  // Let applyDemo handle the mutation — it will spread data including active:newActive
   await sheetsWrite('updateEquip', data);
   if (!CFG.demoMode) await refreshData();
   toast(`${equip.name} ${newActive?'enabled':'disabled'}`, 'info');
