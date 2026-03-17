@@ -1649,6 +1649,7 @@ function renderAdminUsers() {
   const grpF=el('usrGrpFilter')?.value||'all';
   const stF=el('usrStatusFilter')?.value||'all';
   let users=[...S.users];
+  console.log('renderAdminUsers called, users active states:', users.map(u=>u.name+':'+u.active));
   if (grpF!=='all') users=users.filter(u=>u.group===grpF);
   if (stF==='active') users=users.filter(u=>u.active);
   if (stF==='disabled') users=users.filter(u=>!u.active);
