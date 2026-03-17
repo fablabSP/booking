@@ -605,7 +605,6 @@ input[type="date"],input[type="time"]{color-scheme:inherit;}
         <!-- Bulk actions -->
         <div class="flex mb16" id="bulkActions" style="display:none!important;">
           <span class="fsm t2" id="bulkCount">0 selected</span>
-          <button class="btn btn-warning btn-sm" onclick="bulkDisable()">Disable Selected</button>
           <button class="btn btn-danger btn-sm" onclick="bulkDelete()">Delete Selected</button>
         </div>
         <div id="usrTable"></div>
@@ -810,7 +809,7 @@ let CFG = { sheetId:'', apiKey:'', gasUrl:'', admins:[], sysName:'FabLab', demoM
 
 let S = {
   user:null, users:[], equipment:[], staff:[], bookings:[], groups:[],
-  disabledEquip:new Set(), disabledLocs:new Set(), disabledPeriods:[], availability:[],
+  disabledEquip:new Set(), disabledLocs:new Set(), disabledGroups:new Set(), disabledPeriods:[], availability:[],
   bookType:'equipment', selRes:null, selDate:null, selTime:null, duration:1,
   calYear:null, calMonth:null, _activeLoc:'T14',
   selectedUsers: new Set(),
@@ -863,6 +862,7 @@ window.onload = () => {
   if (saved) CFG = {...CFG,...JSON.parse(saved)};
   const dis  = localStorage.getItem('fablabDisEq');   if (dis)  S.disabledEquip   = new Set(JSON.parse(dis));
   const disL = localStorage.getItem('fablabDisLoc');  if (disL) S.disabledLocs    = new Set(JSON.parse(disL));
+  const disG = localStorage.getItem('fablabDisGrp');  if (disG) S.disabledGroups  = new Set(JSON.parse(disG));
   const disP = localStorage.getItem('fablabDisP');    if (disP) S.disabledPeriods = JSON.parse(disP);
   const theme = localStorage.getItem('fablabTheme') || 'dark';
   document.documentElement.setAttribute('data-theme', theme);
@@ -1232,11 +1232,18 @@ function checkNoBudget() {
   if (!S.user || isAdmin(S.user)) return;
   const grp=getUserGroup(S.user);
   const credits=grp?grp.credits:0;
+  const grpDisabled = isUserGroupDisabled();
   const banner=el('bookNcBanner');
   if (banner) {
-    banner.classList.toggle('hidden', credits>0);
-    if (credits===0 && el('bncRemaining')) el('bncRemaining').textContent=credits;
+    const showBanner = (credits===0 || grpDisabled) && S.bookType==='equipment';
+    banner.classList.toggle('hidden', !showBanner);
+    if (el('bncRemaining')) el('bncRemaining').textContent = grpDisabled
+      ? `Your group has been temporarily disabled by admin.`
+      : `${credits} credits remaining`;
   }
+  // Disable confirm button if group is disabled and booking equipment
+  const confirmBtn = el('btnConfirm');
+  if (confirmBtn && S.bookType==='equipment') confirmBtn.disabled = grpDisabled || credits===0;
 }
 
 function setBookType(t) {
@@ -1615,14 +1622,17 @@ function renderGroups() {
     <thead><tr><th>Group Name</th><th>Description</th><th>Pool Credits</th><th>Members</th><th>Actions</th></tr></thead>
     <tbody>${S.groups.map(g=>{
       const members=S.users.filter(u=>u.group===g.id&&u.active).length;
+      const grpDisabled = S.disabledGroups && S.disabledGroups.has(g.id);
+      const isFabStaff = g.name.toLowerCase().includes('staff') || g.name.toLowerCase().includes('fablab');
       return `<tr>
-        <td><span style="font-weight:600;">${g.name}</span></td>
+        <td><span style="font-weight:600;">${g.name}</span>${grpDisabled?'<span class="badge badge-dis" style="margin-left:6px;">Disabled</span>':''}</td>
         <td class="t2">${g.desc||'—'}</td>
         <td><span class="ta" style="font-weight:600;">⬡ ${g.credits}</span></td>
         <td>${members} users</td>
-        <td style="display:flex;gap:6px;">
+        <td style="display:flex;gap:6px;flex-wrap:wrap;">
           <button class="btn btn-secondary btn-sm" onclick="editGroup('${g.id}')">Edit</button>
           <button class="btn btn-success btn-sm" onclick="openEditCr('${g.id}','${g.name}',${g.credits})">Credits</button>
+          ${!isFabStaff?`<button class="btn ${grpDisabled?'btn-success':'btn-warning'} btn-sm" onclick="toggleGroupDisable('${g.id}')">${grpDisabled?'Enable':'Disable'}</button>`:'<span class="fxs t3" style="padding:5px 8px;">Staff (exempt)</span>'}
           <button class="btn btn-danger btn-sm" onclick="removeGroup('${g.id}')">Delete</button>
         </td>
       </tr>`;}).join('')}
@@ -1658,7 +1668,6 @@ function renderAdminUsers() {
         <td>${grp?`<span class="grp-badge">${grp.name}</span>`:'<span class="t3">—</span>'}</td>
         <td><span class="${u.active?'ts':'td'}">${u.active?'● Active':'○ Disabled'}</span></td>
         <td style="display:flex;gap:5px;">
-          <button class="btn ${u.active?'btn-warning':'btn-success'} btn-sm" onclick="toggleUser('${u.id}')">${u.active?'Disable':'Enable'}</button>
           <button class="btn btn-danger btn-sm" onclick="removeUser('${u.id}')">Delete</button>
         </td>
       </tr>`;}).join('')}
@@ -2188,6 +2197,26 @@ function downloadTemplate(type) {
   a.click();
   URL.revokeObjectURL(url);
   toast(`Downloaded ${filename}`, 'success');
+}
+
+
+// ── GROUP DISABLE ─────────────────────────────────────
+function toggleGroupDisable(id) {
+  if (S.disabledGroups.has(id)) S.disabledGroups.delete(id);
+  else S.disabledGroups.add(id);
+  localStorage.setItem('fablabDisGrp', JSON.stringify([...S.disabledGroups]));
+  const g = S.groups.find(g=>g.id===id);
+  const isNowDisabled = S.disabledGroups.has(id);
+  toast(`Group "${g?.name}" ${isNowDisabled?'disabled — members cannot book':'re-enabled'}`, 'info');
+  renderGroups();
+}
+
+// Check if current user group is disabled (blocks booking)
+function isUserGroupDisabled() {
+  if (!S.user) return false;
+  const grp = getUserGroup(S.user);
+  if (!grp) return false;
+  return S.disabledGroups.has(grp.id);
 }
 
 </script>
