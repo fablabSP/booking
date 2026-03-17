@@ -4,13 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FabLab Booking System</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,300;0,400;0,600;0,700;1,300&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
 /* ── THEME TOKENS ───────────────────────────────────── */
 :root {
   --accent:#0099cc; --accent2:#e05a00; --success:#1a9e4a; --danger:#d63031; --warning:#e17000;
-  --fd:'Syne',sans-serif; --fm:'DM Mono',monospace; --r:8px;
+  --fd:'Josefin Sans',sans-serif; --fm:'DM Mono',monospace; --r:8px;
 }
 [data-theme="dark"] {
   --bg:#0a0e14; --surface:#111622; --surface2:#1a2235; --surface3:#0d1220;
@@ -330,22 +330,16 @@ input[type="date"],input[type="time"]{color-scheme:inherit;}
         </div>
         <button class="btn-icon" onclick="toggleTheme()" title="Toggle theme" id="themeBtn">🌙</button>
       </div>
-      <div class="login-sub">Enter your institutional email to access. Only whitelisted emails are permitted.</div>
+      <div class="login-sub">Login here to book.</div>
       <div class="fg">
         <label class="fl">Email Address</label>
         <input type="email" class="fi" id="loginEmail" placeholder="student@edu.sg" onkeyup="if(event.key==='Enter')doLogin()">
       </div>
       <button class="btn btn-primary" style="width:100%;margin-bottom:8px;" onclick="doLogin()">→ Access System</button>
       <div class="divider">or</div>
-      <div class="fg">
-        <label class="fl">Admin: Upload Whitelist CSV</label>
-        <input type="file" class="fi" accept=".csv" onchange="uploadCSV(event)" style="padding:7px;">
-        <div style="font-size:10px;color:var(--text3);margin-top:4px;">Format: <code style="color:var(--accent)">email,name,role,group</code></div>
-      </div>
-      <button class="btn btn-secondary" style="width:100%;margin-top:6px;" onclick="goCIOnly()">📷 Walk-In QR Check-In</button>
+      <button class="btn btn-secondary" style="width:100%;" onclick="goCIOnly()">📷 Walk-In QR Check-In</button>
       <div style="margin-top:14px;font-size:10px;color:var(--text3);text-align:center;">
-        Access restricted to whitelisted emails only
-        <br><a href="#" onclick="promptReset()" style="color:var(--text3);text-decoration:none;opacity:.4;">·</a>
+        <a href="#" onclick="promptReset()" style="color:var(--text3);text-decoration:none;opacity:.3;">·</a>
       </div>
     </div>
   </div>
@@ -443,6 +437,12 @@ input[type="date"],input[type="time"]{color-scheme:inherit;}
       <div class="wp active" id="wp1">
         <div class="loctabs" id="locTabs"></div>
         <div id="resGrid"></div>
+        <!-- User availability panel (shown for consultancy type only) -->
+        <div id="userAvailPanel" class="hidden" style="margin-top:24px;">
+          <div style="border-top:1px solid var(--border);padding-top:20px;">
+            <div id="userAvailContainer"></div>
+          </div>
+        </div>
         <div style="margin-top:16px;text-align:right;"><button class="btn btn-primary" id="s1n" disabled onclick="goWiz(2)">Next →</button></div>
       </div>
       <div class="wp" id="wp2">
@@ -667,11 +667,41 @@ input[type="date"],input[type="time"]{color-scheme:inherit;}
         <div class="stitle">Consultancy <span>Staff</span></div>
         <button class="btn btn-primary btn-sm" onclick="openMo('addStMo')">＋ Add Staff</button>
       </div>
-      <div class="card"><div id="stTable"></div></div>
+      <div class="card mb22"><div id="stTable"></div></div>
+
+      <!-- Staff Availability Schedule -->
+      <div class="shdr" style="margin-top:10px;">
+        <div class="stitle" style="font-size:17px;">Staff <span>Availability</span></div>
+        <button class="btn btn-primary btn-sm" onclick="openAddAvailMo()">＋ Add Availability Slot</button>
+      </div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:16px;">
+        Schedule when each staff member is available for consultancy. Users can see current month slots only. You can schedule up to 2 months ahead.
+      </div>
+      <div class="card"><div id="availTable"></div></div>
     </div>
 
   </div><!-- /main -->
 </div><!-- /mainApp -->
+
+<!-- Add Availability Modal -->
+<div class="mov" id="addAvailMo"><div class="mo">
+  <div class="mohdr"><div class="motitle" id="availMoTitle">Add Availability Slot</div><button class="mox" onclick="closeMo('addAvailMo')">✕</button></div>
+  <div class="fg">
+    <label class="fl">Staff Member</label>
+    <select class="fs" id="availStaff"></select>
+  </div>
+  <div class="frow">
+    <div class="fg"><label class="fl">Date</label><input type="date" class="fi" id="availDate"></div>
+    <div class="fg"><label class="fl">Day Label (optional)</label><input type="text" class="fi" id="availLabel" placeholder="e.g. Morning only"></div>
+  </div>
+  <div class="frow">
+    <div class="fg"><label class="fl">Start Time</label><input type="time" class="fi" id="availStart" value="09:00"></div>
+    <div class="fg"><label class="fl">End Time</label><input type="time" class="fi" id="availEnd" value="17:00"></div>
+  </div>
+  <div class="fg"><label class="fl">Notes (optional)</label><input type="text" class="fi" id="availNotes" placeholder="e.g. Online only, Lab T14..."></div>
+  <input type="hidden" id="availId">
+  <button class="btn btn-primary" style="width:100%;margin-top:6px;" onclick="saveAvail()">Save Slot</button>
+</div></div>
 
 <!-- ══ MODALS ══ -->
 
@@ -768,7 +798,7 @@ let CFG = { sheetId:'', apiKey:'', gasUrl:'', admins:[], sysName:'FabLab', demoM
 
 let S = {
   user:null, users:[], equipment:[], staff:[], bookings:[], groups:[],
-  disabledEquip:new Set(), disabledLocs:new Set(), disabledPeriods:[],
+  disabledEquip:new Set(), disabledLocs:new Set(), disabledPeriods:[], availability:[],
   bookType:'equipment', selRes:null, selDate:null, selTime:null, duration:1,
   calYear:null, calMonth:null, _activeLoc:'T14',
   selectedUsers: new Set(),
@@ -811,6 +841,7 @@ const DEMO_STAFF = [
   {id:'S003',name:'Sarah Wijaya',role:'Electronics & Prototyping',email:'sarah@fablab.sg',expertise:['Arduino','micro:bit','PCB Design'],creditsPerHour:0,days:'Tue–Fri'},
 ];
 let DEMO_BOOKINGS = [];
+let DEMO_AVAILABILITY = []; // {id, staffId, staffName, date, startTime, endTime, label, notes}
 
 // ═══════════════════════════════════════════════════════
 // INIT
@@ -1007,18 +1038,19 @@ function applyDemo(action, data) {
 async function loadAll() {
   if (CFG.demoMode) {
     S.users=DEMO_USERS; S.equipment=DEMO_EQUIPMENT; S.staff=DEMO_STAFF;
-    S.bookings=DEMO_BOOKINGS; S.groups=DEMO_GROUPS; return;
+    S.bookings=DEMO_BOOKINGS; S.groups=DEMO_GROUPS; S.availability=DEMO_AVAILABILITY; return;
   }
   try {
-    const [uR,eR,stR,bR,gR] = await Promise.all([
+    const [uR,eR,stR,bR,gR,avR] = await Promise.all([
       sheetsGet('Users!A2:F'), sheetsGet('Equipment!A2:H'), sheetsGet('Staff!A2:H'),
-      sheetsGet('Bookings!A2:S'), sheetsGet('Groups!A2:D'),
+      sheetsGet('Bookings!A2:S'), sheetsGet('Groups!A2:D'), sheetsGet('Availability!A2:H'),
     ]);
     S.users     = (uR||[]).map(r=>({id:r[0],email:r[1],name:r[2],role:r[3],group:r[4],active:r[5]==='TRUE'}));
     S.equipment = (eR||[]).map(r=>({id:r[0],name:r[1],desc:r[2],loc:r[3],cat:r[4],icon:r[5],creditsPerHour:parseFloat(r[6])||1,active:r[7]==='TRUE'}));
     S.staff     = (stR||[]).map(r=>({id:r[0],name:r[1],role:r[2],email:r[3],expertise:(r[4]||'').split(',').map(x=>x.trim()),creditsPerHour:parseFloat(r[5])||0,days:r[6]}));
     S.bookings  = (bR||[]).map(r=>({id:r[0],userEmail:r[1],userName:r[2],type:r[3],resourceId:r[4],resourceName:r[5],loc:r[6],date:r[7],startTime:r[8],endTime:r[9],duration:parseFloat(r[10]),credits:parseFloat(r[11])||0,status:r[12],purpose:r[13],topic:r[14],groupId:r[15],checkinTime:r[16],createdAt:r[17]}));
     S.groups    = (gR||[]).map(r=>({id:r[0],name:r[1],credits:parseFloat(r[2])||0,desc:r[3]}));
+    S.availability = (avR||[]).map(r=>({id:r[0],staffId:r[1],staffName:r[2],date:r[3],startTime:r[4],endTime:r[5],label:r[6]||'',notes:r[7]||''}));
   } catch(e) { toast('Load error: '+e.message,'error'); }
 }
 
@@ -1178,6 +1210,12 @@ function setBookType(t) {
   el('btConsult').className  = t==='consultancy'?'btn btn-primary':'btn btn-secondary';
   el('grpTopic').classList.toggle('hidden',t!=='consultancy');
   el('grpSize').classList.toggle('hidden',t==='consultancy');
+  // Show/hide availability panel for consultancy
+  const ap = el('userAvailPanel');
+  if (ap) {
+    ap.classList.toggle('hidden', t!=='consultancy');
+    if (t==='consultancy') renderUserAvailability();
+  }
   goWiz(1); renderResGrid();
 }
 
@@ -1849,6 +1887,160 @@ function today(){return new Date().toISOString().split('T')[0];}
 function genId(){return `BK-${new Date().getFullYear()}-${String(Math.floor(Math.random()*9000)+1000)}`;}
 function fmtDate(s){if(!s)return'—';const d=new Date(s+'T00:00');return d.toLocaleDateString('en-SG',{weekday:'short',year:'numeric',month:'short',day:'numeric'});}
 function nowInRange(st,en){const n=new Date(),nm=n.getHours()*60+n.getMinutes();const[sh,sm]=st.split(':').map(Number);const[eh,em]=en.split(':').map(Number);return nm>=sh*60+sm&&nm<eh*60+em;}
+
+// ═══════════════════════════════════════════════════════
+// STAFF AVAILABILITY
+// ═══════════════════════════════════════════════════════
+
+// Admin: render availability table
+function renderAvailability() {
+  const now = new Date();
+  const twoMonthsOut = new Date(now.getFullYear(), now.getMonth()+2, now.getDate());
+  const avail = S.availability
+    .filter(a => new Date(a.date+'T00:00') >= now && new Date(a.date+'T00:00') <= twoMonthsOut)
+    .sort((a,b)=>a.date.localeCompare(b.date));
+
+  const el = document.getElementById('availTable');
+  if (!avail.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">📅</div><p>No availability slots scheduled yet.<br>Add slots up to 2 months ahead.</p></div>';
+    return;
+  }
+  el.innerHTML = `<div class="ovx"><table class="tbl">
+    <thead><tr><th>Staff</th><th>Date</th><th>Time</th><th>Label</th><th>Notes</th><th>Actions</th></tr></thead>
+    <tbody>${avail.map(a=>`<tr>
+      <td style="font-weight:500">${a.staffName}</td>
+      <td>${fmtDate(a.date)}</td>
+      <td>${a.startTime} – ${a.endTime}</td>
+      <td>${a.label||'—'}</td>
+      <td class="t2 fsm">${a.notes||'—'}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="removeAvail('${a.id}')">Remove</button></td>
+    </tr>`).join('')}</tbody>
+  </table></div>`;
+}
+
+// Open availability modal
+function openAddAvailMo() {
+  el('availMoTitle').textContent = 'Add Availability Slot';
+  el('availId').value = '';
+  el('availDate').value = '';
+  el('availLabel').value = '';
+  el('availNotes').value = '';
+  el('availStart').value = '09:00';
+  el('availEnd').value = '17:00';
+  // Populate staff dropdown
+  const sel = el('availStaff');
+  sel.innerHTML = S.staff.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+  // Set date min/max (today to 2 months out)
+  const now = new Date();
+  const maxDate = new Date(now.getFullYear(), now.getMonth()+2, now.getDate());
+  el('availDate').min = today();
+  el('availDate').max = maxDate.toISOString().split('T')[0];
+  openMo('addAvailMo');
+}
+
+async function saveAvail() {
+  const staffId = el('availStaff').value;
+  const date    = el('availDate').value;
+  const start   = el('availStart').value;
+  const end     = el('availEnd').value;
+  if (!staffId||!date||!start||!end) { toast('Fill in all required fields','error'); return; }
+  if (end <= start) { toast('End time must be after start time','error'); return; }
+
+  const staff = S.staff.find(s=>s.id===staffId);
+  const data = {
+    id: 'AV'+Date.now(),
+    staffId, staffName: staff?staff.name:'',
+    date, startTime:start, endTime:end,
+    label: el('availLabel').value,
+    notes: el('availNotes').value
+  };
+
+  await sheetsWrite('addAvail', data);
+  toast('Availability slot added','success');
+  closeMo('addAvailMo');
+  renderAvailability();
+}
+
+async function removeAvail(id) {
+  if (!confirm('Remove this availability slot?')) return;
+  await sheetsWrite('removeAvail',{id});
+  toast('Slot removed','info');
+  renderAvailability();
+}
+
+// User-facing: show current month availability
+function renderUserAvailability() {
+  const now  = new Date();
+  const y    = now.getFullYear();
+  const m    = now.getMonth();
+  const monthStart = `${y}-${String(m+1).padStart(2,'0')}-01`;
+  const monthEnd   = `${y}-${String(m+1).padStart(2,'0')}-${new Date(y,m+1,0).getDate()}`;
+
+  const avail = S.availability
+    .filter(a => a.date >= monthStart && a.date <= monthEnd)
+    .sort((a,b)=>a.date.localeCompare(b.date)||a.startTime.localeCompare(b.startTime));
+
+  const container = document.getElementById('userAvailContainer');
+  if (!container) return;
+
+  if (!avail.length) {
+    container.innerHTML = '<div class="empty"><div class="empty-icon">📅</div><p>No staff availability scheduled this month.</p></div>';
+    return;
+  }
+
+  // Group by staff
+  const byStaff = {};
+  avail.forEach(a => {
+    if (!byStaff[a.staffId]) byStaff[a.staffId] = { name: a.staffName, slots: [] };
+    byStaff[a.staffId].slots.push(a);
+  });
+
+  const mName = now.toLocaleString('en-SG',{month:'long',year:'numeric'});
+  container.innerHTML = `
+    <div style="font-family:var(--fd);font-weight:700;margin-bottom:16px;font-size:15px;">
+      Staff Available This Month <span class="t3 fsm">${mName}</span>
+    </div>
+    ${Object.values(byStaff).map(st=>`
+      <div class="card mb16">
+        <div class="flex mb16">
+          <div class="stc-av" style="width:36px;height:36px;font-size:14px;">${st.name.charAt(0)}</div>
+          <div>
+            <div style="font-weight:600;font-family:var(--fd);">${st.name}</div>
+            <div class="t3 fxs">${S.staff.find(s=>s.name===st.name)?.role||''}</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+          ${st.slots.map(a=>`
+            <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:11px;">
+              <div style="font-weight:600;color:var(--accent);">${fmtDate(a.date)}</div>
+              <div class="t2">${a.startTime} – ${a.endTime}</div>
+              ${a.label?`<div class="t3 fxs">${a.label}</div>`:''}
+              ${a.notes?`<div class="t3 fxs">${a.notes}</div>`:''}
+            </div>`).join('')}
+        </div>
+      </div>`).join('')}`;
+}
+
+// Hook into goPage for staff consultancy tab
+const _origGoPage = goPage;
+function goPage(pg) {
+  _origGoPage(pg);
+  if (pg==='admin-staff') { renderAdminStaff(); renderAvailability(); populateAvailStaff(); }
+}
+
+function populateAvailStaff() {
+  const sel = document.getElementById('availStaff');
+  if (sel) sel.innerHTML = S.staff.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+}
+
+// Add availability to applyDemo - patch into existing function
+const _origApplyDemo = applyDemo;
+function applyDemo(action, data) {
+  if (action==='addAvail')    { DEMO_AVAILABILITY.push(data); S.availability=DEMO_AVAILABILITY; return; }
+  if (action==='removeAvail') { const i=DEMO_AVAILABILITY.findIndex(a=>a.id===data.id); if(i>-1) DEMO_AVAILABILITY.splice(i,1); S.availability=DEMO_AVAILABILITY; return; }
+  _origApplyDemo(action, data);
+}
+
 </script>
 </body>
 </html>
