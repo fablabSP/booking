@@ -1649,7 +1649,6 @@ function renderAdminUsers() {
   const grpF=el('usrGrpFilter')?.value||'all';
   const stF=el('usrStatusFilter')?.value||'all';
   let users=[...S.users];
-  console.log('renderAdminUsers called, users active states:', users.map(u=>u.name+':'+u.active));
   if (grpF!=='all') users=users.filter(u=>u.group===grpF);
   if (stF==='active') users=users.filter(u=>u.active);
   if (stF==='disabled') users=users.filter(u=>!u.active);
@@ -1703,21 +1702,17 @@ async function bulkDelete() {
 }
 
 async function toggleUser(id) {
-  console.log('toggleUser called, id:', id);
-  const u = S.users.find(u=>u.id===id);
-  console.log('User found:', u);
-  if (!u) return;
+  const u = S.users.find(u=>u.id===id); if (!u) return;
   const newActive = !u.active;
-  console.log('Setting active to:', newActive);
+  // Update local state immediately
   u.active = newActive;
   const di = DEMO_USERS.findIndex(x=>x.id===id);
   if (di>-1) DEMO_USERS[di].active = newActive;
-  console.log('After mutation, user active:', S.users.find(x=>x.id===id)?.active);
-  await sheetsWrite('disableUser', {id, active: newActive});
-  console.log('After sheetsWrite, user active:', S.users.find(x=>x.id===id)?.active);
-  if (!CFG.demoMode) await refreshData();
+  // Re-render immediately with updated local state (before sheet write)
   renderAdminUsers();
   toast(`${u.name} ${newActive?'re-enabled':'disabled — cannot login'}`, 'info');
+  // Write to sheets in background — don't refresh data as it would overwrite local state
+  sheetsWrite('disableUser', {id, active: newActive});
 }
 async function removeUser(id) {
   if (!confirm('Delete this user permanently?')) return;
@@ -2155,19 +2150,20 @@ async function equipCSV(evt) {
 async function toggleEquipActive(id) {
   const equip = S.equipment.find(e=>e.id===id); if (!equip) return;
   const newActive = !equip.active;
-  // Directly update local state FIRST before async write
+  // Update local state immediately
   equip.active = newActive;
   const di = DEMO_EQUIPMENT.findIndex(e=>e.id===id);
   if (di>-1) DEMO_EQUIPMENT[di].active = newActive;
+  // Re-render immediately with updated local state
+  renderAdminEquip();
+  toast(`${equip.name} ${newActive?'enabled':'disabled'}`, 'info');
+  // Write to sheets in background — don't refresh as it would overwrite
   const data = {
     id: equip.id, name: equip.name, desc: equip.desc||'',
     loc: equip.loc, cat: equip.cat, icon: equip.icon||'🔧',
     creditsPerHour: equip.creditsPerHour, active: newActive
   };
-  await sheetsWrite('updateEquip', data);
-  if (!CFG.demoMode) await refreshData();
-  toast(`${equip.name} ${newActive?'enabled':'disabled'}`, 'info');
-  renderAdminEquip();
+  sheetsWrite('updateEquip', data);
 }
 
 
