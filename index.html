@@ -941,7 +941,11 @@ async function sheetsGet(range, forceRefresh=false) {
 async function sheetsWrite(action, data) {
   if (CFG.demoMode) { applyDemo(action,data); return {success:true}; }
   if (!CFG.gasUrl) { toast('No Apps Script URL configured','error'); return null; }
-  const r = await fetch(CFG.gasUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,data})});
+  // Use form-encoded POST to bypass CORS preflight
+  const form = new FormData();
+  form.append('action', action);
+  form.append('data', JSON.stringify(data));
+  const r = await fetch(CFG.gasUrl, { method:'POST', body:form });
   // Invalidate relevant caches after a write so next read is fresh
   const writeInvalidates = {
     addBooking:'Bookings', cancelBooking:'Bookings', checkin:'Bookings',
