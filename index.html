@@ -1041,16 +1041,21 @@ async function loadAll() {
     S.bookings=DEMO_BOOKINGS; S.groups=DEMO_GROUPS; S.availability=DEMO_AVAILABILITY; return;
   }
   try {
-    const [uR,eR,stR,bR,gR,avR] = await Promise.all([
+    // Load each sheet individually so one missing sheet doesn't break login
+    const [uR,eR,stR,bR,gR] = await Promise.all([
       sheetsGet('Users!A2:F'), sheetsGet('Equipment!A2:H'), sheetsGet('Staff!A2:H'),
-      sheetsGet('Bookings!A2:S'), sheetsGet('Groups!A2:D'), sheetsGet('Availability!A2:H'),
+      sheetsGet('Bookings!A2:S'), sheetsGet('Groups!A2:D'),
     ]);
     S.users     = (uR||[]).map(r=>({id:r[0],email:r[1],name:r[2],role:r[3],group:r[4],active:r[5]==='TRUE'}));
     S.equipment = (eR||[]).map(r=>({id:r[0],name:r[1],desc:r[2],loc:r[3],cat:r[4],icon:r[5],creditsPerHour:parseFloat(r[6])||1,active:r[7]==='TRUE'}));
     S.staff     = (stR||[]).map(r=>({id:r[0],name:r[1],role:r[2],email:r[3],expertise:(r[4]||'').split(',').map(x=>x.trim()),creditsPerHour:parseFloat(r[5])||0,days:r[6]}));
     S.bookings  = (bR||[]).map(r=>({id:r[0],userEmail:r[1],userName:r[2],type:r[3],resourceId:r[4],resourceName:r[5],loc:r[6],date:r[7],startTime:r[8],endTime:r[9],duration:parseFloat(r[10]),credits:parseFloat(r[11])||0,status:r[12],purpose:r[13],topic:r[14],groupId:r[15],checkinTime:r[16],createdAt:r[17]}));
     S.groups    = (gR||[]).map(r=>({id:r[0],name:r[1],credits:parseFloat(r[2])||0,desc:r[3]}));
-    S.availability = (avR||[]).map(r=>({id:r[0],staffId:r[1],staffName:r[2],date:r[3],startTime:r[4],endTime:r[5],label:r[6]||'',notes:r[7]||''}));
+    // Availability is optional — won't break login if sheet missing
+    try {
+      const avR = await sheetsGet('Availability!A2:H');
+      S.availability = (avR||[]).map(r=>({id:r[0],staffId:r[1],staffName:r[2],date:r[3],startTime:r[4],endTime:r[5],label:r[6]||'',notes:r[7]||''}));
+    } catch(e) { S.availability = []; }
   } catch(e) { toast('Load error: '+e.message,'error'); }
 }
 
