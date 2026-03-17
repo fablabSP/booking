@@ -345,6 +345,7 @@ input[type="date"],input[type="time"]{color-scheme:inherit;}
       <button class="btn btn-secondary" style="width:100%;margin-top:6px;" onclick="goCIOnly()">📷 Walk-In QR Check-In</button>
       <div style="margin-top:14px;font-size:10px;color:var(--text3);text-align:center;">
         Access restricted to whitelisted emails only
+        <br><a href="#" onclick="promptReset()" style="color:var(--text3);text-decoration:none;opacity:.4;">·</a>
       </div>
     </div>
   </div>
@@ -839,6 +840,13 @@ function demoMode() {
   localStorage.setItem('fablabCFG3', JSON.stringify(CFG));
   hide('cfgSc'); show('loginSc'); toast('Demo Mode active','info');
 }
+function promptReset() {
+  const pw = prompt('Enter admin password to reset configuration:');
+  if (pw === null) return; // cancelled
+  if (pw !== 's3cr3t') { alert('Incorrect password.'); return; }
+  resetCfg();
+}
+
 function resetCfg() {
   localStorage.removeItem('fablabCFG3');
   CFG={sheetId:'',apiKey:'',gasUrl:'',admins:[],sysName:'FabLab',demoMode:false};
