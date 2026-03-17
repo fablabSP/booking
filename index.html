@@ -1702,17 +1702,21 @@ async function bulkDelete() {
 }
 
 async function toggleUser(id) {
-  const u = S.users.find(u=>u.id===id); if (!u) return;
+  console.log('toggleUser called, id:', id);
+  const u = S.users.find(u=>u.id===id);
+  console.log('User found:', u);
+  if (!u) return;
   const newActive = !u.active;
-  // Directly update the object in S.users AND DEMO_USERS before re-render
+  console.log('Setting active to:', newActive);
   u.active = newActive;
   const di = DEMO_USERS.findIndex(x=>x.id===id);
   if (di>-1) DEMO_USERS[di].active = newActive;
-  // Write to sheets (applyDemo will toggle again, so we pass active to override)
+  console.log('After mutation, user active:', S.users.find(x=>x.id===id)?.active);
   await sheetsWrite('disableUser', {id, active: newActive});
+  console.log('After sheetsWrite, user active:', S.users.find(x=>x.id===id)?.active);
   if (!CFG.demoMode) await refreshData();
-  toast(`${u.name} ${newActive?'re-enabled':'disabled — cannot login'}`, 'info');
   renderAdminUsers();
+  toast(`${u.name} ${newActive?'re-enabled':'disabled — cannot login'}`, 'info');
 }
 async function removeUser(id) {
   if (!confirm('Delete this user permanently?')) return;
