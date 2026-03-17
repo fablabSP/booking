@@ -335,7 +335,7 @@ input[type="date"],input[type="time"]{color-scheme:inherit;}
         <label class="fl">Email Address</label>
         <input type="email" class="fi" id="loginEmail" placeholder="student@edu.sg" onkeyup="if(event.key==='Enter')doLogin()">
       </div>
-      <button class="btn btn-primary" style="width:100%;margin-bottom:8px;" onclick="doLogin()">→ Access System</button>
+      <button class="btn btn-primary" style="width:100%;margin-bottom:8px;" onclick="doLogin()" id="loginBtn">→ Access System</button>
       <div class="divider">or</div>
       <button class="btn btn-secondary" style="width:100%;" onclick="goCIOnly()">📷 Walk-In QR Check-In</button>
       <div style="margin-top:14px;font-size:10px;color:var(--text3);text-align:center;">
@@ -615,7 +615,17 @@ input[type="date"],input[type="time"]{color-scheme:inherit;}
     <div class="page" id="pg-admin-equip">
       <div class="shdr">
         <div class="stitle">Equipment <span>Management</span></div>
-        <button class="btn btn-primary btn-sm" onclick="openMo('addEqMo')">＋ Add Equipment</button>
+        <div class="flex">
+          <label class="btn btn-secondary btn-sm" style="cursor:pointer;">
+            📄 Import CSV
+            <input type="file" accept=".csv" onchange="equipCSV(event)" style="display:none">
+          </label>
+          <button class="btn btn-primary btn-sm" onclick="openMo('addEqMo')">＋ Add Equipment</button>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--text2);margin-bottom:12px;">
+        CSV format: <code style="color:var(--accent)">name,description,location,category,icon,creditsPerHour</code>
+        &nbsp;· location: <code style="color:var(--accent)">T14</code> or <code style="color:var(--accent)">T11C01</code>
       </div>
       <div class="card"><div id="eqTable"></div></div>
     </div>
@@ -731,7 +741,7 @@ input[type="date"],input[type="time"]{color-scheme:inherit;}
     <div class="fg"><label class="fl">Role</label><select class="fs" id="nuRole"><option value="student">Student</option><option value="staff">Staff</option><option value="external">External</option><option value="admin">Admin</option></select></div>
     <div class="fg"><label class="fl">Credit Group</label><select class="fs" id="nuGrp"></select></div>
   </div>
-  <button class="btn btn-primary" style="width:100%" onclick="addUser()">Add to Whitelist</button>
+  <button class="btn btn-primary" style="width:100%" onclick="addUser()" id="saveUsrBtn">Add to Whitelist</button>
 </div></div>
 
 <!-- Add Group -->
@@ -741,7 +751,7 @@ input[type="date"],input[type="time"]{color-scheme:inherit;}
   <div class="fg"><label class="fl">Initial Pool Credits</label><input type="number" class="fi" id="ngCredits" value="100" min="0"></div>
   <div class="fg"><label class="fl">Description (optional)</label><input type="text" class="fi" id="ngDesc" placeholder="Brief description"></div>
   <input type="hidden" id="ngId">
-  <button class="btn btn-primary" style="width:100%" onclick="saveGroup()">Save Group</button>
+  <button class="btn btn-primary" style="width:100%" onclick="saveGroup()" id="saveGrpBtn">Save Group</button>
 </div></div>
 
 <!-- Edit Credits -->
@@ -905,17 +915,26 @@ function updateThemeBtn() {
 async function doLogin() {
   const email = v('loginEmail').trim().toLowerCase();
   if (!email||!email.includes('@')) { toast('Enter a valid email','error'); return; }
-  await loadAll();
-  console.log('=== LOGIN DEBUG ===');
-  console.log('Email entered:', email);
-  console.log('Users loaded:', S.users.length);
-  console.log('User emails:', S.users.map(u=>u.email+'|active:'+u.active).join(', '));
-  const u = S.users.find(u=>u.email.toLowerCase()===email && u.active);
-  console.log('Match found:', u ? JSON.stringify(u) : 'NONE');
-  if (!u) { toast('Email not on whitelist or account is disabled. Contact admin.','error'); return; }
-  S.user = u;
-  hide('loginSc'); show('mainApp');
-  initApp();
+  // Loading state — disable button and show spinner
+  const btn = el('loginBtn');
+  const inp = el('loginEmail');
+  btn.disabled = true;
+  btn.textContent = '⏳ Connecting...';
+  inp.disabled = true;
+  try {
+    await loadAll();
+    const u = S.users.find(u=>u.email.toLowerCase()===email && u.active);
+    if (!u) { toast('Email not on whitelist or account is disabled. Contact admin.','error'); return; }
+    S.user = u;
+    hide('loginSc'); show('mainApp');
+    initApp();
+  } catch(e) {
+    toast('Connection failed: '+e.message,'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '→ Access System';
+    inp.disabled = false;
+  }
 }
 function doLogout() { S.user=null; hide('mainApp'); show('loginSc'); el('loginEmail').value=''; }
 function goCIOnly() { hide('loginSc'); show('mainApp'); buildNav(null); goPage('checkin'); }
@@ -1679,8 +1698,13 @@ async function addUser() {
   if (!email||!name){toast('Fill in all fields','error');return;}
   if (S.users.find(u=>u.email===email)){toast('Email already whitelisted','error');return;}
   const data={id:'U'+Date.now(),email,name,role:v('nuRole'),group:v('nuGrp'),active:true};
+  const uBtn = el('saveUsrBtn');
+  if(uBtn){uBtn.disabled=true;uBtn.textContent='Saving...';}
   await sheetsWrite('addUser',data);
-  toast(name+' added to whitelist','success'); closeMo('addUsrMo'); renderAdminUsers();
+  if(!CFG.demoMode) await refreshData();
+  toast(name+' added to whitelist','success');
+  closeMo('addUsrMo'); renderAdminUsers();
+  if(uBtn){uBtn.disabled=false;uBtn.textContent='Add to Whitelist';}
 }
 
 // ─── GROUPS ───────────────────────────────────────────
@@ -1694,10 +1718,14 @@ async function saveGroup() {
   const name=v('ngName').trim(); if (!name){toast('Enter group name','error');return;}
   const editId=v('ngId');
   const data={id:editId||'G'+Date.now(),name,credits:parseFloat(v('ngCredits'))||0,desc:v('ngDesc')};
+  const btn = el('saveGrpBtn');
+  if(btn){btn.disabled=true;btn.textContent='Saving...';}
   await sheetsWrite(editId?'updateGroup':'addGroup',data);
-  toast(editId?'Group updated':'Group created','success'); closeMo('addGrpMo');
-  if (CFG.demoMode) S.groups=DEMO_GROUPS;
-  renderGroups(); renderAdminUsers();
+  if(!CFG.demoMode){await refreshData();}else{S.groups=DEMO_GROUPS;}
+  toast(editId?'Group updated':'Group created','success');
+  closeMo('addGrpMo');
+  renderGroups(); renderAdminUsers(); updatePoolDisplay();
+  if(btn){btn.disabled=false;btn.textContent='Save Group';}
 }
 async function removeGroup(id) {
   if (!confirm('Delete this credit group? Users in this group will lose their group assignment.')) return;
@@ -1717,7 +1745,9 @@ async function applyCredits() {
   else if (action==='add') newC+=amt;
   else if (action==='subtract') newC=Math.max(0,newC-amt);
   await sheetsWrite('updateGroup',{id,credits:newC});
-  toast(`Credits updated: ⬡ ${newC}`,'success'); closeMo('editCrMo'); renderGroups(); updatePoolDisplay();
+  if(!CFG.demoMode) await refreshData();
+  toast(`Credits updated: ⬡ ${newC}`,'success');
+  closeMo('editCrMo'); renderGroups(); updatePoolDisplay();
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1737,8 +1767,9 @@ function renderAdminEquip() {
           <td class="t2 fsm">${e.desc}</td>
           <td><span class="ta">⬡ ${e.creditsPerHour}</span></td>
           <td><span class="${e.active?'ts':'td'}">${e.active?'● Active':'○ Inactive'}</span></td>
-          <td style="display:flex;gap:5px;">
+          <td style="display:flex;gap:5px;flex-wrap:wrap;">
             <button class="btn btn-secondary btn-sm" onclick="editEquip('${e.id}')">Edit</button>
+            <button class="btn ${e.active?'btn-warning':'btn-success'} btn-sm" onclick="toggleEquipActive('${e.id}')">${e.active?'Disable':'Enable'}</button>
             <button class="btn btn-danger btn-sm" onclick="removeEquip('${e.id}')">Remove</button>
           </td>
         </tr>`).join('')}</tbody>
@@ -2042,6 +2073,49 @@ function applyDemo(action, data) {
   if (action==='addAvail')    { DEMO_AVAILABILITY.push(data); S.availability=DEMO_AVAILABILITY; return; }
   if (action==='removeAvail') { const i=DEMO_AVAILABILITY.findIndex(a=>a.id===data.id); if(i>-1) DEMO_AVAILABILITY.splice(i,1); S.availability=DEMO_AVAILABILITY; return; }
   _origApplyDemo(action, data);
+}
+
+
+// ── EQUIPMENT CSV IMPORT ─────────────────────────────
+async function equipCSV(evt) {
+  const file = evt.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async e => {
+    const lines = e.target.result.split('\n').map(l=>l.trim()).filter(Boolean);
+    let added = 0, skipped = 0;
+    for (const line of lines) {
+      if (line.toLowerCase().startsWith('name')) continue; // skip header
+      const [name, desc, loc, cat, icon, creditsPerHour] = line.split(',').map(s=>s.trim());
+      if (!name || !loc) { skipped++; continue; }
+      if (!['T14','T11C01'].includes(loc)) { skipped++; continue; }
+      const data = {
+        id: 'E'+Date.now()+Math.random().toString(36).slice(2,5),
+        name, desc: desc||'', loc, cat: cat||'other',
+        icon: icon||'🔧',
+        creditsPerHour: parseFloat(creditsPerHour)||1,
+        active: true
+      };
+      await sheetsWrite('addEquip', data);
+      added++;
+    }
+    if (!CFG.demoMode) await refreshData();
+    renderAdminEquip();
+    toast(`Imported ${added} equipment${skipped>0?' ('+skipped+' skipped)':''}`, 'success');
+  };
+  reader.readAsText(file);
+  evt.target.value = ''; // reset input
+}
+
+// ── TOGGLE EQUIPMENT ACTIVE/INACTIVE ─────────────────
+async function toggleEquipActive(id) {
+  const e = S.equipment.find(e=>e.id===id); if (!e) return;
+  const newActive = !e.active;
+  const data = {...e, active: newActive};
+  await sheetsWrite('updateEquip', data);
+  if (!CFG.demoMode) await refreshData();
+  else { const i=DEMO_EQUIPMENT.findIndex(eq=>eq.id===id); if(i>-1) DEMO_EQUIPMENT[i].active=newActive; S.equipment=DEMO_EQUIPMENT; }
+  toast(`${e.name} ${newActive?'enabled':'disabled'}`, 'info');
+  renderAdminEquip();
 }
 
 </script>
