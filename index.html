@@ -1,2233 +1,813 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FabLab Booking System</title>
-<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,300;0,400;0,600;0,700;1,300&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<title>FabLab Competency Booking</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-/* ── THEME TOKENS ───────────────────────────────────── */
-:root {
-  --accent:#0099cc; --accent2:#e05a00; --success:#1a9e4a; --danger:#d63031; --warning:#e17000;
-  --fd:'Josefin Sans',sans-serif; --fm:'DM Mono',monospace; --r:8px;
-}
-[data-theme="dark"] {
-  --bg:#0a0e14; --surface:#111622; --surface2:#1a2235; --surface3:#0d1220;
-  --border:#1e2d45; --border2:#263650;
-  --text:#e8f0fe; --text2:#8fa3c0; --text3:#4a6080;
-  --shadow:0 2px 12px rgba(0,0,0,0.4);
-  --accent:#00d4ff; --glow:0 0 20px rgba(0,212,255,0.15);
-}
-[data-theme="light"] {
-  --bg:#f0f4f8; --surface:#ffffff; --surface2:#f7f9fc; --surface3:#e8eef5;
-  --border:#d0dbe8; --border2:#b8cad8;
-  --text:#1a2535; --text2:#4a6080; --text3:#8fa3c0;
-  --shadow:0 2px 12px rgba(0,0,0,0.08);
-  --glow:0 0 20px rgba(0,153,204,0.15);
-}
-*{box-sizing:border-box;margin:0;padding:0;}
-html,body{height:100%;}
-body{background:var(--bg);color:var(--text);font-family:var(--fm);font-size:13px;min-height:100vh;overflow-x:hidden;transition:background .25s,color .25s;}
-[data-theme="dark"] body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.025) 1px,transparent 1px);background-size:44px 44px;pointer-events:none;z-index:0;}
-.app{position:relative;z-index:1;}
+  :root {
+    --c-orange:#E8531A;--c-orange-light:#FDF1EB;--c-dark:#1A1A1A;--c-mid:#4A4A4A;
+    --c-muted:#8A8A8A;--c-border:#E5E5E5;--c-surface:#F8F8F7;--c-white:#FFFFFF;
+    --c-green:#1A7A3C;--c-green-bg:#EAF5EE;--c-green-b:#A0DDB8;
+    --c-amber:#B86A00;--c-amber-bg:#FEF6E4;--c-amber-b:#F5D98F;
+    --c-red:#C0260E;--c-red-bg:#FDECEA;
+    --c-blue:#185FA5;--c-blue-bg:#E6F1FB;
+    --radius:10px;--radius-lg:14px;
+    --font:'DM Sans',sans-serif;--font-mono:'DM Mono',monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:var(--font);background:var(--c-surface);color:var(--c-dark);min-height:100vh;font-size:15px;line-height:1.6;}
 
-/* ── CONFIG ─────────────────────────────────────────── */
-.cfg-ov{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;z-index:2000;}
-.cfg-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:36px;width:540px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow);}
-.cfg-box h2{font-family:var(--fd);font-size:22px;font-weight:800;color:var(--accent);margin-bottom:6px;}
-.cfg-box p{color:var(--text2);font-size:12px;margin-bottom:22px;line-height:1.6;}
-.cfg-row{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:13px;margin-bottom:9px;}
-.cfg-row label{display:block;font-size:10px;letter-spacing:.1em;color:var(--text3);text-transform:uppercase;margin-bottom:5px;}
+  .header{background:var(--c-white);border-bottom:1px solid var(--c-border);padding:0 2rem;position:sticky;top:0;z-index:100;}
+  .header-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:60px;}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:600;font-size:15px;color:var(--c-dark);text-decoration:none;}
+  .logo-mark{width:32px;height:32px;background:var(--c-orange);border-radius:8px;display:flex;align-items:center;justify-content:center;}
+  .logo-mark svg{width:18px;height:18px;}
+  .course-badge{font-size:12px;font-weight:500;padding:4px 10px;border-radius:20px;background:var(--c-orange-light);color:var(--c-orange);border:1px solid #F5C4A8;}
 
-/* ── LOGIN ──────────────────────────────────────────── */
-.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
-.login-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:44px 38px;width:420px;max-width:100%;box-shadow:var(--shadow);}
-.login-logo{font-family:var(--fd);font-size:26px;font-weight:800;letter-spacing:-1px;margin-bottom:4px;}
-.login-logo span{color:var(--accent);}
-.login-sub{color:var(--text2);font-size:12px;margin-bottom:26px;line-height:1.6;}
-.divider{display:flex;align-items:center;gap:10px;margin:14px 0;color:var(--text3);font-size:11px;}
-.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border);}
+  .course-tabs{display:flex;border-bottom:1px solid var(--c-border);background:var(--c-white);padding:0 2rem;}
+  .course-tab{padding:12px 18px;font-size:14px;font-weight:500;color:var(--c-muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all 0.15s;background:none;border-top:none;border-left:none;border-right:none;font-family:var(--font);white-space:nowrap;}
+  .course-tab.active{color:var(--c-orange);border-bottom-color:var(--c-orange);}
+  .course-tab:hover:not(.active){color:var(--c-dark);}
 
-/* ── HEADER ─────────────────────────────────────────── */
-.hdr{display:flex;align-items:center;justify-content:space-between;padding:13px 26px;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:100;box-shadow:var(--shadow);}
-.logo{font-family:var(--fd);font-weight:800;font-size:17px;letter-spacing:-.5px;}
-.logo span{color:var(--accent);}
-.logo sub{font-size:9px;color:var(--text3);vertical-align:middle;margin-left:4px;font-weight:400;font-family:var(--fm);letter-spacing:.1em;text-transform:uppercase;}
-.hdr-right{display:flex;align-items:center;gap:10px;}
-.pool-pill{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:5px 12px;font-size:11px;}
-.pool-pill .pl{font-size:9px;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;display:block;}
-.pool-pill .pv{color:var(--accent);font-weight:700;font-size:15px;font-family:var(--fd);}
-.user-pill{display:flex;align-items:center;gap:7px;background:var(--surface2);border:1px solid var(--border);border-radius:50px;padding:4px 11px 4px 5px;}
-.uav{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;font-family:var(--fd);}
-.uname{font-size:12px;font-weight:500;color:var(--text);}
-.urole{font-size:9px;color:var(--text3);}
-.btn-icon{background:none;border:1px solid var(--border);border-radius:6px;padding:5px 8px;cursor:pointer;color:var(--text2);font-size:13px;transition:all .2s;}
-.btn-icon:hover{border-color:var(--accent);color:var(--accent);}
+  .hero{background:var(--c-white);border-bottom:1px solid var(--c-border);padding:1.75rem 2rem;}
+  .hero-inner{max-width:1100px;margin:0 auto;}
+  .hero-text h1{font-size:26px;font-weight:600;line-height:1.2;margin-bottom:6px;letter-spacing:-0.3px;}
+  .hero-text h1 span{color:var(--c-orange);}
+  .hero-text p{color:var(--c-muted);font-size:14px;max-width:560px;}
+  .hero-chips{display:flex;gap:8px;margin-top:1rem;flex-wrap:wrap;}
+  .info-chip{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;padding:5px 11px;border-radius:20px;border:1px solid var(--c-border);background:var(--c-surface);color:var(--c-mid);}
+  .info-chip.warn{background:var(--c-amber-bg);border-color:var(--c-amber-b);color:var(--c-amber);}
+  .info-chip.ok{background:var(--c-green-bg);border-color:var(--c-green-b);color:var(--c-green);}
 
-/* ── NAV ────────────────────────────────────────────── */
-.nav{display:flex;gap:2px;padding:12px 26px 0;border-bottom:1px solid var(--border);background:var(--surface);overflow-x:auto;}
-.ntab{padding:8px 16px;font-family:var(--fm);font-size:11px;color:var(--text3);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;transition:all .2s;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;}
-.ntab:hover{color:var(--text2);}
-.ntab.active{color:var(--accent);border-bottom-color:var(--accent);}
+  .main{max-width:1100px;margin:0 auto;padding:1.5rem 2rem;display:grid;grid-template-columns:1fr 360px;gap:1.5rem;align-items:start;}
 
-/* ── MAIN ───────────────────────────────────────────── */
-.main{padding:26px;max-width:1340px;margin:0 auto;}
-.page{display:none;animation:fadeIn .2s ease;}
-.page.active{display:block;}
-@keyframes fadeIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+  .panel{background:var(--c-white);border:1px solid var(--c-border);border-radius:var(--radius-lg);overflow:hidden;}
+  .panel-header{padding:1.1rem 1.5rem;border-bottom:1px solid var(--c-border);display:flex;align-items:center;justify-content:space-between;}
+  .panel-header h2{font-size:15px;font-weight:600;}
+  .panel-header p{font-size:12px;color:var(--c-muted);margin-top:2px;}
 
-/* ── BUTTONS ────────────────────────────────────────── */
-.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 15px;border-radius:var(--r);border:none;cursor:pointer;font-family:var(--fm);font-size:12px;font-weight:500;transition:all .18s;letter-spacing:.02em;}
-.btn-primary{background:var(--accent);color:#fff;}
-[data-theme="light"] .btn-primary{color:#fff;}
-.btn-primary:hover{opacity:.88;transform:translateY(-1px);box-shadow:var(--glow);}
-.btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
-.btn-secondary:hover{border-color:var(--accent);color:var(--accent);}
-.btn-danger{background:rgba(214,48,49,.1);color:var(--danger);border:1px solid rgba(214,48,49,.3);}
-.btn-danger:hover{background:rgba(214,48,49,.18);}
-.btn-warning{background:rgba(225,112,0,.1);color:var(--warning);border:1px solid rgba(225,112,0,.3);}
-.btn-success{background:rgba(26,158,74,.1);color:var(--success);border:1px solid rgba(26,158,74,.3);}
-.btn-sm{padding:5px 10px;font-size:11px;}
-.btn:disabled{opacity:.35;cursor:not-allowed;transform:none!important;}
+  .two-month-grid{display:grid;grid-template-columns:1fr 1fr;transition:opacity 0.2s ease;}
+  .month-block{padding:1.25rem 1.25rem 1.5rem;}
+  .month-block:first-child{border-right:1px solid var(--c-border);}
+  .month-block-title{font-size:13px;font-weight:600;color:var(--c-dark);margin-bottom:10px;}
+  .cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:3px;}
+  .cal-weekdays span{text-align:center;font-size:10px;font-weight:500;color:var(--c-muted);text-transform:uppercase;letter-spacing:0.4px;padding:2px 0;}
+  .cal-days{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
+  .cal-day{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:7px;font-size:12px;cursor:default;position:relative;min-height:34px;gap:1px;transition:filter 0.1s;}
+  .cal-day .dn{font-size:12px;line-height:1;}
+  .cal-day .sl{font-size:9px;line-height:1;opacity:0.75;}
+  .cal-day.empty{opacity:0;pointer-events:none;}
+  .cal-day.today .dn{background:var(--c-orange);color:white;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:11px;}
+  .cal-day.past{opacity:0.3;pointer-events:none;}
+  .cal-day.holiday{opacity:0.3;pointer-events:none;}
+  .cal-day.weekend:not(.s-vacant):not(.s-full):not(.s-pending){color:var(--c-muted);}
+  .cal-day.s-vacant{background:var(--c-green-bg);border:1px solid var(--c-green-b);cursor:pointer;}
+  .cal-day.s-vacant .dn{color:var(--c-green);font-weight:600;}
+  .cal-day.s-vacant .sl{color:var(--c-green);}
+  .cal-day.s-full{background:#FFF3E8;border:1px solid #F5C4A8;cursor:pointer;}
+  .cal-day.s-full .dn{color:#B85000;font-weight:600;}
+  .cal-day.s-full .sl{color:#B85000;}
+  .cal-day.s-pending{background:var(--c-amber-bg);border:1px solid var(--c-amber-b);cursor:pointer;}
+  .cal-day.s-pending .dn{color:var(--c-amber);font-weight:600;}
+  .cal-day.s-pending .sl{color:var(--c-amber);}
+  .cal-day.has-session:hover{filter:brightness(0.94);}
+  .cal-day.booked{background:#EDE8FB!important;border:1px solid #AFA9EC!important;outline:2px solid #7F77DD!important;outline-offset:-2px;}
+  .cal-day.booked .dn{color:#3C3489!important;font-weight:600!important;}
+  .cal-day.booked .sl{color:#534AB7!important;}
 
-/* ── FORMS ──────────────────────────────────────────── */
-.fg{margin-bottom:13px;}
-.fl{display:block;font-size:10px;letter-spacing:.1em;color:var(--text3);text-transform:uppercase;margin-bottom:5px;}
-.fi,.fs,.fta{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:9px 12px;color:var(--text);font-family:var(--fm);font-size:12px;outline:none;transition:border-color .2s;}
-.fi:focus,.fs:focus,.fta:focus{border-color:var(--accent);}
-.fs option{background:var(--surface2);color:var(--text);}
-.fta{resize:vertical;min-height:68px;}
-.frow{display:grid;grid-template-columns:1fr 1fr;gap:11px;}
-input[type="date"],input[type="time"]{color-scheme:inherit;}
+  .legend{padding:0.65rem 1.5rem;border-bottom:1px solid var(--c-border);display:flex;align-items:center;gap:1rem;flex-wrap:wrap;background:var(--c-surface);}
+  .legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--c-mid);}
+  .lsw{width:12px;height:12px;border-radius:3px;flex-shrink:0;}
+  .lsw.v{background:var(--c-green-bg);border:1px solid var(--c-green-b);}
+  .lsw.f{background:#FFF3E8;border:1px solid #F5C4A8;}
+  .lsw.p{background:var(--c-amber-bg);border:1px solid var(--c-amber-b);}
+  .lsw.h{background:var(--c-surface);border:1px solid var(--c-border);opacity:0.5;}
 
-/* ── CARDS ──────────────────────────────────────────── */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;transition:border-color .2s,box-shadow .2s;}
-.card:hover{border-color:var(--border2);}
+  .tooltip{position:absolute;bottom:calc(100% + 5px);left:50%;transform:translateX(-50%);background:var(--c-dark);color:white;font-size:10px;white-space:nowrap;padding:3px 7px;border-radius:4px;pointer-events:none;opacity:0;transition:opacity 0.12s;z-index:20;}
+  .cal-day:hover .tooltip{opacity:1;}
 
-/* ── GRIDS ──────────────────────────────────────────── */
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;}
-.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;}
-@media(max-width:960px){.g3,.g4{grid-template-columns:1fr 1fr;}.g2{grid-template-columns:1fr;}}
-@media(max-width:580px){.g3,.g4,.g2{grid-template-columns:1fr;}.main{padding:14px;}}
+  .sidebar{display:flex;flex-direction:column;gap:1.25rem;}
+  .select-prompt{padding:2.5rem 1.5rem;text-align:center;color:var(--c-muted);}
+  .select-prompt .icon-lg{font-size:30px;margin-bottom:10px;display:block;}
+  .select-prompt p{font-size:13px;line-height:1.6;}
 
-/* ── STAT CARDS ─────────────────────────────────────── */
-.sc{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;position:relative;overflow:hidden;}
-.sc::after{content:'';position:absolute;bottom:-16px;right:-16px;width:64px;height:64px;border-radius:50%;background:radial-gradient(circle,var(--sc-c,var(--accent)) 0%,transparent 70%);opacity:.12;}
-.sc-lbl{font-size:10px;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:7px;}
-.sc-val{font-family:var(--fd);font-size:28px;font-weight:800;color:var(--text);}
-.sc-sub{font-size:11px;color:var(--text2);margin-top:3px;}
-.sc-icon{position:absolute;top:16px;right:16px;font-size:17px;opacity:.3;}
+  .sch{padding:1rem 1.25rem;border-bottom:1px solid var(--c-border);display:flex;align-items:flex-start;justify-content:space-between;gap:8px;}
+  .sch h3{font-size:14px;font-weight:600;line-height:1.3;}
+  .sch .sub{font-size:12px;color:var(--c-muted);margin-top:2px;}
+  .status-pill{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;letter-spacing:0.3px;white-space:nowrap;flex-shrink:0;}
+  .status-pill.pending{background:var(--c-amber-bg);color:var(--c-amber);}
+  .status-pill.confirmed{background:var(--c-green-bg);color:var(--c-green);}
+  .status-pill.full{background:#FFF3E8;color:#B85000;}
 
-/* ── SECTION HEADER ─────────────────────────────────── */
-.shdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
-.stitle{font-family:var(--fd);font-size:21px;font-weight:700;letter-spacing:-.4px;}
-.stitle span{color:var(--accent);}
+  .smeta{padding:0.9rem 1.25rem;display:flex;flex-direction:column;gap:7px;border-bottom:1px solid var(--c-border);}
+  .mr{display:flex;align-items:center;gap:8px;font-size:13px;}
+  .mr .ml{color:var(--c-muted);width:74px;flex-shrink:0;font-size:12px;}
+  .mr .mv{color:var(--c-dark);font-weight:500;}
+  .pbar{margin-top:3px;background:var(--c-surface);border-radius:4px;height:5px;overflow:hidden;border:1px solid var(--c-border);}
+  .pbfill{height:100%;border-radius:4px;transition:width 0.4s ease;}
+  .pbfill.low{background:var(--c-green);}
+  .pbfill.mid{background:var(--c-amber);}
+  .pbfill.hi{background:var(--c-red);}
+  .prow{display:flex;justify-content:space-between;font-size:11px;color:var(--c-muted);margin-top:3px;}
+  .notice{padding:0.7rem 1.25rem;background:var(--c-amber-bg);font-size:12px;color:var(--c-amber);display:flex;align-items:flex-start;gap:6px;border-bottom:1px solid var(--c-amber-b);}
 
-/* ── EQUIP CARDS ────────────────────────────────────── */
-.ec{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:15px;cursor:pointer;transition:all .18s;position:relative;overflow:hidden;}
-.ec::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),transparent);opacity:0;transition:opacity .2s;}
-.ec:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:var(--glow);}
-.ec:hover::before,.ec.sel::before{opacity:1;}
-.ec.sel{border-color:var(--accent);background:rgba(0,153,204,.05);}
-[data-theme="light"] .ec.sel{background:rgba(0,153,204,.04);}
-.ec.dis{opacity:.4;cursor:not-allowed;pointer-events:none;}
-.ec.dis::after{content:'UNAVAILABLE';position:absolute;top:8px;right:8px;font-size:9px;letter-spacing:.07em;background:rgba(214,48,49,.12);color:var(--danger);border:1px solid rgba(214,48,49,.25);padding:2px 6px;border-radius:3px;}
-.ec-icon{font-size:24px;margin-bottom:9px;}
-.ec-name{font-family:var(--fd);font-size:13px;font-weight:700;margin-bottom:1px;}
-.ec-loc{font-size:10px;color:var(--text3);margin-bottom:5px;}
-.ec-desc{font-size:11px;color:var(--text2);margin-bottom:10px;line-height:1.4;}
-.ec-foot{display:flex;align-items:center;justify-content:space-between;}
-.ec-cost{color:var(--accent);font-weight:600;font-size:12px;}
-.badge{font-size:10px;padding:2px 7px;border-radius:3px;}
-.badge-ok{background:rgba(26,158,74,.1);color:var(--success);}
-.badge-busy{background:rgba(214,48,49,.1);color:var(--danger);}
-.badge-dis{background:rgba(214,48,49,.1);color:var(--danger);}
+  .rform{padding:1.25rem;display:flex;flex-direction:column;gap:0.85rem;}
+  .fsl{font-size:11px;font-weight:600;color:var(--c-muted);text-transform:uppercase;letter-spacing:0.6px;padding-bottom:6px;border-bottom:1px solid var(--c-border);}
+  .fg{display:flex;flex-direction:column;gap:4px;}
+  .fg label{font-size:12px;font-weight:500;color:var(--c-mid);}
+  .fg input,.fg select{font-family:var(--font);font-size:13px;padding:8px 11px;border:1px solid var(--c-border);border-radius:7px;background:var(--c-white);color:var(--c-dark);outline:none;transition:border-color 0.15s;width:100%;appearance:none;-webkit-appearance:none;}
+  .fg input::placeholder{color:var(--c-muted);}
+  .fg input:focus,.fg select:focus{border-color:var(--c-orange);box-shadow:0 0 0 3px rgba(232,83,26,0.07);}
+  .fg input.err,.fg select.err{border-color:var(--c-red);}
+  .ferr{font-size:11px;color:var(--c-red);}
+  .sw{position:relative;}
+  .sw::after{content:'';position:absolute;right:11px;top:50%;transform:translateY(-50%);width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:5px solid var(--c-muted);pointer-events:none;}
 
-/* ── STAFF CARDS ────────────────────────────────────── */
-.stc{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:16px;cursor:pointer;transition:all .18s;}
-.stc:hover{border-color:var(--accent2);transform:translateY(-2px);}
-.stc.sel{border-color:var(--accent2);background:rgba(224,90,0,.04);}
-.stc-av{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--accent2),var(--warning));display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-weight:700;font-size:16px;color:#fff;margin-bottom:9px;}
-.stc-name{font-family:var(--fd);font-size:13px;font-weight:700;}
-.stc-role{font-size:11px;color:var(--text2);margin-bottom:6px;}
-.exp-tag{font-size:10px;padding:2px 6px;border-radius:3px;background:var(--surface2);border:1px solid var(--border);color:var(--text2);}
+  .btn{font-family:var(--font);font-size:14px;font-weight:500;padding:10px 16px;border-radius:8px;cursor:pointer;border:none;transition:all 0.15s;display:flex;align-items:center;justify-content:center;gap:6px;}
+  .btn-p{background:var(--c-orange);color:white;}
+  .btn-p:hover{background:#C94716;transform:translateY(-1px);}
+  .btn-p:active{transform:translateY(0);}
+  .btn-p:disabled{background:#E5B9A6;cursor:not-allowed;transform:none;}
+  .btn-o{background:none;border:1px solid var(--c-border);color:var(--c-mid);}
+  .btn-o:hover{background:var(--c-surface);}
+  .bblock{width:100%;}
 
-/* ── WIZARD ─────────────────────────────────────────── */
-.wiz{display:flex;align-items:center;margin-bottom:26px;}
-.ws{display:flex;align-items:center;gap:7px;padding:5px 10px;font-size:11px;color:var(--text3);flex-shrink:0;}
-.ws.active{color:var(--accent);}
-.ws.done{color:var(--success);}
-.wnum{width:21px;height:21px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;transition:all .25s;}
-.ws.active .wnum{background:var(--accent);color:#fff;border-color:var(--accent);}
-.ws.done .wnum{background:var(--success);color:#fff;border-color:var(--success);}
-.wconn{flex:1;height:1px;background:var(--border);}
-.wp{display:none;}.wp.active{display:block;}
+  .success-card{background:var(--c-white);border:1px solid var(--c-border);border-radius:var(--radius-lg);padding:1.75rem;text-align:center;display:none;}
+  .success-card.show{display:block;}
+  .si{width:50px;height:50px;background:var(--c-green-bg);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:20px;}
+  .success-card h3{font-size:16px;font-weight:600;margin-bottom:6px;}
+  .success-card p{font-size:13px;color:var(--c-muted);margin-bottom:1rem;line-height:1.6;}
+  .bref{font-family:var(--font-mono);font-size:13px;background:var(--c-surface);border:1px dashed var(--c-border);border-radius:6px;padding:8px 12px;color:var(--c-mid);display:inline-block;margin-bottom:1rem;}
 
-/* ── CALENDAR ───────────────────────────────────────── */
-.cg{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
-.cdh{text-align:center;font-size:10px;color:var(--text3);padding:5px 0;letter-spacing:.06em;text-transform:uppercase;}
-.cd{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:6px;cursor:pointer;font-size:12px;border:1px solid transparent;transition:all .12s;position:relative;}
-.cd:hover:not(.cdd):not(.cde){border-color:var(--accent);color:var(--accent);}
-.cd.cdt{color:var(--accent);font-weight:600;}
-.cd.cds{background:var(--accent);color:#fff;font-weight:600;}
-[data-theme="light"] .cd.cds{color:#fff;}
-.cd.cdph{color:var(--accent2);}
-.cd.cdph::after{content:'';position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:3px;height:3px;border-radius:50%;background:var(--accent2);}
-.cd.cdd{color:var(--text3);cursor:not-allowed;opacity:.35;}
-.cd.cde{cursor:default;}
-.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
-.cal-title{font-family:var(--fd);font-weight:700;font-size:13px;}
+  .alert-card{background:var(--c-white);border:1px solid var(--c-border);border-radius:var(--radius-lg);overflow:hidden;display:none;}
+  .alert-card.show{display:block;}
+  .ab{padding:1.25rem;}
+  .aiw{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:0.75rem;}
+  .aiw.warn{background:var(--c-amber-bg);}
+  .aiw.success{background:var(--c-green-bg);}
+  .alert-card h3{font-size:15px;font-weight:600;margin-bottom:6px;}
+  .alert-card p{font-size:13px;color:var(--c-mid);line-height:1.6;margin-bottom:1rem;}
+  .brow{display:flex;gap:8px;flex-wrap:wrap;}
 
-/* ── TIME SLOTS ─────────────────────────────────────── */
-.slotg{display:grid;grid-template-columns:repeat(auto-fill,minmax(82px,1fr));gap:5px;max-height:240px;overflow-y:auto;padding-right:3px;}
-.slot{padding:7px 3px;text-align:center;border-radius:6px;border:1px solid var(--border);cursor:pointer;font-size:11px;color:var(--text2);transition:all .12s;background:var(--surface2);}
-.slot:hover{border-color:var(--accent);color:var(--text);}
-.slot.ssel{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:500;}
-[data-theme="light"] .slot.ssel{color:#fff;}
-.slot.staken{background:rgba(214,48,49,.06);color:var(--danger);border-color:rgba(214,48,49,.2);cursor:not-allowed;opacity:.55;}
-.slot.sadj{background:rgba(225,112,0,.06);color:var(--warning);border-color:rgba(225,112,0,.2);cursor:not-allowed;opacity:.6;}
-.slot.slunch{background:var(--surface3);color:var(--text3);border-color:var(--border);cursor:not-allowed;opacity:.5;}
+  .modal-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;align-items:center;justify-content:center;padding:1rem;}
+  .modal-backdrop.open{display:flex;}
+  .modal{background:var(--c-white);border-radius:var(--radius-lg);width:100%;max-width:400px;padding:1.75rem;position:relative;}
+  .modal h3{font-size:16px;font-weight:600;margin-bottom:8px;}
+  .modal p{font-size:13px;color:var(--c-mid);line-height:1.6;margin-bottom:1.25rem;}
+  .modal-close{position:absolute;top:1rem;right:1rem;background:none;border:none;cursor:pointer;font-size:16px;color:var(--c-muted);}
+  .mactions{display:flex;gap:8px;}
+  .mactions .btn{flex:1;}
 
-/* ── SUMMARY BOX ────────────────────────────────────── */
-.sumbox{background:var(--surface2);border:1px solid var(--border);border-radius:11px;padding:16px;}
-.sumrow{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px;}
-.sumrow:last-child{border-bottom:none;}
-.suml{color:var(--text2);}
-.sumv{color:var(--text);font-weight:500;}
-.sumrow.total .suml{color:var(--accent);font-weight:600;}
-.sumrow.total .sumv{color:var(--accent);font-size:14px;font-weight:700;}
-
-/* ── BOOKING ITEMS ──────────────────────────────────── */
-.bki{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:13px 16px;display:flex;align-items:center;gap:12px;margin-bottom:7px;transition:all .18s;}
-.bki:hover{border-color:var(--border2);}
-.bkdot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-.bkdot.equipment{background:var(--accent);}
-.bkdot.consultancy{background:var(--accent2);}
-.bki-info{flex:1;}
-.bki-title{font-weight:500;margin-bottom:1px;font-size:13px;}
-.bki-meta{font-size:11px;color:var(--text2);}
-.bk-st{font-size:10px;padding:3px 8px;border-radius:4px;font-weight:500;white-space:nowrap;}
-.bk-st.confirmed{background:rgba(26,158,74,.1);color:var(--success);}
-.bk-st.checked-in{background:rgba(0,153,204,.1);color:var(--accent);}
-.bk-st.cancelled{background:rgba(214,48,49,.1);color:var(--danger);}
-.bk-st.pending{background:rgba(225,112,0,.1);color:var(--warning);}
-
-/* ── TABLES ─────────────────────────────────────────── */
-.tbl{width:100%;border-collapse:collapse;}
-.tbl th{text-align:left;padding:9px 12px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border);font-weight:500;}
-.tbl td{padding:10px 12px;font-size:12px;border-bottom:1px solid var(--border);vertical-align:middle;}
-.tbl tbody tr:last-child td{border-bottom:none;}
-.tbl tbody tr:hover td{background:rgba(0,0,0,.02);}
-[data-theme="dark"] .tbl tbody tr:hover td{background:rgba(255,255,255,.02);}
-
-/* ── MODAL ──────────────────────────────────────────── */
-.mov{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:500;opacity:0;pointer-events:none;transition:opacity .18s;}
-.mov.open{opacity:1;pointer-events:auto;}
-.mo{background:var(--surface);border:1px solid var(--border);border-radius:15px;padding:24px;width:490px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.35);transform:scale(.95);transition:transform .18s;}
-.mov.open .mo{transform:scale(1);}
-.mohdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
-.motitle{font-family:var(--fd);font-size:16px;font-weight:700;}
-.mox{background:none;border:none;color:var(--text3);cursor:pointer;font-size:17px;transition:color .2s;padding:2px 6px;}
-.mox:hover{color:var(--danger);}
-
-/* ── TOAST ──────────────────────────────────────────── */
-.toastct{position:fixed;top:16px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:6px;}
-.toast{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:10px 13px;font-size:12px;max-width:290px;box-shadow:var(--shadow);animation:tin .25s ease;display:flex;align-items:center;gap:8px;}
-.toast.success{border-left:3px solid var(--success);}
-.toast.error{border-left:3px solid var(--danger);}
-.toast.info{border-left:3px solid var(--accent);}
-@keyframes tin{from{opacity:0;transform:translateX(16px);}to{opacity:1;transform:translateX(0);}}
-
-/* ── CHECKIN ────────────────────────────────────────── */
-.cic{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:32px;text-align:center;max-width:460px;margin:0 auto;}
-.ci-res{padding:16px;border-radius:10px;margin-top:14px;}
-.ci-res.ok{background:rgba(26,158,74,.08);border:1px solid rgba(26,158,74,.25);}
-.ci-res.err{background:rgba(214,48,49,.08);border:1px solid rgba(214,48,49,.25);}
-
-/* ── NO CREDITS BANNER ──────────────────────────────── */
-.nc-banner{background:rgba(214,48,49,.07);border:1px solid rgba(214,48,49,.2);border-radius:10px;padding:16px 18px;margin-bottom:18px;display:flex;align-items:flex-start;gap:12px;}
-.nc-banner .nc-icon{font-size:22px;flex-shrink:0;}
-.nc-banner .nc-text{flex:1;}
-.nc-banner .nc-title{font-family:var(--fd);font-weight:700;color:var(--danger);margin-bottom:4px;}
-.nc-banner .nc-sub{font-size:11px;color:var(--text2);line-height:1.5;}
-
-/* ── LOC TABS ───────────────────────────────────────── */
-.loctabs{display:flex;gap:7px;margin-bottom:18px;flex-wrap:wrap;}
-.ltab{padding:7px 18px;border-radius:var(--r);font-family:var(--fm);font-size:12px;cursor:pointer;border:1px solid var(--border);background:var(--surface2);color:var(--text2);transition:all .18s;}
-.ltab.active{background:rgba(0,153,204,.08);border-color:var(--accent);color:var(--accent);}
-[data-theme="light"] .ltab.active{background:rgba(0,153,204,.06);}
-
-/* ── DISABLE BANNER ─────────────────────────────────── */
-.dis-banner{background:rgba(214,48,49,.07);border:1px solid rgba(214,48,49,.2);border-radius:var(--r);padding:9px 13px;font-size:12px;color:var(--danger);margin-bottom:12px;display:flex;align-items:center;gap:7px;}
-
-/* ── ADMIN TABS ─────────────────────────────────────── */
-.atabs{display:flex;gap:7px;margin-bottom:20px;flex-wrap:wrap;}
-.atab{padding:7px 14px;border-radius:var(--r);font-family:var(--fm);font-size:11px;cursor:pointer;border:1px solid var(--border);background:var(--surface2);color:var(--text2);transition:all .18s;}
-.atab.active{background:var(--accent);color:#fff;border-color:var(--accent);}
-
-/* ── GROUP BADGE ────────────────────────────────────── */
-.grp-badge{font-size:10px;padding:2px 8px;border-radius:10px;background:var(--surface2);border:1px solid var(--border);color:var(--text2);font-weight:500;}
-
-/* ── QR ─────────────────────────────────────────────── */
-.qr-wrap{display:flex;flex-direction:column;align-items:center;padding:12px;}
-.qr-box{background:#fff;padding:12px;border-radius:9px;margin-bottom:9px;}
-
-/* ── MISC ───────────────────────────────────────────── */
-::-webkit-scrollbar{width:5px;height:5px;}
-::-webkit-scrollbar-track{background:var(--bg);}
-::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px;}
-.hidden{display:none!important;}
-.mb16{margin-bottom:16px;}.mb22{margin-bottom:22px;}
-.flex{display:flex;align-items:center;gap:9px;}
-.flexb{display:flex;align-items:center;justify-content:space-between;}
-.ta{color:var(--accent);}
-.td{color:var(--danger);}
-.ts{color:var(--success);}
-.tw{color:var(--warning);}
-.t2{color:var(--text2);}
-.t3{color:var(--text3);}
-.fsm{font-size:11px;}
-.fxs{font-size:10px;}
-.ffd{font-family:var(--fd);}
-.empty{text-align:center;padding:44px 20px;color:var(--text3);}
-.empty-icon{font-size:38px;margin-bottom:12px;opacity:.45;}
-.ovx{overflow-x:auto;}
-.tag{font-size:10px;padding:2px 7px;border-radius:3px;background:var(--surface2);border:1px solid var(--border);color:var(--text2);}
+  @media(max-width:860px){
+    .main{grid-template-columns:1fr;}
+    .two-month-grid{grid-template-columns:1fr;}
+    .month-block:first-child{border-right:none;border-bottom:1px solid var(--c-border);}
+  }
 </style>
 </head>
 <body>
 
-<!-- CONFIG -->
-<div id="cfgSc" class="cfg-ov">
-  <div class="cfg-box">
-    <h2>⚙ System Setup</h2>
-    <p>Connect your Google Sheets backend. Only needs to be done once — saved in browser storage.</p>
-    <div class="cfg-row"><label>Spreadsheet ID</label><input class="fi" id="c-sid" placeholder="1BxiMVs0..."></div>
-    <div class="cfg-row"><label>Google Sheets API Key (read)</label><input class="fi" id="c-key" placeholder="AIzaSy..."></div>
-    <div class="cfg-row"><label>Apps Script Web App URL (writes)</label><input class="fi" id="c-gas" placeholder="https://script.google.com/macros/s/.../exec"></div>
-    <div class="cfg-row"><label>Admin Emails (comma-separated)</label><input class="fi" id="c-adm" placeholder="admin@sp.edu.sg"></div>
-    <div class="cfg-row"><label>System / Lab Name</label><input class="fi" id="c-nm" value="FabLab" placeholder="FabLab"></div>
-    <div style="display:flex;gap:9px;margin-top:16px;">
-      <button class="btn btn-primary" onclick="saveConfig()" style="flex:1">Save & Connect →</button>
-      <button class="btn btn-secondary" onclick="demoMode()">Demo Mode</button>
-    </div>
-    <div style="margin-top:9px;font-size:10px;color:var(--text3);text-align:center;">
-      Stored in localStorage · <a href="#" onclick="resetCfg()" style="color:var(--accent);">Reset</a>
-    </div>
+<header class="header">
+  <div class="header-inner">
+    <a href="#" class="logo">
+      <div class="logo-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M12 2L2 7l10 5 10-5-10-5M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      </div>
+      SP FabLab
+    </a>
+    <span class="course-badge" id="course-badge">Laser Cutter F2F Competency</span>
   </div>
+</header>
+
+<div class="course-tabs">
+  <!-- <button class="course-tab active" onclick="switchCourse('laser')">✦ Laser Cutter</button>
+  <button class="course-tab" onclick="switchCourse('3dprint')">◈ 3D Printer</button> -->
+  <!-- Uncomment tabs below when courses are ready to activate:
+  <button class="course-tab" onclick="switchCourse('vinyl')">◉ Vinyl Cutter</button>
+  <button class="course-tab" onclick="switchCourse('embroidery')">✿ Embroidery</button>
+  <button class="course-tab" onclick="switchCourse('heatpress')">⬡ Heat Press</button>
+  <button class="course-tab" onclick="switchCourse('largeformat')">▦ Large Format</button>
+  <button class="course-tab" onclick="switchCourse('cardboard')">◻ Cardboard</button>
+  <button class="course-tab" onclick="switchCourse('cnc')">⚙ CNC</button>
+  -->
 </div>
 
-<!-- LOGIN -->
-<div id="loginSc" class="hidden">
-  <div class="login-wrap">
-    <div class="login-card">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-        <div>
-          <div class="login-logo"><span id="loginLogo">Fab</span>Lab</div>
-          <div style="font-size:10px;color:var(--text3);letter-spacing:.05em;">BOOKING SYSTEM</div>
-        </div>
-        <button class="btn-icon" onclick="toggleTheme()" title="Toggle theme" id="themeBtn">🌙</button>
-      </div>
-      <div class="login-sub">Login here to book.</div>
-      <div class="fg">
-        <label class="fl">Email Address</label>
-        <input type="email" class="fi" id="loginEmail" placeholder="student@edu.sg" onkeyup="if(event.key==='Enter')doLogin()">
-      </div>
-      <button class="btn btn-primary" style="width:100%;margin-bottom:8px;" onclick="doLogin()" id="loginBtn">→ Access System</button>
-      <div class="divider">or</div>
-      <button class="btn btn-secondary" style="width:100%;" onclick="goCIOnly()">📷 Walk-In QR Check-In</button>
-      <div style="margin-top:14px;font-size:10px;color:var(--text3);text-align:center;">
-        <a href="#" onclick="promptReset()" style="color:var(--text3);text-decoration:none;opacity:.3;">·</a>
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-text">
+      <h1 id="hero-title">Book your <span>Laser Cutter</span> F2F Competency</h1>
+      <p id="hero-desc">Select a session below to register. You must have passed the Laser Cutter online quiz before booking.</p>
+      <div class="hero-chips">
+        <div class="info-chip">⏱ 2:00 PM – 5:00 PM</div>
+        <div class="info-chip warn">⚠ Min. 5 students to confirm</div>
+        <div class="info-chip ok">✓ Staff-approved sessions</div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- MAIN APP -->
-<div id="mainApp" class="app hidden">
-  <div class="toastct" id="toastCt"></div>
-
-  <div class="hdr">
-    <div class="flex">
-      <div class="logo"><span id="hdrLogo">Fab</span>Lab <sub>Booking</sub></div>
-    </div>
-    <div class="hdr-right">
-      <div class="pool-pill" id="hdrPoolPill">
-        <span class="pl">Credit Pool</span>
-        <span class="pv" id="hdrPool">—</span>
+<div class="main">
+  <div>
+    <div class="panel">
+      <div class="panel-header">
+        <div><h2>Available Sessions</h2><p id="cal-range">Loading sessions…</p></div>
       </div>
-      <div class="user-pill">
-        <div class="uav" id="hdrAv">?</div>
+      <div class="legend">
+        <div class="legend-item"><div class="lsw v"></div> Seats available</div>
+        <div class="legend-item"><div class="lsw f"></div> Full</div>
+        <div class="legend-item"><div class="lsw p"></div> Pending confirmation</div>
+        <div class="legend-item"><div class="lsw h"></div> Public holiday (no class)</div>
+      </div>
+      <div class="two-month-grid" id="two-month-grid"></div>
+    </div>
+  </div>
+
+  <div class="sidebar">
+    <div class="panel" id="no-session-panel">
+      <div class="select-prompt">
+        <span class="icon-lg">🗓</span>
+        <p>Select a highlighted session from the calendar to see details and register</p>
+      </div>
+    </div>
+
+    <div class="panel" id="session-panel" style="display:none;">
+      <div class="sch">
         <div>
-          <div class="uname" id="hdrName">—</div>
-          <div class="urole" id="hdrRole">—</div>
+          <h3 id="s-date">—</h3>
+          <div class="sub">2:00 PM – 5:00 PM · <span id="s-venue-sub">T11C01</span></div>
         </div>
+        <span class="status-pill" id="s-pill">Pending</span>
       </div>
-      <button class="btn-icon" onclick="toggleTheme()" id="themeBtn2" title="Toggle theme">🌙</button>
-      <button class="btn-icon" onclick="manualRefresh()" id="refreshBtn" title="Refresh data from Sheets" style="font-size:15px;">↺</button>
-      <button class="btn-icon" onclick="doLogout()" title="Logout">⏻</button>
+      <div class="smeta">
+        <div class="mr"><span class="ml">Seats</span><span class="mv" id="s-pax">—</span></div>
+        <div class="pbar"><div class="pbfill low" id="pbar" style="width:0%"></div></div>
+        <div class="prow"><span id="pmin">Min. 5 to confirm</span><span id="ppct">0%</span></div>
+        <div class="mr" style="margin-top:4px;"><span class="ml">Venue</span><span class="mv" id="s-venue">T11C01 (Laser Lab)</span></div>
+        <div class="mr"><span class="ml">Facilitator</span><span class="mv" id="s-fac">Chaik Haw Ren</span></div>
+      </div>
+      <div class="notice" id="s-notice" style="display:none;">
+        <span style="flex-shrink:0;">⚠</span>
+        <span>This session requires a minimum of 5 students. Staff will confirm or cancel closer to the date.</span>
+      </div>
+      <div id="form-wrap"></div>
     </div>
-  </div>
 
-  <div class="nav" id="mainNav">
-    <!-- tabs injected by JS based on role -->
-  </div>
+    <div class="success-card" id="success-card">
+      <div class="si">✓</div>
+      <h3>You're registered!</h3>
+      <p>Your spot is reserved. Check your SP email for confirmation and session updates.</p>
+      <div class="bref" id="bref">REF: FAB-2026-0000</div>
+      <div style="background:var(--c-surface);border:1px solid var(--c-border);border-radius:8px;padding:12px 14px;font-size:13px;text-align:left;margin-bottom:0.75rem;">
+        <div style="font-size:11px;font-weight:600;color:var(--c-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Your session</div>
+        <div style="font-weight:600;color:var(--c-dark);margin-bottom:2px;" id="success-date">—</div>
+        <div style="font-size:12px;color:var(--c-muted);">2:00 PM – 5:00 PM · <span id="success-venue">—</span></div>
+        <div style="font-size:12px;color:var(--c-amber);margin-top:6px;">⏳ Pending staff confirmation (min. 5 students)</div>
+      </div>
+      <div style="background:var(--c-blue-bg);border:1px solid #B5D4F4;border-radius:8px;padding:10px 12px;font-size:12px;color:var(--c-blue);text-align:left;margin-bottom:0.75rem;">
+        <strong>⏰ Reminder emails</strong><br>You will receive an automatic reminder <strong>7 days</strong> and <strong>1 day</strong> before your session. If the session is confirmed or cancelled by staff, you will be notified immediately at your SP email.
+      </div>
+      <div style="font-size:11px;color:var(--c-muted);line-height:1.5;text-align:center;">You can only hold one booking at a time. To change your date, click your booked date on the calendar.</div>
+    </div>
 
-  <div class="main">
-
-    <!-- ══ USER: DASHBOARD ══ -->
-    <div class="page" id="pg-dashboard">
-      <div class="shdr">
-        <div class="stitle">Welcome, <span id="dashName">—</span></div>
-        <div class="flex">
-          <span class="grp-badge" id="dashGroup">—</span>
-        </div>
-      </div>
-      <!-- No credits warning -->
-      <div id="ncBanner" class="nc-banner hidden">
-        <div class="nc-icon">⚠</div>
-        <div class="nc-text">
-          <div class="nc-title">No Credits Remaining</div>
-          <div class="nc-sub">Your group's credit pool is empty. You cannot make new equipment bookings until credits are topped up. <a href="#" onclick="emailAdmin()" style="color:var(--accent);">Email the administrator →</a></div>
-        </div>
-      </div>
-      <div class="g4 mb22">
-        <div class="sc" style="--sc-c:var(--accent)"><div class="sc-icon">⬡</div><div class="sc-lbl">Group Pool Credits</div><div class="sc-val ta" id="dpool">—</div><div class="sc-sub" id="dgroupname">—</div></div>
-        <div class="sc" style="--sc-c:var(--accent2)"><div class="sc-icon">📅</div><div class="sc-lbl">My Bookings</div><div class="sc-val" id="dmine">—</div><div class="sc-sub">this month</div></div>
-        <div class="sc" style="--sc-c:var(--success)"><div class="sc-icon">✓</div><div class="sc-lbl">Upcoming</div><div class="sc-val" id="dup">—</div><div class="sc-sub">confirmed</div></div>
-        <div class="sc" style="--sc-c:var(--warning)"><div class="sc-icon">◉</div><div class="sc-lbl">Check-Ins</div><div class="sc-val" id="dci">—</div><div class="sc-sub">verified visits</div></div>
-      </div>
-      <div class="g2">
-        <div>
-          <div class="flexb mb16"><div class="ffd" style="font-weight:700;">My Recent Bookings</div><button class="btn btn-secondary btn-sm" onclick="goPage('mybookings')">View All →</button></div>
-          <div id="dashRecent"></div>
-        </div>
-        <div>
-          <div class="flexb mb16"><div class="ffd" style="font-weight:700;">Lab Status</div><button class="btn btn-secondary btn-sm" onclick="goPage('book')">Book Now →</button></div>
-          <div id="dashLab"></div>
+    <div class="alert-card" id="alert-existing">
+      <div class="ab">
+        <div class="aiw warn">⚠️</div>
+        <h3>Existing booking found</h3>
+        <p id="alert-existing-msg">You already have a booking for another session. Would you like to change date?</p>
+        <div class="brow">
+          <button class="btn btn-p" onclick="changeDate()">Change to this date</button>
+          <button class="btn btn-o" onclick="dismissAlert('alert-existing')">Keep existing</button>
         </div>
       </div>
     </div>
 
-    <!-- ══ USER: BOOK ══ -->
-    <div class="page" id="pg-book">
-      <div class="shdr"><div class="stitle">New <span>Booking</span></div></div>
-      <div id="bookNcBanner" class="nc-banner hidden">
-        <div class="nc-icon">⚠</div>
-        <div class="nc-text">
-          <div class="nc-title">Insufficient Credits for Equipment Booking</div>
-          <div class="nc-sub">Your group's pool has <strong id="bncRemaining">0</strong> credits remaining. Equipment booking requires credits. You can still book <strong>Staff Consultancy for free</strong>. <a href="#" onclick="emailAdmin()" style="color:var(--accent);">Request credit top-up →</a></div>
-        </div>
-      </div>
-      <div style="display:flex;gap:9px;margin-bottom:22px;">
-        <button class="btn btn-primary" id="btEquip" onclick="setBookType('equipment')">🔧 Equipment</button>
-        <button class="btn btn-secondary" id="btConsult" onclick="setBookType('consultancy')">👤 Consultancy <span style="font-size:10px;opacity:.7;">(Free)</span></button>
-      </div>
-      <div class="wiz">
-        <div class="ws active" id="ws1"><div class="wnum">1</div><span>Select</span></div>
-        <div class="wconn"></div>
-        <div class="ws" id="ws2"><div class="wnum">2</div><span>Schedule</span></div>
-        <div class="wconn"></div>
-        <div class="ws" id="ws3"><div class="wnum">3</div><span>Details</span></div>
-        <div class="wconn"></div>
-        <div class="ws" id="ws4"><div class="wnum">4</div><span>Confirm</span></div>
-      </div>
-      <div class="wp active" id="wp1">
-        <div class="loctabs" id="locTabs"></div>
-        <div id="resGrid"></div>
-        <!-- User availability panel (shown for consultancy type only) -->
-        <div id="userAvailPanel" class="hidden" style="margin-top:24px;">
-          <div style="border-top:1px solid var(--border);padding-top:20px;">
-            <div id="userAvailContainer"></div>
-          </div>
-        </div>
-        <div style="margin-top:16px;text-align:right;"><button class="btn btn-primary" id="s1n" disabled onclick="goWiz(2)">Next →</button></div>
-      </div>
-      <div class="wp" id="wp2">
-        <div class="g2">
-          <div>
-            <div class="ffd mb16" style="font-weight:700;">Select Date</div>
-            <div class="cal-nav"><button class="btn btn-secondary btn-sm" onclick="calPrev()">‹</button><span class="cal-title" id="calLbl"></span><button class="btn btn-secondary btn-sm" onclick="calNext()">›</button></div>
-            <div class="cg">
-              <div class="cdh">Su</div><div class="cdh">Mo</div><div class="cdh">Tu</div>
-              <div class="cdh">We</div><div class="cdh">Th</div><div class="cdh">Fr</div><div class="cdh">Sa</div>
-              <div id="calDays" style="display:contents;"></div>
-            </div>
-            <div style="font-size:10px;color:var(--text3);margin-top:7px;line-height:1.7;">
-              <span style="color:var(--accent2);">●</span> Public Holiday &nbsp;·&nbsp; Weekends unavailable
-            </div>
-            <div class="fg" style="margin-top:13px;">
-              <label class="fl">Duration</label>
-              <select class="fs" id="bookDur" onchange="renderSlots()">
-                <option value="1">1 hour (1 credit)</option>
-                <option value="1.5">1.5 hours (1.5 credits)</option>
-                <option value="2">2 hours (2 credits)</option>
-                <option value="3">3 hours (3 credits)</option>
-              </select>
-            </div>
-          </div>
-          <div>
-            <div class="ffd mb16" style="font-weight:700;">Time Slots <span class="fsm t3">9:00–16:30 · Lunch 12:00–13:30 blocked</span></div>
-            <div id="slotCt"><div class="t3 fsm" style="padding:10px;">Select a date first</div></div>
-            <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;font-size:10px;" id="slotLeg" style="display:none">
-              <span>🟦 Selected</span><span>🔴 Booked</span><span>🟡 Buffer/Lunch</span>
-            </div>
-          </div>
-        </div>
-        <div style="margin-top:16px;display:flex;gap:9px;justify-content:flex-end;">
-          <button class="btn btn-secondary" onclick="goWiz(1)">← Back</button>
-          <button class="btn btn-primary" id="s2n" disabled onclick="goWiz(3)">Next →</button>
-        </div>
-      </div>
-      <div class="wp" id="wp3">
-        <div class="fg"><label class="fl">Purpose / Project Description</label><textarea class="fta" id="bkPurpose" placeholder="What will you be working on?"></textarea></div>
-        <div class="fg" id="grpSize"><label class="fl">Group Size</label><input type="number" class="fi" id="bkGroup" value="1" min="1" max="30"></div>
-        <div class="fg hidden" id="grpTopic"><label class="fl">Consultation Topic</label><input type="text" class="fi" id="bkTopic" placeholder="e.g. Laser cutter setup, FDM settings..."></div>
-        <div style="margin-top:16px;display:flex;gap:9px;justify-content:flex-end;">
-          <button class="btn btn-secondary" onclick="goWiz(2)">← Back</button>
-          <button class="btn btn-primary" onclick="goWiz(4)">Review →</button>
-        </div>
-      </div>
-      <div class="wp" id="wp4">
-        <div class="g2">
-          <div><div class="ffd mb16" style="font-weight:700;">Booking Summary</div><div class="sumbox" id="bkSum"></div><div style="margin-top:10px;font-size:11px;color:var(--text3);line-height:1.7;">Credits deducted from your group's shared pool.<br>Staff consultancy is always free.</div></div>
-          <div><div class="ffd mb16" style="font-weight:700;">Credit Impact</div><div class="sumbox" id="bkCost"></div></div>
-        </div>
-        <div style="margin-top:20px;display:flex;gap:9px;justify-content:flex-end;">
-          <button class="btn btn-secondary" onclick="goWiz(3)">← Back</button>
-          <button class="btn btn-primary" id="btnConfirm" onclick="confirmBooking()">✓ Confirm Booking</button>
+    <div class="alert-card" id="alert-passed">
+      <div class="ab">
+        <div class="aiw success">🎓</div>
+        <h3>You've already passed!</h3>
+        <p>Our records show you have completed and passed the <span id="alert-cn">Laser Cutter</span> F2F evaluation. No need to retake.<br><br>For a refresher, please contact the staff at the respective FabLab.</p>
+        <div class="brow">
+          <button class="btn btn-o bblock" onclick="dismissAlert('alert-passed')">Got it</button>
         </div>
       </div>
     </div>
+  </div>
+</div>
 
-    <!-- ══ USER: MY BOOKINGS ══ -->
-    <div class="page" id="pg-mybookings">
-      <div class="shdr"><div class="stitle">My <span>Bookings</span></div><button class="btn btn-primary" onclick="goPage('book')">＋ New</button></div>
-      <div style="display:flex;gap:9px;margin-bottom:16px;">
-        <select class="fs" style="width:auto" id="mybkF" onchange="renderMyBk()">
-          <option value="all">All Bookings</option>
-          <option value="upcoming">Upcoming</option>
-          <option value="past">Past</option>
-          <option value="cancelled">Cancelled</option>
-        </select>
-      </div>
-      <div id="mybkList"></div>
+<div class="modal-backdrop" id="modal-cd">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-cd')">✕</button>
+    <h3>Change booking date?</h3>
+    <p>Your booking for <strong id="m-old">—</strong> will be cancelled and you will be registered for <strong id="m-new">—</strong> instead.</p>
+    <div class="mactions">
+      <button class="btn btn-p" onclick="confirmChangeDate()">Yes, change date</button>
+      <button class="btn btn-o" onclick="closeModal('modal-cd')">Cancel</button>
     </div>
-
-    <!-- ══ CHECK-IN ══ -->
-    <div class="page" id="pg-checkin">
-      <div class="shdr"><div class="stitle">Session <span>Check-In</span></div></div>
-      <div class="cic">
-        <div style="font-size:52px;margin-bottom:14px;">📷</div>
-        <div style="font-family:var(--fd);font-size:20px;font-weight:700;margin-bottom:6px;">Confirm Your Arrival</div>
-        <div style="color:var(--text2);font-size:12px;margin-bottom:18px;line-height:1.6;">Enter your Booking ID or scan the QR code from your confirmation email to mark yourself as present.</div>
-        <div style="display:flex;gap:8px;margin-bottom:9px;">
-          <input type="text" class="fi" id="ciCode" placeholder="BK-2025-XXXX" onkeyup="if(event.key==='Enter')doCI()">
-          <button class="btn btn-primary" onclick="doCI()">→</button>
-        </div>
-        <div id="ciRes"></div>
-        <div style="border-top:1px solid var(--border);margin-top:22px;padding-top:18px;">
-          <div style="font-size:12px;color:var(--text2);margin-bottom:9px;">Look up by email:</div>
-          <div style="display:flex;gap:8px;">
-            <input type="email" class="fi" id="ciEmail" placeholder="your@email.sg">
-            <button class="btn btn-secondary" onclick="ciLookup()">Look Up</button>
-          </div>
-          <div id="ciLookup"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ══ ADMIN: DASHBOARD ══ -->
-    <div class="page" id="pg-admin-dash">
-      <div class="shdr"><div class="stitle">Admin <span>Overview</span></div></div>
-      <div class="g4 mb22">
-        <div class="sc" style="--sc-c:var(--accent)"><div class="sc-icon">👥</div><div class="sc-lbl">Whitelisted Users</div><div class="sc-val" id="asu">—</div></div>
-        <div class="sc" style="--sc-c:var(--accent2)"><div class="sc-icon">📅</div><div class="sc-lbl">Bookings Today</div><div class="sc-val" id="asbk">—</div></div>
-        <div class="sc" style="--sc-c:var(--success)"><div class="sc-icon">✓</div><div class="sc-lbl">Check-Ins Today</div><div class="sc-val" id="ascii">—</div></div>
-        <div class="sc" style="--sc-c:var(--warning)"><div class="sc-icon">⬡</div><div class="sc-lbl">Credit Groups</div><div class="sc-val" id="asgrp">—</div></div>
-      </div>
-      <!-- Upcoming bookings by others -->
-      <div class="g2">
-        <div>
-          <div class="flexb mb16"><div class="ffd" style="font-weight:700;">Upcoming Bookings</div>
-            <select class="fs" style="width:auto;font-size:11px;" id="adminUpFilter" onchange="renderAdminUpcoming()">
-              <option value="all">All Equipment</option>
-              <option value="T14">T14 Only</option>
-              <option value="T11C01">T11C01 Only</option>
-            </select>
-          </div>
-          <div id="adminUpcoming"></div>
-        </div>
-        <div>
-          <div class="flexb mb16"><div class="ffd" style="font-weight:700;">Today's Schedule</div></div>
-          <div id="adminToday"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ══ ADMIN: USERS ══ -->
-    <div class="page" id="pg-admin-users">
-      <div class="shdr">
-        <div class="stitle">Whitelist & <span>Credits</span></div>
-        <div class="flex">
-          <button class="btn btn-secondary btn-sm" onclick="downloadTemplate('users')">⬇ Template</button>
-          <label class="btn btn-secondary btn-sm" style="cursor:pointer;">📄 Import CSV <input type="file" accept=".csv" onchange="adminCSV(event)" style="display:none"></label>
-          <button class="btn btn-primary btn-sm" onclick="openMo('addUsrMo')">＋ Add User</button>
-        </div>
-      </div>
-
-      <!-- Credit Groups -->
-      <div class="card mb22">
-        <div class="flexb mb16">
-          <div class="ffd" style="font-weight:700;font-size:14px;">Credit Groups</div>
-          <button class="btn btn-primary btn-sm" onclick="openMo('addGrpMo')">＋ New Group</button>
-        </div>
-        <div id="grpList"></div>
-      </div>
-
-      <!-- Users Table -->
-      <div class="card">
-        <div class="flexb mb16">
-          <div class="ffd" style="font-weight:700;font-size:14px;">Whitelisted Users</div>
-          <div class="flex">
-            <select class="fs" style="width:auto;font-size:11px;" id="usrGrpFilter" onchange="renderAdminUsers()">
-              <option value="all">All Groups</option>
-            </select>
-            <select class="fs" style="width:auto;font-size:11px;" id="usrStatusFilter" onchange="renderAdminUsers()">
-              <option value="all">All Status</option>
-              <option value="active">Active</option>
-              <option value="disabled">Disabled</option>
-            </select>
-          </div>
-        </div>
-        <!-- Bulk actions -->
-        <div class="flex mb16" id="bulkActions" style="display:none!important;">
-          <span class="fsm t2" id="bulkCount">0 selected</span>
-          <button class="btn btn-danger btn-sm" onclick="bulkDelete()">Delete Selected</button>
-        </div>
-        <div id="usrTable"></div>
-      </div>
-    </div>
-
-    <!-- ══ ADMIN: EQUIPMENT ══ -->
-    <div class="page" id="pg-admin-equip">
-      <div class="shdr">
-        <div class="stitle">Equipment <span>Management</span></div>
-        <div class="flex">
-          <button class="btn btn-secondary btn-sm" onclick="downloadTemplate('equipment')">⬇ Template</button>
-          <label class="btn btn-secondary btn-sm" style="cursor:pointer;">
-            📄 Import CSV
-            <input type="file" accept=".csv" onchange="equipCSV(event)" style="display:none">
-          </label>
-          <button class="btn btn-primary btn-sm" onclick="openMo('addEqMo')">＋ Add Equipment</button>
-        </div>
-      </div>
-      <div style="font-size:11px;color:var(--text2);margin-bottom:12px;">
-        CSV format: <code style="color:var(--accent)">name,description,location,category,icon,creditsPerHour</code>
-        &nbsp;· location: <code style="color:var(--accent)">T14</code> or <code style="color:var(--accent)">T11C01</code>
-      </div>
-      <div class="card"><div id="eqTable"></div></div>
-    </div>
-
-    <!-- ══ ADMIN: BOOKINGS ══ -->
-    <div class="page" id="pg-admin-bookings">
-      <div class="shdr"><div class="stitle">All <span>Bookings</span></div></div>
-      <div style="display:flex;gap:9px;margin-bottom:16px;flex-wrap:wrap;">
-        <select class="fs" style="width:auto" id="abkStatus" onchange="renderAdminBk()"><option value="all">All Status</option><option value="confirmed">Confirmed</option><option value="checked-in">Checked In</option><option value="cancelled">Cancelled</option></select>
-        <select class="fs" style="width:auto" id="abkLoc" onchange="renderAdminBk()"><option value="all">All Locations</option><option value="T14">T14</option><option value="T11C01">T11C01</option></select>
-        <input type="date" class="fi" id="abkDate" style="width:auto" onchange="renderAdminBk()">
-      </div>
-      <div class="card"><div id="abkTable"></div></div>
-    </div>
-
-    <!-- ══ ADMIN: DISABLE ══ -->
-    <div class="page" id="pg-admin-disable">
-      <div class="shdr"><div class="stitle">Disable / <span>Maintenance</span></div></div>
-      <div style="font-size:12px;color:var(--text2);margin-bottom:20px;">Disable locations or individual equipment. Affects new bookings only — existing bookings are preserved.</div>
-      <div class="g2 mb22">
-        <div>
-          <div class="ffd mb16" style="font-weight:700;font-size:14px;">By Location</div>
-          <div id="disLocList"></div>
-        </div>
-        <div>
-          <div class="ffd mb16" style="font-weight:700;font-size:14px;">By Equipment</div>
-          <div id="disEqList"></div>
-        </div>
-      </div>
-      <div class="card mb22">
-        <div class="ffd mb16" style="font-weight:700;font-size:14px;">Schedule Disable Period</div>
-        <div class="frow">
-          <div class="fg"><label class="fl">Start Date</label><input type="date" class="fi" id="disStart"></div>
-          <div class="fg"><label class="fl">End Date</label><input type="date" class="fi" id="disEnd"></div>
-        </div>
-        <div class="fg"><label class="fl">Affects</label>
-          <select class="fs" id="disTgt"><option value="all">All Locations</option><option value="T14">T14 — 3D Printing Lab</option><option value="T11C01">T11C01 — Laser Lab</option></select>
-        </div>
-        <div class="fg"><label class="fl">Reason</label><input type="text" class="fi" id="disReason" placeholder="e.g. Annual maintenance, MakerConnect 2026..."></div>
-        <button class="btn btn-warning" onclick="scheduleDisable()">Schedule Disable Period</button>
-      </div>
-      <div class="ffd mb16" style="font-weight:700;font-size:14px;">Scheduled Periods</div>
-      <div id="disPeriods"></div>
-    </div>
-
-    <!-- ══ ADMIN: STAFF ══ -->
-    <div class="page" id="pg-admin-staff">
-      <div class="shdr">
-        <div class="stitle">Consultancy <span>Staff</span></div>
-        <button class="btn btn-primary btn-sm" onclick="openMo('addStMo')">＋ Add Staff</button>
-      </div>
-      <div class="card mb22"><div id="stTable"></div></div>
-
-      <!-- Staff Availability Schedule -->
-      <div class="shdr" style="margin-top:10px;">
-        <div class="stitle" style="font-size:17px;">Staff <span>Availability</span></div>
-        <button class="btn btn-primary btn-sm" onclick="openAddAvailMo()">＋ Add Availability Slot</button>
-      </div>
-      <div style="font-size:12px;color:var(--text2);margin-bottom:16px;">
-        Schedule when each staff member is available for consultancy. Users can see current month slots only. You can schedule up to 2 months ahead.
-      </div>
-      <div class="card"><div id="availTable"></div></div>
-    </div>
-
-  </div><!-- /main -->
-</div><!-- /mainApp -->
-
-<!-- Add Availability Modal -->
-<div class="mov" id="addAvailMo"><div class="mo">
-  <div class="mohdr"><div class="motitle" id="availMoTitle">Add Availability Slot</div><button class="mox" onclick="closeMo('addAvailMo')">✕</button></div>
-  <div class="fg">
-    <label class="fl">Staff Member</label>
-    <select class="fs" id="availStaff"></select>
   </div>
-  <div class="frow">
-    <div class="fg"><label class="fl">Date</label><input type="date" class="fi" id="availDate"></div>
-    <div class="fg"><label class="fl">Day Label (optional)</label><input type="text" class="fi" id="availLabel" placeholder="e.g. Morning only"></div>
-  </div>
-  <div class="frow">
-    <div class="fg"><label class="fl">Start Time</label><input type="time" class="fi" id="availStart" value="09:00"></div>
-    <div class="fg"><label class="fl">End Time</label><input type="time" class="fi" id="availEnd" value="17:00"></div>
-  </div>
-  <div class="fg"><label class="fl">Notes (optional)</label><input type="text" class="fi" id="availNotes" placeholder="e.g. Online only, Lab T14..."></div>
-  <input type="hidden" id="availId">
-  <button class="btn btn-primary" style="width:100%;margin-top:6px;" onclick="saveAvail()">Save Slot</button>
-</div></div>
-
-<!-- ══ MODALS ══ -->
-
-<!-- QR -->
-<div class="mov" id="qrMo"><div class="mo" style="max-width:340px;text-align:center;">
-  <div class="mohdr"><div class="motitle">✓ Booking Confirmed</div><button class="mox" onclick="closeMo('qrMo')">✕</button></div>
-  <div class="qr-wrap"><div class="qr-box" id="qrBox"></div>
-    <div class="fsm t2" style="margin-bottom:4px;">Show this QR code at check-in</div>
-    <div style="font-size:14px;color:var(--accent);font-weight:600;" id="qrId"></div>
-  </div>
-  <div style="font-size:11px;color:var(--text2);margin:10px 0;">Screenshot this or access it anytime from My Bookings.</div>
-  <button class="btn btn-primary" style="width:100%" onclick="closeMo('qrMo');goPage('mybookings')">View My Bookings →</button>
-</div></div>
-
-<!-- Booking Detail -->
-<div class="mov" id="bkDMo"><div class="mo">
-  <div class="mohdr"><div class="motitle">Booking Details</div><button class="mox" onclick="closeMo('bkDMo')">✕</button></div>
-  <div id="bkDContent"></div>
-</div></div>
-
-<!-- Add User -->
-<div class="mov" id="addUsrMo"><div class="mo">
-  <div class="mohdr"><div class="motitle">Add to Whitelist</div><button class="mox" onclick="closeMo('addUsrMo')">✕</button></div>
-  <div class="fg"><label class="fl">Email</label><input type="email" class="fi" id="nuEmail" placeholder="student@edu.sg"></div>
-  <div class="fg"><label class="fl">Name</label><input type="text" class="fi" id="nuName" placeholder="Full Name"></div>
-  <div class="frow">
-    <div class="fg"><label class="fl">Role</label><select class="fs" id="nuRole"><option value="student">Student</option><option value="staff">Staff</option><option value="external">External</option><option value="admin">Admin</option></select></div>
-    <div class="fg"><label class="fl">Credit Group</label><select class="fs" id="nuGrp"></select></div>
-  </div>
-  <button class="btn btn-primary" style="width:100%" onclick="addUser()" id="saveUsrBtn">Add to Whitelist</button>
-</div></div>
-
-<!-- Add Group -->
-<div class="mov" id="addGrpMo"><div class="mo" style="max-width:380px;">
-  <div class="mohdr"><div class="motitle" id="grpMoTitle">New Credit Group</div><button class="mox" onclick="closeMo('addGrpMo')">✕</button></div>
-  <div class="fg"><label class="fl">Group Name</label><input type="text" class="fi" id="ngName" placeholder="e.g. Year 1 Students, External Users"></div>
-  <div class="fg"><label class="fl">Initial Pool Credits</label><input type="number" class="fi" id="ngCredits" value="100" min="0"></div>
-  <div class="fg"><label class="fl">Description (optional)</label><input type="text" class="fi" id="ngDesc" placeholder="Brief description"></div>
-  <input type="hidden" id="ngId">
-  <button class="btn btn-primary" style="width:100%" onclick="saveGroup()" id="saveGrpBtn">Save Group</button>
-</div></div>
-
-<!-- Edit Credits -->
-<div class="mov" id="editCrMo"><div class="mo" style="max-width:360px;">
-  <div class="mohdr"><div class="motitle">Edit Group Credits</div><button class="mox" onclick="closeMo('editCrMo')">✕</button></div>
-  <div style="margin-bottom:13px;font-size:12px;color:var(--text2);" id="crGrpInfo"></div>
-  <div class="frow">
-    <div class="fg"><label class="fl">Action</label><select class="fs" id="crAction"><option value="set">Set to</option><option value="add">Add</option><option value="subtract">Subtract</option></select></div>
-    <div class="fg"><label class="fl">Amount</label><input type="number" class="fi" id="crAmt" value="10" min="0"></div>
-  </div>
-  <div class="fg"><label class="fl">Reason (optional)</label><input type="text" class="fi" id="crReason" placeholder="Top-up, adjustment..."></div>
-  <input type="hidden" id="crGrpId">
-  <button class="btn btn-primary" style="width:100%" onclick="applyCredits()">Apply</button>
-</div></div>
-
-<!-- Add Equipment -->
-<div class="mov" id="addEqMo"><div class="mo">
-  <div class="mohdr"><div class="motitle" id="eqMoTitle">Add Equipment</div><button class="mox" onclick="closeMo('addEqMo')">✕</button></div>
-  <div class="fg"><label class="fl">Name</label><input type="text" class="fi" id="neqName" placeholder="e.g. Bambu Lab X1C #01"></div>
-  <div class="fg"><label class="fl">Description</label><textarea class="fta" id="neqDesc" placeholder="Brief description"></textarea></div>
-  <div class="frow">
-    <div class="fg"><label class="fl">Location</label><select class="fs" id="neqLoc"><option value="T14">T14 — 3D Printing</option><option value="T11C01">T11C01 — Laser Lab</option></select></div>
-    <div class="fg"><label class="fl">Credits/hr</label><input type="number" class="fi" id="neqCr" value="1" min="0.5" step="0.5"></div>
-  </div>
-  <div class="frow">
-    <div class="fg"><label class="fl">Icon (emoji)</label><input type="text" class="fi" id="neqIcon" placeholder="🖨" maxlength="4"></div>
-    <div class="fg"><label class="fl">Category</label><select class="fs" id="neqCat"><option value="3dprinting">3D Printing</option><option value="laser">Laser Cutting</option><option value="other">Other</option></select></div>
-  </div>
-  <input type="hidden" id="neqId">
-  <button class="btn btn-primary" style="width:100%;margin-top:6px;" onclick="saveEquip()">Save</button>
-</div></div>
-
-<!-- Add Staff -->
-<div class="mov" id="addStMo"><div class="mo">
-  <div class="mohdr"><div class="motitle">Add Staff</div><button class="mox" onclick="closeMo('addStMo')">✕</button></div>
-  <div class="frow">
-    <div class="fg"><label class="fl">Name</label><input type="text" class="fi" id="nstName" placeholder="Staff Name"></div>
-    <div class="fg"><label class="fl">Title</label><input type="text" class="fi" id="nstRole" placeholder="Fabrication Specialist"></div>
-  </div>
-  <div class="fg"><label class="fl">Email (for notifications)</label><input type="email" class="fi" id="nstEmail" placeholder="staff@sp.edu.sg"></div>
-  <div class="fg"><label class="fl">Expertise (comma-separated)</label><input type="text" class="fi" id="nstExp" placeholder="Laser Cutting, 3D Printing, Arduino"></div>
-  <div class="frow">
-    <div class="fg"><label class="fl">Credits/hr (0 = free)</label><input type="number" class="fi" id="nstCr" value="0" min="0" step="0.5"></div>
-    <div class="fg"><label class="fl">Available Days</label><input type="text" class="fi" id="nstDays" placeholder="Mon-Fri"></div>
-  </div>
-  <button class="btn btn-primary" style="width:100%;margin-top:6px;" onclick="saveStaff()">Add Staff</button>
-</div></div>
+</div>
 
 <script>
-// ═══════════════════════════════════════════════════════
-// CONFIG & STATE
-// ═══════════════════════════════════════════════════════
-let CFG = { sheetId:'', apiKey:'', gasUrl:'', admins:[], sysName:'FabLab', demoMode:false };
+// SG Public Holidays — maintained manually, update each year
+// Source: www.mom.gov.sg/employment-practices/public-holidays
+let holidaysLoaded = false;
+let SG_HOLIDAYS = {};
 
-let S = {
-  user:null, users:[], equipment:[], staff:[], bookings:[], groups:[],
-  disabledEquip:new Set(), disabledLocs:new Set(), disabledGroups:new Set(), disabledPeriods:[], availability:[],
-  bookType:'equipment', selRes:null, selDate:null, selTime:null, duration:1,
-  calYear:null, calMonth:null, _activeLoc:'T14',
-  selectedUsers: new Set(),
+function loadHolidays() {
+  if(holidaysLoaded) return;
+  SG_HOLIDAYS = {
+    // 2025
+    '2025-01-01':"New Year's Day",'2025-01-29':"Chinese New Year (Day 1)",
+    '2025-01-30':"Chinese New Year (Day 2)",'2025-03-31':"Hari Raya Puasa",
+    '2025-04-18':"Good Friday",'2025-05-01':"Labour Day",
+    '2025-05-12':"Vesak Day",'2025-06-07':"Hari Raya Haji",
+    '2025-08-09':"National Day",'2025-10-20':"Deepavali",'2025-12-25':"Christmas Day",
+    // 2026
+    '2026-01-01':"New Year's Day",'2026-01-29':"Chinese New Year (Day 1)",
+    '2026-01-30':"Chinese New Year (Day 2)",'2026-03-20':"Hari Raya Puasa",
+    '2026-04-03':"Good Friday",'2026-05-01':"Labour Day",
+    '2026-05-13':"Vesak Day",'2026-05-27':"Hari Raya Haji",
+    '2026-08-09':"National Day",'2026-11-08':"Deepavali",'2026-12-25':"Christmas Day",
+    // 2027
+    '2027-01-01':"New Year's Day",'2027-02-17':"Chinese New Year (Day 1)",
+    '2027-02-18':"Chinese New Year (Day 2)",'2027-03-10':"Hari Raya Puasa",
+    '2027-03-26':"Good Friday",'2027-05-01':"Labour Day",
+    '2027-05-21':"Vesak Day",'2027-08-09':"National Day",
+    '2027-10-28':"Deepavali",'2027-12-25':"Christmas Day",
+  };
+  holidaysLoaded = true;
+}
+
+// ─────────────────────────────────────
+// ─────────────────────────────────────
+// POWER AUTOMATE FLOW ENDPOINTS
+// ─────────────────────────────────────
+const FLOWS = {
+  getSessions:     'https://default7604ff02abd845db8cac550054323f.c9.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/dd3d63e4c2c044f38504a4993f0bca0a/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=-eFmTJvUsmPjNZd69pFdqFY-AEN005o7MG4cbV8F3pA',
+  getStudent:      'https://default7604ff02abd845db8cac550054323f.c9.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/14060509751440708423619fe9ba290d/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=B9o0NdXfR_u6iCNT64HjXeef_XDXJJtaIemAAv4DYxM',
+  register:        'https://default7604ff02abd845db8cac550054323f.c9.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/9f324bc382da4bf79ceafc207d78cc77/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=IxGM6_O5ikWT6mDXzn67BuVu7k9HQs759T1WfmwNtcA',
+  changeBooking:   'PASTE_FLOW_URL_CHANGE_BOOKING_HERE',
 };
 
-// SG Public Holidays 2024-2026
-const SG_PH = new Set([
-  '2024-01-01','2024-02-10','2024-02-11','2024-02-12','2024-03-29','2024-04-10',
-  '2024-05-01','2024-05-23','2024-06-17','2024-08-09','2024-10-31','2024-12-25',
-  '2025-01-01','2025-01-29','2025-01-30','2025-03-31','2025-04-18','2025-05-01',
-  '2025-05-12','2025-06-07','2025-08-09','2025-10-20','2025-10-21','2025-12-25',
-  '2026-01-01','2026-01-17','2026-01-18','2026-02-27','2026-03-21','2026-04-03',
-  '2026-05-01','2026-05-24','2026-07-14','2026-08-09','2026-11-09','2026-12-25',
-]);
+// Live session data — loaded from SharePoint via flow on init
+let SESSIONS = {};
 
-// ─── DEMO DATA ─────────────────────────────────────────
-const DEMO_GROUPS = [
-  { id:'G1', name:'Year 1 Students', credits:150, desc:'SP first-year students' },
-  { id:'G2', name:'Year 2 Students', credits:80,  desc:'SP second-year students' },
-  { id:'G3', name:'External / Industry', credits:40, desc:'Industry partners' },
-];
-const DEMO_USERS = [
-  { id:'U001', email:'admin@fablab.sg',  name:'Lab Admin',  role:'admin',    group:'G1', active:true },
-  { id:'U002', email:'alex@sp.edu.sg',   name:'Alex Tan',   role:'student',  group:'G1', active:true },
-  { id:'U003', email:'jane@sp.edu.sg',   name:'Jane Lim',   role:'student',  group:'G2', active:true },
-  { id:'U004', email:'bob@company.sg',   name:'Bob Chen',   role:'external', group:'G3', active:true },
-];
-const DEMO_EQUIPMENT = [
-  ...[...Array(13)].map((_,i)=>({id:`BX${i+1}`,name:`Bambu Lab X1C #${String(i+1).padStart(2,'0')}`,desc:'High-speed multi-material FDM',loc:'T14',cat:'3dprinting',icon:'🖨',creditsPerHour:1,active:true})),
-  ...[...Array(10)].map((_,i)=>({id:`BA${i+1}`,name:`Bambu A1 #${String(i+1).padStart(2,'0')}`,desc:'Large format FDM',loc:'T14',cat:'3dprinting',icon:'🖨',creditsPerHour:1,active:true})),
-  ...[...Array(3)].map((_,i)=>({id:`PM4${i+1}`,name:`Prusa MK4 #${String(i+1).padStart(2,'0')}`,desc:'Open-source FDM',loc:'T14',cat:'3dprinting',icon:'🖨',creditsPerHour:1,active:true})),
-  ...[...Array(3)].map((_,i)=>({id:`PM35${i+1}`,name:`Prusa MK3.5 #${String(i+1).padStart(2,'0')}`,desc:'Versatile FDM',loc:'T14',cat:'3dprinting',icon:'🖨',creditsPerHour:1,active:true})),
-  {id:'EPI01',name:'Epilog Fusion Pro',desc:'CO₂+fiber laser, 812×508mm',loc:'T11C01',cat:'laser',icon:'⚡',creditsPerHour:2,active:true},
-  {id:'EPM01',name:'Epilog M2 #01',desc:'CO₂ laser, 610×610mm',loc:'T11C01',cat:'laser',icon:'⚡',creditsPerHour:2,active:true},
-  {id:'EPM02',name:'Epilog M2 #02',desc:'CO₂ laser, 610×610mm',loc:'T11C01',cat:'laser',icon:'⚡',creditsPerHour:2,active:true},
-];
-const DEMO_STAFF = [
-  {id:'S001',name:'Dr. Priya Nair',role:'Fabrication Lead',email:'priya@fablab.sg',expertise:['Laser Cutting','CNC','Digital Fabrication'],creditsPerHour:0,days:'Mon–Thu'},
-  {id:'S002',name:'Marcus Ong',role:'3D Printing Specialist',email:'marcus@fablab.sg',expertise:['FDM','SLA','Slicing Software'],creditsPerHour:0,days:'Mon–Fri'},
-  {id:'S003',name:'Sarah Wijaya',role:'Electronics & Prototyping',email:'sarah@fablab.sg',expertise:['Arduino','micro:bit','PCB Design'],creditsPerHour:0,days:'Tue–Fri'},
-];
-let DEMO_BOOKINGS = [];
-let DEMO_AVAILABILITY = []; // {id, staffId, staffName, date, startTime, endTime, label, notes}
+// Student state — populated when student enters email
+let DEMO = { status: null, existingDate: null, ref: null };
 
-// ═══════════════════════════════════════════════════════
-// INIT
-// ═══════════════════════════════════════════════════════
-window.onload = () => {
-  const saved = localStorage.getItem('fablabCFG3');
-  if (saved) CFG = {...CFG,...JSON.parse(saved)};
-  const dis  = localStorage.getItem('fablabDisEq');   if (dis)  S.disabledEquip   = new Set(JSON.parse(dis));
-  const disL = localStorage.getItem('fablabDisLoc');  if (disL) S.disabledLocs    = new Set(JSON.parse(disL));
-  const disG = localStorage.getItem('fablabDisGrp');  if (disG) S.disabledGroups  = new Set(JSON.parse(disG));
-  const disP = localStorage.getItem('fablabDisP');    if (disP) S.disabledPeriods = JSON.parse(disP);
-  const theme = localStorage.getItem('fablabTheme') || 'dark';
-  document.documentElement.setAttribute('data-theme', theme);
-  updateThemeBtn();
-  if (CFG.sheetId || CFG.demoMode) { hide('cfgSc'); show('loginSc'); }
-};
+// Load sessions from SharePoint via Flow 1
+// Session cache per course to avoid re-fetching on tab switch
+const SESSION_CACHE = {};
 
-function saveConfig() {
-  CFG.sheetId = v('c-sid').trim(); CFG.apiKey = v('c-key').trim();
-  CFG.gasUrl  = v('c-gas').trim(); CFG.sysName = v('c-nm').trim()||'FabLab';
-  CFG.admins  = v('c-adm').split(',').map(e=>e.trim()).filter(Boolean);
-  if (!CFG.sheetId) { toast('Enter Spreadsheet ID','error'); return; }
-  localStorage.setItem('fablabCFG3', JSON.stringify(CFG));
-  hide('cfgSc'); show('loginSc'); toast('Config saved!','success');
-}
-function demoMode() {
-  CFG.demoMode=true; CFG.sysName=v('c-nm').trim()||'FabLab';
-  localStorage.setItem('fablabCFG3', JSON.stringify(CFG));
-  hide('cfgSc'); show('loginSc'); toast('Demo Mode active','info');
-}
-function promptReset() {
-  const pw = prompt('Enter admin password to reset configuration:');
-  if (pw === null) return; // cancelled
-  if (pw !== 's3cr3t') { alert('Incorrect password.'); return; }
-  resetCfg();
-}
-
-function resetCfg() {
-  localStorage.removeItem('fablabCFG3');
-  CFG={sheetId:'',apiKey:'',gasUrl:'',admins:[],sysName:'FabLab',demoMode:false};
-  hide('loginSc'); show('cfgSc');
-}
-
-// ─── THEME ─────────────────────────────────────────────
-function toggleTheme() {
-  const cur = document.documentElement.getAttribute('data-theme');
-  const next = cur==='dark'?'light':'dark';
-  document.documentElement.setAttribute('data-theme', next);
-  localStorage.setItem('fablabTheme', next);
-  updateThemeBtn();
-}
-function updateThemeBtn() {
-  const isDark = document.documentElement.getAttribute('data-theme')==='dark';
-  const icon = isDark ? '☀️' : '🌙';
-  if (el('themeBtn'))  el('themeBtn').textContent  = icon;
-  if (el('themeBtn2')) el('themeBtn2').textContent = icon;
-}
-
-// ═══════════════════════════════════════════════════════
-// AUTH
-// ═══════════════════════════════════════════════════════
-async function doLogin() {
-  const email = v('loginEmail').trim().toLowerCase();
-  if (!email||!email.includes('@')) { toast('Enter a valid email','error'); return; }
-  // Loading state — disable button and show spinner
-  const btn = el('loginBtn');
-  const inp = el('loginEmail');
-  btn.disabled = true;
-  btn.textContent = '⏳ Connecting...';
-  inp.disabled = true;
-  try {
-    await loadAll();
-    const u = S.users.find(u=>u.email.toLowerCase()===email && u.active===true);
-    if (!u) { toast('Email not on whitelist or account is disabled. Contact admin.','error'); return; }
-    S.user = u;
-    hide('loginSc'); show('mainApp');
-    initApp();
-  } catch(e) {
-    toast('Connection failed: '+e.message,'error');
-  } finally {
-    btn.disabled = false;
-    btn.textContent = '→ Access System';
-    inp.disabled = false;
+function showStudentLoader(show){
+  let ov=document.getElementById('student-loader');
+  if(!ov){
+    ov=document.createElement('div');
+    ov.id='student-loader';
+    ov.style.cssText='position:fixed;inset:0;background:rgba(248,248,247,0.9);z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;';
+    ov.innerHTML=`
+      <div style="width:36px;height:36px;border:3px solid #E5E5E5;border-top-color:#E8531A;border-radius:50%;animation:spin 0.7s linear infinite;"></div>
+      <div style="font-family:'DM Sans',sans-serif;font-size:13px;color:#8A8A8A;">Loading available sessions…</div>`;
+    const style=document.createElement('style');
+    style.textContent='@keyframes spin{to{transform:rotate(360deg)}}';
+    document.head.appendChild(style);
+    document.body.appendChild(ov);
   }
-}
-function doLogout() { S.user=null; hide('mainApp'); show('loginSc'); el('loginEmail').value=''; }
-function goCIOnly() { hide('loginSc'); show('mainApp'); buildNav(null); goPage('checkin'); }
-
-// ─── CSV UPLOAD ────────────────────────────────────────
-function uploadCSV(evt) { processCSV(evt, false); }
-function adminCSV(evt)  { processCSV(evt, true);  }
-function processCSV(evt, notify) {
-  const file = evt.target.files[0]; if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    const lines = e.target.result.split('\n').map(l=>l.trim()).filter(Boolean);
-    let added=0;
-    for (const line of lines) {
-      if (line.toLowerCase().startsWith('email')) continue;
-      const [email,name,role,group] = line.split(',').map(s=>s.trim());
-      if (!email||!email.includes('@')) continue;
-      const entry = {id:'U'+Date.now()+Math.random().toString(36).slice(2,5), email:email.toLowerCase(), name:name||email, role:(role||'student').toLowerCase(), group:group||'', active:true};
-      if (CFG.demoMode) {
-        const idx = DEMO_USERS.findIndex(u=>u.email.toLowerCase()===email.toLowerCase());
-        if (idx>-1) DEMO_USERS[idx]=entry; else DEMO_USERS.push(entry);
-      }
-      added++;
-    }
-    S.users = CFG.demoMode ? DEMO_USERS : S.users;
-    toast(`Imported ${added} users`,'success');
-    if (notify) renderAdminUsers();
-  };
-  reader.readAsText(file);
+  ov.style.display=show?'flex':'none';
 }
 
-// ═══════════════════════════════════════════════════════
-// SHEETS API  —  with 60-second local cache
-// ═══════════════════════════════════════════════════════
-const CACHE_TTL = 60000; // 60 seconds
-const _cache = {};
+async function loadSessions() {
+  // Show loading overlay on first load only
+  if(!SESSION_CACHE[course]) showStudentLoader(true);
 
-async function sheetsGet(range, forceRefresh=false) {
-  if (CFG.demoMode) return null;
-  const key = range;
-  const now = Date.now();
-  // Return cached value if still fresh
-  if (!forceRefresh && _cache[key] && (now - _cache[key].ts) < CACHE_TTL) {
-    return _cache[key].data;
-  }
-  // Encode sheet name but preserve the ! and range (A2:H) — don't double-encode colon
-  const [sheetPart, rangePart] = range.split('!');
-  const encodedRange = encodeURIComponent(sheetPart) + '!' + rangePart;
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${CFG.sheetId}/values/${encodedRange}?key=${CFG.apiKey}`;
-  const r = await fetch(url);
-  if (r.status === 429) {
-    // Rate limited — return stale cache if available, otherwise throw
-    if (_cache[key]) {
-      toast('Rate limited — showing cached data','info');
-      return _cache[key].data;
-    }
-    throw new Error('Rate limited (429). Please wait 30 seconds and try again.');
-  }
-  if (!r.ok) throw new Error('Sheets '+r.status);
-  const data = (await r.json()).values||[];
-  _cache[key] = { data, ts: now };
-  return data;
-}
-
-async function sheetsWrite(action, data) {
-  if (CFG.demoMode) { applyDemo(action,data); return {success:true}; }
-  if (!CFG.gasUrl) { toast('No Apps Script URL configured','error'); return null; }
-  // Use form-encoded POST to bypass CORS preflight
-  const form = new FormData();
-  form.append('action', action);
-  form.append('data', JSON.stringify(data));
-  const r = await fetch(CFG.gasUrl, { method:'POST', body:form });
-  // Invalidate relevant caches after a write so next read is fresh
-  const writeInvalidates = {
-    addBooking:'Bookings', cancelBooking:'Bookings', checkin:'Bookings',
-    addUser:'Users', removeUser:'Users', updateUser:'Users', disableUser:'Users',
-    addGroup:'Groups', updateGroup:'Groups', removeGroup:'Groups',
-    addEquip:'Equipment', updateEquip:'Equipment', removeEquip:'Equipment',
-    addStaff:'Staff', removeStaff:'Staff',
-  };
-  const sheet = writeInvalidates[action];
-  if (sheet) {
-    Object.keys(_cache).forEach(k=>{ if(k.startsWith(sheet)) delete _cache[k]; });
-  }
-  return await r.json();
-}
-
-// Force a full refresh (call after writes that need immediate re-read)
-async function refreshData() {
-  Object.keys(_cache).forEach(k=>delete _cache[k]);
-  await loadAll();
-}
-function applyDemo(action, data) {
-  switch(action) {
-    case 'addBooking':
-      DEMO_BOOKINGS.push(data);
-      if (data.credits>0) {
-        const grp=DEMO_GROUPS.find(g=>g.id===data.groupId);
-        if (grp) grp.credits=Math.max(0,grp.credits-data.credits);
-      }
-      break;
-    case 'cancelBooking':
-      const bx=DEMO_BOOKINGS.find(x=>x.id===data.id);
-      if (bx) { bx.status='cancelled'; if(bx.credits>0){const gx=DEMO_GROUPS.find(g=>g.id===bx.groupId);if(gx)gx.credits+=bx.credits;} }
-      break;
-    case 'checkin':
-      const cx=DEMO_BOOKINGS.find(x=>x.id===data.id);
-      if (cx){cx.status='checked-in';cx.checkinTime=new Date().toISOString();}
-      break;
-    case 'addUser':    DEMO_USERS.push(data); break;
-    case 'updateUser': { const i=DEMO_USERS.findIndex(u=>u.id===data.id); if(i>-1) DEMO_USERS[i]={...DEMO_USERS[i],...data}; break; }
-    case 'removeUser': { const i=DEMO_USERS.findIndex(u=>u.id===data.id); if(i>-1) DEMO_USERS.splice(i,1); break; }
-    case 'disableUser':{ const u=DEMO_USERS.find(u=>u.id===data.id); if(u && data.active !== undefined) u.active = data.active; break; } // active already set directly
-    case 'addGroup':   DEMO_GROUPS.push(data); break;
-    case 'updateGroup':{ const i=DEMO_GROUPS.findIndex(g=>g.id===data.id); if(i>-1) DEMO_GROUPS[i]={...DEMO_GROUPS[i],...data}; break; }
-    case 'removeGroup':{ const i=DEMO_GROUPS.findIndex(g=>g.id===data.id); if(i>-1) DEMO_GROUPS.splice(i,1); break; }
-    case 'addEquip':   DEMO_EQUIPMENT.push(data); break;
-    case 'updateEquip':{ const i=DEMO_EQUIPMENT.findIndex(e=>e.id===data.id); if(i>-1) DEMO_EQUIPMENT[i]=Object.assign({}, DEMO_EQUIPMENT[i], data); break; }
-    case 'removeEquip':{ const i=DEMO_EQUIPMENT.findIndex(e=>e.id===data.id); if(i>-1) DEMO_EQUIPMENT.splice(i,1); break; }
-    case 'addStaff':   DEMO_STAFF.push(data); break;
-    case 'removeStaff':{ const i=DEMO_STAFF.findIndex(s=>s.id===data.id); if(i>-1) DEMO_STAFF.splice(i,1); break; }
-  }
-  // Always sync S.* from DEMO_* after any mutation
-  S.users=DEMO_USERS; S.groups=DEMO_GROUPS;
-  S.equipment=DEMO_EQUIPMENT; S.staff=DEMO_STAFF;
-  S.bookings=DEMO_BOOKINGS; S.availability=DEMO_AVAILABILITY;
-}
-
-async function loadAll() {
-  if (CFG.demoMode) {
-    S.users=DEMO_USERS; S.equipment=DEMO_EQUIPMENT; S.staff=DEMO_STAFF;
-    S.bookings=DEMO_BOOKINGS; S.groups=DEMO_GROUPS; S.availability=DEMO_AVAILABILITY; return;
-  }
-  try {
-    // Load each sheet individually so one missing sheet doesn't break login
-    const [uR,eR,stR,bR,gR] = await Promise.all([
-      sheetsGet('Users!A2:F'), sheetsGet('Equipment!A2:H'), sheetsGet('Staff!A2:H'),
-      sheetsGet('Bookings!A2:S'), sheetsGet('Groups!A2:D'),
-    ]);
-    S.users     = (uR||[]).map(r=>({id:r[0],email:r[1],name:r[2],role:r[3],group:r[4],active:r[5]==='TRUE'}));
-    S.equipment = (eR||[]).map(r=>({id:r[0],name:r[1],desc:r[2],loc:r[3],cat:r[4],icon:r[5],creditsPerHour:parseFloat(r[6])||1,active:r[7]==='TRUE'}));
-    S.staff     = (stR||[]).map(r=>({id:r[0],name:r[1],role:r[2],email:r[3],expertise:(r[4]||'').split(',').map(x=>x.trim()),creditsPerHour:parseFloat(r[5])||0,days:r[6]}));
-    S.bookings  = (bR||[]).map(r=>({id:r[0],userEmail:r[1],userName:r[2],type:r[3],resourceId:r[4],resourceName:r[5],loc:r[6],date:r[7],startTime:r[8],endTime:r[9],duration:parseFloat(r[10]),credits:parseFloat(r[11])||0,status:r[12],purpose:r[13],topic:r[14],groupId:r[15],checkinTime:r[16],createdAt:r[17]}));
-    S.groups    = (gR||[]).map(r=>({id:r[0],name:r[1],credits:parseFloat(r[2])||0,desc:r[3]}));
-    // Availability is optional — won't break login if sheet missing
-    try {
-      const avR = await sheetsGet('Availability!A2:H', false);
-      S.availability = (avR||[]).map(r=>({id:r[0],staffId:r[1],staffName:r[2],date:r[3],startTime:r[4],endTime:r[5],label:r[6]||'',notes:r[7]||''}));
-    } catch(e) { S.availability = []; }
-  } catch(e) { toast('Load error: '+e.message,'error'); }
-}
-
-// ═══════════════════════════════════════════════════════
-// APP INIT
-// ═══════════════════════════════════════════════════════
-function initApp() {
-  const u = S.user; const adm = isAdmin(u);
-  el('hdrLogo').textContent = CFG.sysName.replace('Lab','')||'Fab';
-  el('hdrAv').textContent   = u.name.charAt(0).toUpperCase();
-  el('hdrName').textContent = u.name;
-  el('hdrRole').textContent = u.role.charAt(0).toUpperCase()+u.role.slice(1);
-  buildNav(u);
-  updatePoolDisplay();
-  const now=new Date(); S.calYear=now.getFullYear(); S.calMonth=now.getMonth();
-  if (adm) { goPage('admin-dash'); renderAdminDash(); }
-  else      { goPage('dashboard'); renderDashboard(); }
-}
-function isAdmin(u) { return u&&(u.role==='admin'||CFG.admins.includes(u.email)); }
-
-function getUserGroup(u) {
-  if (!u) return null;
-  return S.groups.find(g=>g.id===u.group)||null;
-}
-function getPoolCredits(groupId) {
-  if (CFG.demoMode) { const g=DEMO_GROUPS.find(g=>g.id===groupId); return g?g.credits:0; }
-  const g=S.groups.find(g=>g.id===groupId); return g?g.credits:0;
-}
-
-async function manualRefresh() {
-  const btn = el("refreshBtn");
-  if (btn) { btn.textContent="↻"; btn.disabled=true; }
-  try {
-    await refreshData();
-    updatePoolDisplay();
-    const activePg = document.querySelector(".page.active");
-    if (activePg) {
-      const pg = activePg.id.replace("pg-","");
-      if (pg==="dashboard") renderDashboard();
-      else if (pg==="mybookings") renderMyBk();
-      else if (pg==="admin-dash") renderAdminDash();
-      else if (pg==="admin-users") { renderAdminUsers(); renderGroups(); }
-      else if (pg==="admin-equip") renderAdminEquip();
-      else if (pg==="admin-bookings") renderAdminBk();
-      else if (pg==="admin-staff") renderAdminStaff();
-    }
-    toast("Data refreshed","success");
-  } catch(e) { toast("Refresh failed: "+e.message,"error"); }
-  finally { if (btn) { btn.textContent="↺"; btn.disabled=false; } }
-}
-
-function updatePoolDisplay() {
-  if (!S.user) return;
-  if (isAdmin(S.user)) { el('hdrPool').textContent='Admin'; el('hdrPoolPill').title='Admins manage group pools'; return; }
-  const grp = getUserGroup(S.user);
-  const credits = grp ? grp.credits : 0;
-  el('hdrPool').textContent = credits + ' credits';
-}
-
-function buildNav(u) {
-  const adm = isAdmin(u);
-  const navEl = el('mainNav');
-  if (!u) { navEl.innerHTML=`<button class="ntab active" data-pg="checkin" onclick="goPage('checkin')">◉ Check-In</button>`; return; }
-  if (adm) {
-    navEl.innerHTML = `
-      <button class="ntab" data-pg="admin-dash"     onclick="goPage('admin-dash')">◈ Overview</button>
-      <button class="ntab" data-pg="admin-users"    onclick="goPage('admin-users')">👥 Users</button>
-      <button class="ntab" data-pg="admin-equip"    onclick="goPage('admin-equip')">🔧 Equipment</button>
-      <button class="ntab" data-pg="admin-bookings" onclick="goPage('admin-bookings')">📅 Bookings</button>
-      <button class="ntab" data-pg="admin-staff"    onclick="goPage('admin-staff')">👤 Staff</button>
-      <button class="ntab" data-pg="admin-disable"  onclick="goPage('admin-disable')">⚠ Disable</button>
-      <button class="ntab" data-pg="checkin"        onclick="goPage('checkin')">◉ Check-In</button>`;
-  } else {
-    navEl.innerHTML = `
-      <button class="ntab" data-pg="dashboard"   onclick="goPage('dashboard')">◈ Dashboard</button>
-      <button class="ntab" data-pg="book"         onclick="goPage('book')">＋ Book</button>
-      <button class="ntab" data-pg="mybookings"   onclick="goPage('mybookings')">≡ My Bookings</button>
-      <button class="ntab" data-pg="checkin"      onclick="goPage('checkin')">◉ Check-In</button>`;
-  }
-}
-
-// ═══════════════════════════════════════════════════════
-// NAVIGATION
-// ═══════════════════════════════════════════════════════
-function goPage(pg) {
-  els('.page').forEach(p=>p.classList.remove('active'));
-  els('.ntab').forEach(t=>t.classList.remove('active'));
-  el('pg-'+pg)?.classList.add('active');
-  document.querySelector(`[data-pg="${pg}"]`)?.classList.add('active');
-  if (pg==='dashboard')      renderDashboard();
-  if (pg==='mybookings')     renderMyBk();
-  if (pg==='book')           { resetWiz(); renderResGrid(); checkNoBudget(); }
-  if (pg==='admin-dash')     renderAdminDash();
-  if (pg==='admin-users')    { renderAdminUsers(); renderGroups(); }
-  if (pg==='admin-equip')    renderAdminEquip();
-  if (pg==='admin-bookings') renderAdminBk();
-  if (pg==='admin-staff')    { renderAdminStaff(); renderAvailability(); populateAvailStaff(); }
-  if (pg==='admin-disable')  renderDisable();
-}
-
-// ═══════════════════════════════════════════════════════
-// USER DASHBOARD
-// ═══════════════════════════════════════════════════════
-function renderDashboard() {
-  const u=S.user, grp=getUserGroup(u);
-  const credits = grp?grp.credits:0;
-  const mine=S.bookings.filter(b=>b.userEmail===u.email);
-  const now=new Date(), month=now.getMonth();
-  const monthBks=mine.filter(b=>new Date(b.date+'T00:00').getMonth()===month);
-  const upcoming=mine.filter(b=>b.date>=today()&&b.status==='confirmed');
-  const cis=mine.filter(b=>b.status==='checked-in');
-
-  el('dashName').textContent  = u.name.split(' ')[0];
-  el('dashGroup').textContent = grp?grp.name:'No group';
-  el('dpool').textContent     = credits;
-  el('dgroupname').textContent= grp?grp.name+' pool':'No group assigned';
-  el('dmine').textContent     = monthBks.length;
-  el('dup').textContent       = upcoming.length;
-  el('dci').textContent       = cis.length;
-
-  el('ncBanner').classList.toggle('hidden', credits>0 || !grp);
-
-  const recent=[...mine].sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||'')).slice(0,4);
-  el('dashRecent').innerHTML = recent.length?recent.map(b=>bkiHTML(b)).join(''):`<div class="empty"><div class="empty-icon">📅</div><p>No bookings yet</p></div>`;
-
-  const locs=['T14','T11C01'];
-  el('dashLab').innerHTML = locs.map(loc=>{
-    const equip=S.equipment.filter(e=>e.loc===loc&&e.active);
-    const busy=equip.filter(e=>S.bookings.some(b=>b.resourceId===e.id&&b.date===today()&&['confirmed','checked-in'].includes(b.status)&&nowInRange(b.startTime,b.endTime))).length;
-    const dis=S.disabledLocs.has(loc);
-    return `<div class="card mb16">
-      <div class="flexb"><div class="ffd" style="font-weight:700">${loc}</div>
-        ${dis?'<span class="badge badge-dis">Disabled</span>':`<span class="t2 fsm">${busy}/${equip.length} in use</span>`}
-      </div>
-      <div class="t3 fxs" style="margin-top:3px;">${loc==='T14'?'3D Printing Lab':'Laser Cutting Lab'}</div>
-    </div>`;
-  }).join('');
-}
-
-// ═══════════════════════════════════════════════════════
-// BOOKING WIZARD
-// ═══════════════════════════════════════════════════════
-function checkNoBudget() {
-  if (!S.user || isAdmin(S.user)) return;
-  const grp=getUserGroup(S.user);
-  const credits=grp?grp.credits:0;
-  const grpDisabled = isUserGroupDisabled();
-  const banner=el('bookNcBanner');
-  if (banner) {
-    const showBanner = (credits===0 || grpDisabled) && S.bookType==='equipment';
-    banner.classList.toggle('hidden', !showBanner);
-    if (el('bncRemaining')) el('bncRemaining').textContent = grpDisabled
-      ? `Your group has been temporarily disabled by admin.`
-      : `${credits} credits remaining`;
-  }
-  // Disable confirm button if group is disabled and booking equipment
-  const confirmBtn = el('btnConfirm');
-  if (confirmBtn && S.bookType==='equipment') confirmBtn.disabled = grpDisabled || credits===0;
-}
-
-function setBookType(t) {
-  S.bookType=t; S.selRes=null;
-  el('btEquip').className    = t==='equipment'?'btn btn-primary':'btn btn-secondary';
-  el('btConsult').className  = t==='consultancy'?'btn btn-primary':'btn btn-secondary';
-  el('grpTopic').classList.toggle('hidden',t!=='consultancy');
-  el('grpSize').classList.toggle('hidden',t==='consultancy');
-  // Show/hide availability panel for consultancy
-  const ap = el('userAvailPanel');
-  if (ap) {
-    ap.classList.toggle('hidden', t!=='consultancy');
-    if (t==='consultancy') renderUserAvailability();
-  }
-  goWiz(1); renderResGrid();
-}
-
-function renderResGrid() {
-  const locTabsEl=el('locTabs'), gridEl=el('resGrid');
-  if (S.bookType==='consultancy') {
-    locTabsEl.innerHTML='';
-    gridEl.innerHTML=S.staff.length?`<div class="g3">${S.staff.map(stcHTML).join('')}</div>`:`<div class="empty"><div class="empty-icon">👤</div><p>No staff configured</p></div>`;
+  // Return cached data instantly if available
+  if(SESSION_CACHE[course]) {
+    SESSIONS = SESSION_CACHE[course];
+    renderCalendar();
     return;
   }
-  const locs=['T14','T11C01'];
-  locTabsEl.innerHTML=locs.map(l=>`<div class="ltab ${l===S._activeLoc?'active':''}" onclick="switchLoc('${l}')">${l} <span style="font-size:10px;opacity:.6;">${S.equipment.filter(e=>e.loc===l&&e.active).length}</span></div>`).join('');
-  if (!S._activeLoc) S._activeLoc='T14';
-  renderEquipForLoc(S._activeLoc);
-}
 
-function switchLoc(loc) {
-  S._activeLoc=loc;
-  els('.ltab').forEach(t=>t.classList.toggle('active',t.textContent.trim().startsWith(loc)));
-  renderEquipForLoc(loc);
-}
-
-function renderEquipForLoc(loc) {
-  const items=S.equipment.filter(e=>e.loc===loc&&e.active);
-  const locDis=S.disabledLocs.has(loc)||S.disabledPeriods.some(dp=>(dp.target===loc||dp.target==='all')&&today()>=dp.start&&today()<=dp.end);
-  el('resGrid').innerHTML=`${locDis?`<div class="dis-banner">⚠ ${loc} is currently disabled — no new bookings</div>`:''}<div class="g3">${items.map(e=>ecHTML(e,locDis)).join('')}</div>`;
-}
-
-function ecHTML(e, locForced=false) {
-  const dis=locForced||S.disabledEquip.has(e.id);
-  const sel=S.selRes&&S.selRes.id===e.id;
-  const busyToday=S.bookings.filter(b=>b.resourceId===e.id&&b.date===today()&&['confirmed','checked-in'].includes(b.status)).length;
-  return `<div class="ec ${sel?'sel':''} ${dis?'dis':''}" onclick="${dis?'':'selRes(\''+e.id+'\',\'equipment\')'}">
-    <div class="ec-icon">${e.icon}</div>
-    <div class="ec-name">${e.name}</div>
-    <div class="ec-loc">📍 ${e.loc}</div>
-    <div class="ec-desc">${e.desc}</div>
-    <div class="ec-foot"><span class="ec-cost">⬡ ${e.creditsPerHour}/hr</span><span class="badge ${busyToday?'badge-busy':'badge-ok'}">${busyToday?'Booked':'Free'}</span></div>
-  </div>`;
-}
-
-function stcHTML(s) {
-  const sel=S.selRes&&S.selRes.id===s.id;
-  return `<div class="stc ${sel?'sel':''}" onclick="selRes('${s.id}','consultancy')">
-    <div class="stc-av">${s.name.charAt(0)}</div>
-    <div class="stc-name">${s.name}</div>
-    <div class="stc-role">${s.role}</div>
-    <div style="display:flex;flex-wrap:wrap;gap:4px;margin:6px 0 10px;">${(s.expertise||[]).map(ex=>`<span class="exp-tag">${ex}</span>`).join('')}</div>
-    <div style="font-size:12px;color:var(--accent2);">${s.creditsPerHour>0?`⬡ ${s.creditsPerHour}/hr`:'Free · No credits'} · ${s.days||'Flexible'}</div>
-  </div>`;
-}
-
-function selRes(id, type) {
-  const list=type==='equipment'?S.equipment:S.staff;
-  S.selRes=list.find(x=>x.id===id);
-  renderResGrid();
-  el('s1n').disabled=false;
-}
-
-function goWiz(step) {
-  S.wizStep=step;
-  for (let i=1;i<=4;i++) {
-    el('wp'+i).classList.toggle('active',i===step);
-    const s=el('ws'+i); s.classList.remove('active','done');
-    if (i<step) s.classList.add('done');
-    if (i===step) s.classList.add('active');
+  try {
+    const res = await fetch(FLOWS.getSessions, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: '{}'
+    });
+    const data = await res.json();
+    SESSIONS = {};
+    (data.sessions || []).filter(s => !s.course || s.course === course).forEach(s => {
+      SESSIONS[s.date] = { status: s.status, pax: s.pax, max: s.max, venue: s.venue||'', trainer: s.trainer||'' };
+    });
+    SESSION_CACHE[course] = SESSIONS;
+  } catch {
+    SESSIONS = {};
   }
-  if (step===2) renderCal();
-  if (step===4) buildSummary();
+
+  showStudentLoader(false);
+  renderCalendar();
 }
 
-// ─── CALENDAR ─────────────────────────────────────────
-function renderCal() {
-  const y=S.calYear,m=S.calMonth;
-  const mns=['January','February','March','April','May','June','July','August','September','October','November','December'];
-  el('calLbl').textContent=`${mns[m]} ${y}`;
-  const first=new Date(y,m,1).getDay();
+// Check student booking/attendance status via Flow 2
+async function lookupStudent(email) {
+  try {
+    const res = await fetch(FLOWS.getStudent, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ email, course })
+    });
+    const data = await res.json();
+    DEMO.status = data.status || null;
+    DEMO.existingDate = data.existingDate || null;
+    DEMO.ref = data.ref || null;
+  } catch {
+    DEMO = { status: null, existingDate: null, ref: null };
+  }
+}const DIPLOMA_MAP = {
+  SB:['Diploma in Accountancy','Diploma in Banking & Finance','Diploma in Business Administration','Diploma in Human Resource Management with Psychology','Staff'],
+  CLS:['Diploma in Applied Chemistry','Diploma in Biomedical Science','Diploma in Chemical & Biological Engineering','Diploma in Food Science & Technology','Diploma in Optometry','Diploma in Perfumery & Cosmetic Science','Staff'],
+  ABE:['Diploma in Architecture','Diploma in Civil Engineering','Diploma in Facilities Management','Diploma in Integrated Events & Project Management','Diploma in Interior Design','Diploma in Landscape Architecture','Staff'],
+  MAD:['Animation & Games','Creative Community Engagement with Psychology','Digital Media & Communications','Experience & Product Design','Sound & Music','Story & Content Creation','Visual Communication & Motion Design','Staff'],
+  MAE:['Diploma in Aeronautical Engineering','Diploma in Mechanical Engineering','Diploma in Mechatronics & Robotics','Staff'],
+  EEE:['Diploma in Aerospace Electronics','Diploma in Computer Engineering','Diploma in Electrical & Electronic Engineering','Diploma in Engineering with Business','Staff'],
+  SOC:['Diploma in Applied AI & Analytics','Diploma in Computer Science','Diploma in Cybersecurity & Digital Forensics','Staff'],
+  SMA:['Diploma in Marine Engineering','Diploma in Maritime Business','Diploma in Nautical Studies','Staff'],
+  MSA:['Poly Foundation Programme','Staff'],
+};
+
+const COURSE = {
+  laser:    {label:'Laser Cutter F2F Competency',      title:'Laser Cutter',          desc:'You must have passed the Laser Cutter online quiz before booking.',         venue:'T11C01',              courseName:'Laser Cutter'},
+  '3dprint':{label:'3D Printer F2F Competency',         title:'3D Printer',            desc:'You must have passed the 3D Printer online quiz before booking.',           venue:'T1442 (3D Lab)',       courseName:'3D Printer'},
+  // Uncomment below courses when ready to activate:
+  // vinyl:    {label:'Vinyl Cutter F2F Competency',       title:'Vinyl Cutter',          desc:'You must have passed the Vinyl Cutter online quiz before booking.',          venue:'T11C01',              courseName:'Vinyl Cutter'},
+  // embroidery:{label:'Embroidery Machine F2F Competency',title:'Embroidery Machine',    desc:'You must have passed the Embroidery Machine online quiz before booking.',    venue:'T11C01',              courseName:'Embroidery Machine'},
+  // heatpress:{label:'Heat Press F2F Competency',         title:'Heat Press',            desc:'You must have passed the Heat Press online quiz before booking.',            venue:'T11C01',              courseName:'Heat Press'},
+  // largeformat:{label:'Large Format Printer F2F Competency',title:'Large Format Printer',desc:'You must have passed the Large Format Printer online quiz before booking.', venue:'T11C01',              courseName:'Large Format Printer'},
+  // cardboard:{label:'Cardboard F2F Competency',          title:'Cardboard Craft',       desc:'You must have passed the Cardboard Craft online quiz before booking.',       venue:'T11C01',              courseName:'Cardboard Craft'},
+  // cnc:      {label:'CNC F2F Competency',                title:'CNC Machine',           desc:'You must have passed the CNC online quiz before booking.',                   venue:'T11C01',              courseName:'CNC Machine'},
+};
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+let course='laser', selDate=null, pendDate=null, bookedDate=null;
+
+function renderCalendar(){
+  const today=new Date();
+  const y0=today.getFullYear(),m0=today.getMonth();
+  const grid=document.getElementById('two-month-grid');
+  grid.innerHTML='';
+  let labels=[];
+  for(let off=0;off<2;off++){
+    let y=y0,m=m0+off;
+    if(m>11){m-=12;y++;}
+    labels.push(MONTHS[m]+' '+y);
+    grid.appendChild(buildMonth(y,m,today));
+  }
+  const hasSessions=Object.keys(SESSIONS).length>0;
+  document.getElementById('cal-range').textContent=hasSessions
+    ? labels[0]+' – '+labels[1]+' · select a highlighted date'
+    : labels[0]+' – '+labels[1]+' · no sessions available yet';
+}
+
+function buildMonth(y,m,today){
+  const wrap=document.createElement('div');
+  wrap.className='month-block';
+  const title=document.createElement('div');
+  title.className='month-block-title';
+  title.textContent=MONTHS[m]+' '+y;
+  wrap.appendChild(title);
+  const wdRow=document.createElement('div');
+  wdRow.className='cal-weekdays';
+  ['S','M','T','W','T','F','S'].forEach(d=>{const s=document.createElement('span');s.textContent=d;wdRow.appendChild(s);});
+  wrap.appendChild(wdRow);
+  const g=document.createElement('div');
+  g.className='cal-days';
+  const firstDay=new Date(y,m,1).getDay();
   const days=new Date(y,m+1,0).getDate();
-  let html='';
-  for (let i=0;i<first;i++) html+=`<div class="cd cde"></div>`;
-  for (let d=1;d<=days;d++) {
-    const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const isT=ds===today(), isSel=ds===S.selDate, isPH=SG_PH.has(ds);
-    const isWE=new Date(ds+'T00:00').getDay()%6===0;
-    const bookable=!isWE&&!isPH&&ds>=today()&&!S.disabledPeriods.some(dp=>(dp.target==='all')&&ds>=dp.start&&ds<=dp.end);
-    let cls='cd';
-    if (isT) cls+=' cdt'; if (isSel) cls+=' cds'; if (isPH) cls+=' cdph';
-    if (!bookable) cls+=' cdd';
-    html+=`<div class="${cls}" ${bookable?`onclick="pickDay('${ds}')"`:''}>${d}</div>`;
-  }
-  el('calDays').innerHTML=html;
-}
-function calPrev(){S.calMonth--;if(S.calMonth<0){S.calMonth=11;S.calYear--;}renderCal();}
-function calNext(){S.calMonth++;if(S.calMonth>11){S.calMonth=0;S.calYear++;}renderCal();}
-function pickDay(ds){S.selDate=ds;S.selTime=null;el('s2n').disabled=true;renderCal();renderSlots();}
-
-// ─── SLOTS ─────────────────────────────────────────────
-const LUNCH_S=12*60, LUNCH_E=13*60+30, DAY_S=9*60, DAY_E=16*60+30;
-
-function renderSlots() {
-  if (!S.selDate||!S.selRes) return;
-  S.duration=parseFloat(el('bookDur').value)||1;
-  const slotEl=el('slotCt');
-  el('slotLeg').style.display='flex';
-  // Check disable
-  const locDis=S.disabledLocs.has(S.selRes.loc);
-  const eqDis=S.disabledEquip.has(S.selRes.id);
-  const perDis=S.disabledPeriods.some(dp=>(dp.target===S.selRes.loc||dp.target==='all')&&S.selDate>=dp.start&&S.selDate<=dp.end);
-  if (locDis||eqDis||perDis) { slotEl.innerHTML=`<div class="dis-banner">⚠ Disabled on ${S.selDate}</div>`; return; }
-  const slots=genSlots(S.selDate,S.duration);
-  slotEl.innerHTML=`<div class="slotg">${slots.map(s=>`<div class="slot ${s.status}" onclick="${s.status==='available'?`pickSlot('${s.time}')`:''}" title="${s.label||''}">${s.time}</div>`).join('')}</div>`;
-}
-
-function genSlots(date, dur) {
-  const durM=dur*60;
-  const taken=S.bookings.filter(b=>b.resourceId===S.selRes.id&&b.date===date&&['confirmed','checked-in'].includes(b.status));
-  const slots=[];
-  for (let t=DAY_S;t+durM<=DAY_E;t+=30) {
-    const endT=t+durM, ts=minsToT(t);
-    let status='available', label='';
-    if (overlaps(t,endT,LUNCH_S,LUNCH_E)){status='slunch';label='Lunch break 12:00–13:30';}
-    if (date===today()){const n=new Date();const nm=n.getHours()*60+n.getMinutes();if(t<=nm){status='staken';label='Past';}}
-    if (status==='available') {
-      for (const b of taken) {
-        const bS=tMins(b.startTime),bE=tMins(b.endTime);
-        if (overlaps(t,endT,bS,bE)){status='staken';label='Already booked';break;}
-        if (endT===bS||t===bE){status='sadj';label='30-min buffer required';break;}
+  for(let i=0;i<firstDay;i++){const e=document.createElement('div');e.className='cal-day empty';g.appendChild(e);}
+  for(let d=1;d<=days;d++){
+    const ds=toDS(y,m,d);
+    const el=document.createElement('div');
+    el.className='cal-day';
+    const isToday=(y===today.getFullYear()&&m===today.getMonth()&&d===today.getDate());
+    const isPast=new Date(y,m,d)<new Date(today.getFullYear(),today.getMonth(),today.getDate());
+    const dow=new Date(y,m,d).getDay();
+    const isWE=dow===0||dow===6;
+    const hol=SG_HOLIDAYS[ds];
+    const sess=SESSIONS[ds];
+    const dn=document.createElement('span');dn.className='dn';dn.textContent=d;el.appendChild(dn);
+    if(hol){
+      el.classList.add('holiday','past');
+      const tt=document.createElement('div');tt.className='tooltip';tt.textContent='🚫 '+hol;
+      el.style.position='relative';el.appendChild(tt);
+      g.appendChild(el);continue;
+    }
+    if(isPast)el.classList.add('past');
+    if(isToday)el.classList.add('today');
+    if(isWE)el.classList.add('weekend');
+    if(sess&&!isPast){
+      if(sess.status==='cancelled'){
+        el.classList.add('past');
+      }else{
+        const isFull=sess.pax>=sess.max;
+        el.classList.add('has-session');
+        if(ds===bookedDate){
+          el.classList.add('booked');
+          const sl=document.createElement('span');sl.className='sl';sl.textContent='Your booking';el.appendChild(sl);
+          el.onclick=()=>showBookedPanel();
+        }else{
+          el.classList.add(sess.status==='pending'?'s-pending':(isFull?'s-full':'s-vacant'));
+          if(ds===selDate)el.style.outline='2px solid var(--c-orange)';
+          const sl=document.createElement('span');sl.className='sl';
+          sl.textContent=isFull?'Full':(sess.max-sess.pax)+' left';
+          el.appendChild(sl);
+          el.onclick=()=>selectDate(ds);
+        }
       }
     }
-    slots.push({time:ts,status,label});
+    g.appendChild(el);
   }
-  return slots;
+  wrap.appendChild(g);
+  return wrap;
 }
 
-function overlaps(s1,e1,s2,e2){return s1<e2&&e1>s2;}
-function minsToT(m){return `${String(Math.floor(m/60)).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`;}
-function tMins(t){const[h,m]=t.split(':').map(Number);return h*60+m;}
-function addMins(t,m){return minsToT(tMins(t)+m);}
-function pickSlot(time){S.selTime=time;els('.slot').forEach(s=>s.classList.toggle('ssel',s.textContent.trim()===time));el('s2n').disabled=false;}
+function toDS(y,m,d){return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;}
+function fmtDate(ds){const[y,m,d]=ds.split('-').map(Number);return new Date(y,m-1,d).toLocaleDateString('en-SG',{weekday:'long',year:'numeric',month:'long',day:'numeric'});}
 
-// ─── SUMMARY ──────────────────────────────────────────
-function buildSummary() {
-  const r=S.selRes, dur=S.duration, isConsult=S.bookType==='consultancy';
-  const credits=isConsult?0:r.creditsPerHour*dur;
-  const endTime=addMins(S.selTime,dur*60);
-  const grp=getUserGroup(S.user);
-  const pool=grp?grp.credits:0;
-  const canAfford=credits===0||pool>=credits;
-
-  el('bkSum').innerHTML=`
-    <div class="sumrow"><span class="suml">Type</span><span class="sumv">${isConsult?'👤 Consultancy':'🔧 Equipment'}</span></div>
-    <div class="sumrow"><span class="suml">Resource</span><span class="sumv">${r.name}</span></div>
-    <div class="sumrow"><span class="suml">Location</span><span class="sumv">${r.loc||'—'}</span></div>
-    <div class="sumrow"><span class="suml">Date</span><span class="sumv">${fmtDate(S.selDate)}</span></div>
-    <div class="sumrow"><span class="suml">Time</span><span class="sumv">${S.selTime}–${endTime}</span></div>
-    <div class="sumrow"><span class="suml">Duration</span><span class="sumv">${dur} hr${dur!==1?'s':''}</span></div>
-    <div class="sumrow total"><span class="suml">Cost</span><span class="sumv">${credits===0?'Free ✓':'⬡ '+credits}</span></div>`;
-
-  el('bkCost').innerHTML=credits===0?`
-    <div class="sumrow"><span class="suml">Consultancy</span><span class="sumv ts">Free — no credits used</span></div>
-    <div class="sumrow"><span class="suml">Group Pool</span><span class="sumv ta">⬡ ${pool}</span></div>
-    <div class="sumrow"><span class="suml">After Booking</span><span class="sumv">⬡ ${pool} (unchanged)</span></div>`:`
-    <div class="sumrow"><span class="suml">Rate</span><span class="sumv">⬡ ${r.creditsPerHour}/hr</span></div>
-    <div class="sumrow"><span class="suml">×</span><span class="sumv">${dur} hr</span></div>
-    <div class="sumrow total"><span class="suml">Deducted</span><span class="sumv">⬡ ${credits}</span></div>
-    <div class="sumrow"><span class="suml">Group Pool Now</span><span class="sumv" style="color:${canAfford?'var(--accent)':'var(--danger)'}">⬡ ${pool}</span></div>
-    <div class="sumrow"><span class="suml">After Booking</span><span class="sumv" style="color:${canAfford?'var(--text)':'var(--danger)'}">⬡ ${pool-credits}</span></div>`;
-
-  el('btnConfirm').disabled=!canAfford;
-  if (!canAfford) el('btnConfirm').title='Insufficient group credits';
-}
-
-async function confirmBooking() {
-  const r=S.selRes, dur=S.duration, isConsult=S.bookType==='consultancy';
-  const credits=isConsult?0:r.creditsPerHour*dur;
-  const endTime=addMins(S.selTime,dur*60);
-  const id=genId();
-  const grp=getUserGroup(S.user);
-
-  // Final overlap check
-  if (S.bookings.some(b=>b.resourceId===r.id&&b.date===S.selDate&&['confirmed','checked-in'].includes(b.status)&&overlaps(tMins(S.selTime),tMins(endTime),tMins(b.startTime),tMins(b.endTime)))){toast('Slot just got booked. Please re-select.','error');goWiz(2);return;}
-
-  const booking={id,userEmail:S.user.email,userName:S.user.name,type:S.bookType,resourceId:r.id,resourceName:r.name,loc:r.loc||'',date:S.selDate,startTime:S.selTime,endTime,duration:dur,credits,status:'confirmed',purpose:v('bkPurpose'),topic:v('bkTopic'),groupId:grp?grp.id:'',checkinTime:null,createdAt:new Date().toISOString()};
-
-  el('btnConfirm').disabled=true; el('btnConfirm').textContent='Processing...';
-  try {
-    await sheetsWrite('addBooking',booking);
-    if (isConsult) await sendConsultEmail(booking,r);
-    toast(`Booking ${id} confirmed!`,'success');
-    showQR(id); resetWiz(); updatePoolDisplay();
-  } catch(e) {
-    toast('Error: '+e.message,'error');
-    el('btnConfirm').disabled=false; el('btnConfirm').textContent='✓ Confirm Booking';
+function selectDate(ds){
+  selDate=ds;renderCalendar();hideAlerts();
+  const s=SESSIONS[ds];if(!s)return;
+  if(DEMO.status==='passed'){document.getElementById('alert-cn').textContent=COURSE[course].courseName;showAlert('alert-passed');return;}
+  if(DEMO.status==='registered'&&ds!==DEMO.existingDate){
+    document.getElementById('alert-existing-msg').innerHTML=`You already have a booking for <strong>${fmtDate(DEMO.existingDate)}</strong>. Would you like to change to <strong>${fmtDate(ds)}</strong> instead?`;
+    pendDate=ds;showAlert('alert-existing');return;
   }
+  showSessionPanel(ds,s);
 }
 
-async function sendConsultEmail(booking, staff) {
-  if (CFG.demoMode){toast(`📧 Email simulated to ${staff.email}`,'info');return;}
-  try {
-    await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:500,mcp_servers:[{type:'url',url:'https://gmail.mcp.claude.com/mcp',name:'gmail'}],messages:[{role:'user',content:`Send an email via Gmail to ${staff.email} with subject "New Consultancy Booking: ${booking.id}" and body:\n\nHi ${staff.name},\n\nNew consultancy booking:\n\nID: ${booking.id}\nStudent: ${booking.userName} (${booking.userEmail})\nDate: ${booking.date}\nTime: ${booking.startTime}–${booking.endTime}\nTopic: ${booking.topic||booking.purpose}\n\nFabLab Booking System`}]})});
-  } catch(e){toast('Email notification failed (booking still confirmed)','error');}
-}
-
-function emailAdmin() {
-  const admins = S.users.filter(u=>isAdmin(u)).map(u=>u.email);
-  const emails = admins.length ? admins.join(',') : CFG.admins.join(',');
-  const grp = getUserGroup(S.user);
-  window.location.href = `mailto:${emails}?subject=Credit Top-Up Request&body=Hi Admin,%0A%0AI would like to request a credit top-up for my group (${grp?grp.name:'unknown'}).%0A%0AUser: ${S.user.name} (${S.user.email})%0A%0AThank you.`;
-}
-
-function showQR(id) {
-  el('qrId').textContent=id; el('qrBox').innerHTML='';
-  new QRCode(el('qrBox'),{text:id,width:170,height:170,colorDark:'#000',colorLight:'#fff',correctLevel:QRCode.CorrectLevel.M});
-  openMo('qrMo');
-}
-
-function resetWiz() {
-  S.selRes=null;S.selTime=null;S.selDate=null;
-  el('s1n').disabled=true;el('s2n').disabled=true;
-  el('btnConfirm').disabled=false;el('btnConfirm').textContent='✓ Confirm Booking';
-  el('bkPurpose').value='';el('bkTopic').value='';
-  goWiz(1);
-}
-
-// ═══════════════════════════════════════════════════════
-// MY BOOKINGS
-// ═══════════════════════════════════════════════════════
-function renderMyBk() {
-  const filter=el('mybkF').value, td=today();
-  let bks=S.bookings.filter(b=>b.userEmail===S.user.email);
-  if (filter==='upcoming') bks=bks.filter(b=>b.date>=td&&b.status==='confirmed');
-  else if (filter==='past') bks=bks.filter(b=>b.date<td||b.status==='checked-in');
-  else if (filter==='cancelled') bks=bks.filter(b=>b.status==='cancelled');
-  bks.sort((a,b)=>b.date.localeCompare(a.date));
-  el('mybkList').innerHTML=bks.length?bks.map(b=>bkiHTML(b,true)).join(''):`<div class="empty"><div class="empty-icon">📅</div><p>No bookings found</p></div>`;
-}
-
-function bkiHTML(b, showAct=false) {
-  const acts=showAct?`<div style="display:flex;gap:6px;margin-top:7px;">
-    <button class="btn btn-secondary btn-sm" onclick="viewBkDetail('${b.id}')">QR / Details</button>
-    ${b.status==='confirmed'?`<button class="btn btn-danger btn-sm" onclick="cancelBk('${b.id}')">Cancel</button>`:''}
-  </div>`:'';
-  return `<div class="bki">
-    <div class="bkdot ${b.type}"></div>
-    <div class="bki-info">
-      <div class="bki-title">${b.resourceName}</div>
-      <div class="bki-meta">${fmtDate(b.date)} · ${b.startTime}–${b.endTime}${b.loc?' · '+b.loc:''}</div>
-      ${acts}
-    </div>
-    <div style="text-align:right;">
-      <div class="fsm t2" style="margin-bottom:4px;">${b.credits>0?`⬡ ${b.credits}`:'Free'}</div>
-      <span class="bk-st ${b.status}">${b.status.replace('-',' ')}</span>
-    </div>
-  </div>`;
-}
-
-function viewBkDetail(id) {
-  const b=S.bookings.find(b=>b.id===id); if (!b) return;
-  el('bkDContent').innerHTML=`
-    <div class="sumbox mb16">
-      <div class="sumrow"><span class="suml">ID</span><span class="sumv ta">${b.id}</span></div>
-      <div class="sumrow"><span class="suml">Resource</span><span class="sumv">${b.resourceName}</span></div>
-      <div class="sumrow"><span class="suml">Location</span><span class="sumv">${b.loc||'—'}</span></div>
-      <div class="sumrow"><span class="suml">Date</span><span class="sumv">${fmtDate(b.date)}</span></div>
-      <div class="sumrow"><span class="suml">Time</span><span class="sumv">${b.startTime}–${b.endTime}</span></div>
-      <div class="sumrow"><span class="suml">Status</span><span class="bk-st ${b.status}">${b.status}</span></div>
-      ${b.checkinTime?`<div class="sumrow"><span class="suml">Checked In</span><span class="sumv ts">${new Date(b.checkinTime).toLocaleString()}</span></div>`:''}
-    </div>
-    <div class="qr-wrap"><div class="qr-box" id="detailQR"></div><div class="fsm t2 mt-1">Show at check-in</div></div>`;
-  openMo('bkDMo');
-  setTimeout(()=>{ new QRCode(el('detailQR'),{text:b.id,width:150,height:150,colorDark:'#000',colorLight:'#fff',correctLevel:QRCode.CorrectLevel.M}); },100);
-}
-
-async function cancelBk(id) {
-  if (!confirm('Cancel this booking?')) return;
-  await sheetsWrite('cancelBooking',{id});
-  toast('Booking cancelled','info'); updatePoolDisplay(); renderMyBk(); renderDashboard();
-}
-
-// ═══════════════════════════════════════════════════════
-// CHECK-IN
-// ═══════════════════════════════════════════════════════
-async function doCI() {
-  const code=v('ciCode').trim().toUpperCase(); if (!code) return;
-  const b=S.bookings.find(b=>b.id===code);
-  const out=el('ciRes');
-  if (!b){out.innerHTML=`<div class="ci-res err"><div style="font-size:22px">✕</div><div style="font-weight:600;margin-top:5px;">Booking not found</div></div>`;return;}
-  if (b.status==='checked-in'){out.innerHTML=`<div class="ci-res err"><div style="font-size:22px">⚠</div><div style="font-weight:600;margin-top:5px;">Already checked in at ${new Date(b.checkinTime).toLocaleTimeString()}</div></div>`;return;}
-  if (b.status==='cancelled'){out.innerHTML=`<div class="ci-res err"><div style="font-size:22px">✕</div><div style="font-weight:600;margin-top:5px;">Booking is cancelled</div></div>`;return;}
-  await sheetsWrite('checkin',{id:b.id});
-  out.innerHTML=`<div class="ci-res ok">
-    <div style="font-size:34px">✓</div>
-    <div style="font-weight:700;margin-top:7px;color:var(--success);font-family:var(--fd);font-size:17px;">Checked In!</div>
-    <div class="t2 fsm" style="margin-top:7px;">${b.userName}</div>
-    <div class="t2 fsm">${b.resourceName} · ${b.startTime}–${b.endTime}</div>
-    <div class="t2 fsm">${fmtDate(b.date)}</div>
-  </div>`;
-  toast('✓ Checked in: '+b.userName,'success');
-}
-
-function ciLookup() {
-  const email=v('ciEmail').trim().toLowerCase(); if (!email) return;
-  const bks=S.bookings.filter(b=>b.userEmail===email&&b.date===today()&&b.status==='confirmed');
-  el('ciLookup').innerHTML=bks.length?`<div style="margin-top:10px;">${bks.map(b=>`
-    <div class="bki" style="margin-bottom:6px;">
-      <div class="bki-info"><div class="bki-title">${b.resourceName}</div><div class="bki-meta">${b.startTime}–${b.endTime}</div></div>
-      <button class="btn btn-success btn-sm" onclick="el('ciCode').value='${b.id}';doCI();">Check In</button>
-    </div>`).join('')}</div>`:
-    `<div style="margin-top:9px;font-size:12px;color:var(--text2);">No confirmed bookings today for ${email}</div>`;
-}
-
-// ═══════════════════════════════════════════════════════
-// ADMIN — DASHBOARD
-// ═══════════════════════════════════════════════════════
-function renderAdminDash() {
-  const td=today();
-  const todayBks=S.bookings.filter(b=>b.date===td);
-  el('asu').textContent  = S.users.filter(u=>u.active).length;
-  el('asbk').textContent = todayBks.length;
-  el('ascii').textContent= todayBks.filter(b=>b.status==='checked-in').length;
-  el('asgrp').textContent= S.groups.length;
-  renderAdminUpcoming();
-  renderAdminToday();
-}
-
-function renderAdminUpcoming() {
-  const locF=el('adminUpFilter')?.value||'all';
-  const upcoming=S.bookings.filter(b=>b.date>=today()&&b.status==='confirmed'&&(locF==='all'||b.loc===locF)).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,12);
-  el('adminUpcoming').innerHTML=upcoming.length?upcoming.map(b=>`
-    <div class="bki">
-      <div class="bkdot ${b.type}"></div>
-      <div class="bki-info">
-        <div class="bki-title">${b.resourceName} <span class="tag">${b.loc||'—'}</span></div>
-        <div class="bki-meta">${b.userName} · ${fmtDate(b.date)} · ${b.startTime}–${b.endTime}</div>
-      </div>
-      <span class="bk-st confirmed">confirmed</span>
-    </div>`).join(''):`<div class="empty"><div class="empty-icon">📅</div><p>No upcoming bookings</p></div>`;
-}
-
-function renderAdminToday() {
-  const td=today();
-  const bks=S.bookings.filter(b=>b.date===td).sort((a,b)=>a.startTime.localeCompare(b.startTime));
-  el('adminToday').innerHTML=bks.length?`<div class="ovx"><table class="tbl">
-    <thead><tr><th>User</th><th>Resource</th><th>Time</th><th>Status</th><th>Action</th></tr></thead>
-    <tbody>${bks.map(b=>`<tr>
-      <td>${b.userName}<div class="fxs t3">${b.userEmail}</div></td>
-      <td>${b.resourceName}<div class="fxs t3">${b.loc||''}</div></td>
-      <td>${b.startTime}–${b.endTime}</td>
-      <td><span class="bk-st ${b.status}">${b.status}</span></td>
-      <td>${b.status==='confirmed'?`<button class="btn btn-success btn-sm" onclick="el('ciCode').value='${b.id}';goPage('checkin');doCI();">Check In</button>`:'—'}</td>
-    </tr>`).join('')}</tbody>
-  </table></div>`:`<div class="empty"><div class="empty-icon">📅</div><p>No bookings today</p></div>`;
-}
-
-// ═══════════════════════════════════════════════════════
-// ADMIN — USERS & GROUPS
-// ═══════════════════════════════════════════════════════
-function renderGroups() {
-  const grpEl=el('grpList');
-  if (!S.groups.length){grpEl.innerHTML=`<div class="t3 fsm">No groups yet. Create one to assign credit pools.</div>`;return;}
-  grpEl.innerHTML=`<div class="ovx"><table class="tbl">
-    <thead><tr><th>Group Name</th><th>Description</th><th>Pool Credits</th><th>Members</th><th>Actions</th></tr></thead>
-    <tbody>${S.groups.map(g=>{
-      const members=S.users.filter(u=>u.group===g.id&&u.active).length;
-      const grpDisabled = S.disabledGroups && S.disabledGroups.has(g.id);
-      const isFabStaff = g.name.toLowerCase().includes('staff') || g.name.toLowerCase().includes('fablab');
-      return `<tr>
-        <td><span style="font-weight:600;">${g.name}</span>${grpDisabled?'<span class="badge badge-dis" style="margin-left:6px;">Disabled</span>':''}</td>
-        <td class="t2">${g.desc||'—'}</td>
-        <td><span class="ta" style="font-weight:600;">⬡ ${g.credits}</span></td>
-        <td>${members} users</td>
-        <td style="display:flex;gap:6px;flex-wrap:wrap;">
-          <button class="btn btn-secondary btn-sm" onclick="editGroup('${g.id}')">Edit</button>
-          <button class="btn btn-success btn-sm" onclick="openEditCr('${g.id}','${g.name}',${g.credits})">Credits</button>
-          ${!isFabStaff?`<button class="btn ${grpDisabled?'btn-success':'btn-warning'} btn-sm" onclick="toggleGroupDisable('${g.id}')">${grpDisabled?'Enable':'Disable'}</button>`:'<span class="fxs t3" style="padding:5px 8px;">Staff (exempt)</span>'}
-          <button class="btn btn-danger btn-sm" onclick="removeGroup('${g.id}')">Delete</button>
-        </td>
-      </tr>`;}).join('')}
-    </tbody></table></div>`;
-  // Update group filter
-  const gf=el('usrGrpFilter');
-  gf.innerHTML=`<option value="all">All Groups</option>${S.groups.map(g=>`<option value="${g.id}">${g.name}</option>`).join('')}`;
-  // Update add user group select
-  const ng=el('nuGrp');
-  if (ng) ng.innerHTML=S.groups.map(g=>`<option value="${g.id}">${g.name}</option>`).join('');
-}
-
-function renderAdminUsers() {
-  const grpF=el('usrGrpFilter')?.value||'all';
-  const stF=el('usrStatusFilter')?.value||'all';
-  let users=[...S.users];
-  if (grpF!=='all') users=users.filter(u=>u.group===grpF);
-  if (stF==='active') users=users.filter(u=>u.active);
-  if (stF==='disabled') users=users.filter(u=>!u.active);
-
-  el('usrTable').innerHTML=users.length?`<div class="ovx"><table class="tbl">
-    <thead><tr>
-      <th><input type="checkbox" onchange="toggleAllUsers(this)"></th>
-      <th>Name</th><th>Email</th><th>Role</th><th>Group</th><th>Actions</th>
-    </tr></thead>
-    <tbody>${users.map(u=>{
-      const grp=S.groups.find(g=>g.id===u.group);
-      return `<tr>
-        <td><input type="checkbox" value="${u.id}" onchange="toggleUserSel(this)" ${S.selectedUsers.has(u.id)?'checked':''}></td>
-        <td style="font-weight:500;">${u.name} ${!u.active?'<span class="badge badge-dis" style="margin-left:4px;">Disabled</span>':''}</td>
-        <td class="t2 fsm">${u.email}</td>
-        <td><span class="tag">${u.role}</span></td>
-        <td>${grp?`<span class="grp-badge">${grp.name}</span>`:'<span class="t3">—</span>'}</td>
-        <td style="display:flex;gap:5px;">
-          <button class="btn ${u.active?'btn-warning':'btn-success'} btn-sm" onclick="toggleUser('${u.id}')">${u.active?'Disable':'Enable'}</button>
-          <button class="btn btn-danger btn-sm" onclick="removeUser('${u.id}')">Delete</button>
-        </td>
-      </tr>`;}).join('')}
-    </tbody></table></div>`:`<div class="empty"><p>No users found</p></div>`;
-
-  // Show bulk actions if any selected
-  const bulkEl=el('bulkActions');
-  if (S.selectedUsers.size>0) { bulkEl.style.display='flex'; el('bulkCount').textContent=S.selectedUsers.size+' selected'; }
-  else bulkEl.style.display='none';
-}
-
-function toggleAllUsers(cb) {
-  const checkboxes=document.querySelectorAll('#usrTable input[type="checkbox"]');
-  checkboxes.forEach(c=>{ c.checked=cb.checked; if(cb.checked) S.selectedUsers.add(c.value); else S.selectedUsers.delete(c.value); });
-  renderAdminUsers();
-}
-function toggleUserSel(cb) {
-  if (cb.checked) S.selectedUsers.add(cb.value); else S.selectedUsers.delete(cb.value);
-  const bulkEl=el('bulkActions');
-  if (S.selectedUsers.size>0){bulkEl.style.display='flex';el('bulkCount').textContent=S.selectedUsers.size+' selected';}else bulkEl.style.display='none';
-}
-
-async function bulkDisable() {
-  if (!S.selectedUsers.size||!confirm(`Disable ${S.selectedUsers.size} users?`)) return;
-  for (const id of S.selectedUsers) await sheetsWrite('disableUser',{id});
-  S.selectedUsers.clear(); toast('Users disabled','info'); renderAdminUsers();
-}
-async function bulkDelete() {
-  if (!S.selectedUsers.size||!confirm(`Permanently delete ${S.selectedUsers.size} users?`)) return;
-  for (const id of S.selectedUsers) await sheetsWrite('removeUser',{id});
-  S.selectedUsers.clear(); toast('Users deleted','info'); renderAdminUsers();
-}
-
-async function toggleUser(id) {
-  const u = S.users.find(u=>u.id===id); if (!u) return;
-  const newActive = !u.active;
-  // Update local state immediately
-  u.active = newActive;
-  const di = DEMO_USERS.findIndex(x=>x.id===id);
-  if (di>-1) DEMO_USERS[di].active = newActive;
-  // Re-render immediately with updated local state (before sheet write)
-  renderAdminUsers();
-  toast(`${u.name} ${newActive?'re-enabled':'disabled — cannot login'}`, 'info');
-  // Write to sheets in background — don't refresh data as it would overwrite local state
-  sheetsWrite('disableUser', {id, active: newActive});
-}
-async function removeUser(id) {
-  if (!confirm('Delete this user permanently?')) return;
-  await sheetsWrite('removeUser',{id});
-  toast('User deleted','info'); renderAdminUsers();
-}
-async function addUser() {
-  const email=v('nuEmail').trim().toLowerCase(), name=v('nuName').trim();
-  if (!email||!name){toast('Fill in all fields','error');return;}
-  if (S.users.find(u=>u.email===email)){toast('Email already whitelisted','error');return;}
-  const data={id:'U'+Date.now(),email,name,role:v('nuRole'),group:v('nuGrp'),active:true};
-  const uBtn = el('saveUsrBtn');
-  if(uBtn){uBtn.disabled=true;uBtn.textContent='Saving...';}
-  await sheetsWrite('addUser',data);
-  if(!CFG.demoMode) await refreshData();
-  toast(name+' added to whitelist','success');
-  closeMo('addUsrMo'); renderAdminUsers();
-  if(uBtn){uBtn.disabled=false;uBtn.textContent='Add to Whitelist';}
-}
-
-// ─── GROUPS ───────────────────────────────────────────
-function editGroup(id) {
-  const g=S.groups.find(g=>g.id===id); if (!g) return;
-  el('grpMoTitle').textContent='Edit Group';
-  el('ngName').value=g.name; el('ngCredits').value=g.credits; el('ngDesc').value=g.desc||''; el('ngId').value=g.id;
-  openMo('addGrpMo');
-}
-async function saveGroup() {
-  const name=v('ngName').trim(); if (!name){toast('Enter group name','error');return;}
-  const editId=v('ngId');
-  const data={id:editId||'G'+Date.now(),name,credits:parseFloat(v('ngCredits'))||0,desc:v('ngDesc')};
-  const btn = el('saveGrpBtn');
-  if(btn){btn.disabled=true;btn.textContent='Saving...';}
-  await sheetsWrite(editId?'updateGroup':'addGroup',data);
-  if(!CFG.demoMode){await refreshData();}else{S.groups=DEMO_GROUPS;}
-  toast(editId?'Group updated':'Group created','success');
-  // Clear form fields
-  el('ngName').value=''; el('ngCredits').value=100; el('ngDesc').value=''; el('ngId').value='';
-  el('grpMoTitle').textContent='New Credit Group';
-  closeMo('addGrpMo');
-  renderGroups(); renderAdminUsers(); updatePoolDisplay();
-  if(btn){btn.disabled=false;btn.textContent='Save Group';}
-}
-async function removeGroup(id) {
-  if (!confirm('Delete this credit group? Users in this group will lose their group assignment.')) return;
-  await sheetsWrite('removeGroup',{id});
-  if (!CFG.demoMode) await refreshData();
-  toast('Group removed','info');
-  renderGroups(); renderAdminUsers();
-}
-function openEditCr(id,name,current) {
-  el('crGrpInfo').textContent=`${name} · Current: ⬡ ${current}`;
-  el('crGrpId').value=id; el('crAmt').value=10;
-  openMo('editCrMo');
-}
-async function applyCredits() {
-  const id=v('crGrpId'), action=v('crAction'), amt=parseFloat(v('crAmt'))||0;
-  const g=S.groups.find(g=>g.id===id); if (!g) return;
-  let newC=g.credits;
-  if (action==='set') newC=amt;
-  else if (action==='add') newC+=amt;
-  else if (action==='subtract') newC=Math.max(0,newC-amt);
-  await sheetsWrite('updateGroup',{id,credits:newC});
-  if(!CFG.demoMode) await refreshData();
-  toast(`Credits updated: ⬡ ${newC}`,'success');
-  closeMo('editCrMo'); renderGroups(); updatePoolDisplay();
-}
-
-// ═══════════════════════════════════════════════════════
-// ADMIN — EQUIPMENT
-// ═══════════════════════════════════════════════════════
-function renderAdminEquip() {
-  const locs=['T14','T11C01'];
-  el('eqTable').innerHTML=locs.map(loc=>{
-    const items=S.equipment.filter(e=>e.loc===loc);
-    return `<div style="margin-bottom:22px;">
-      <div class="ffd" style="font-weight:700;margin-bottom:10px;font-size:14px;">${loc} <span class="t3 fsm">${loc==='T14'?'3D Printing Lab':'Laser Lab'}</span></div>
-      <div class="ovx"><table class="tbl">
-        <thead><tr><th></th><th>Name</th><th>Description</th><th>Credits/hr</th><th>Actions</th></tr></thead>
-        <tbody>${items.map(e=>`<tr>
-          <td style="font-size:18px">${e.icon}</td>
-          <td style="font-weight:500">${e.name} ${!e.active?'<span class="badge badge-dis" style="margin-left:4px;">Disabled</span>':''}</td>
-          <td class="t2 fsm">${e.desc}</td>
-          <td><span class="ta">⬡ ${e.creditsPerHour}</span></td>
-          <td style="display:flex;gap:5px;flex-wrap:wrap;">
-            <button class="btn btn-secondary btn-sm" onclick="editEquip('${e.id}')">Edit</button>
-            <button class="btn ${e.active?'btn-warning':'btn-success'} btn-sm" onclick="toggleEquipActive('${e.id}')">${e.active?'Disable':'Enable'}</button>
-            <button class="btn btn-danger btn-sm" onclick="removeEquip('${e.id}')">Remove</button>
-          </td>
-        </tr>`).join('')}</tbody>
-      </table></div>
-    </div>`;
-  }).join('');
-}
-function editEquip(id) {
-  const e=S.equipment.find(e=>e.id===id); if (!e) return;
-  el('eqMoTitle').textContent='Edit Equipment';
-  el('neqName').value=e.name; el('neqDesc').value=e.desc; el('neqIcon').value=e.icon;
-  el('neqCr').value=e.creditsPerHour; el('neqLoc').value=e.loc; el('neqCat').value=e.cat; el('neqId').value=e.id;
-  openMo('addEqMo');
-}
-async function saveEquip() {
-  const name=v('neqName').trim(); if (!name){toast('Enter name','error');return;}
-  const editId=v('neqId');
-  const data={id:editId||'E'+Date.now(),name,desc:v('neqDesc'),loc:v('neqLoc'),cat:v('neqCat'),icon:v('neqIcon')||'🔧',creditsPerHour:parseFloat(v('neqCr'))||1,active:true};
-  await sheetsWrite(editId?'updateEquip':'addEquip',data);
-  toast('Saved','success'); closeMo('addEqMo'); renderAdminEquip();
-}
-async function removeEquip(id) {
-  if (!confirm('Remove this equipment?')) return;
-  await sheetsWrite('removeEquip',{id}); toast('Removed','info'); renderAdminEquip();
-}
-
-// ═══════════════════════════════════════════════════════
-// ADMIN — BOOKINGS
-// ═══════════════════════════════════════════════════════
-function renderAdminBk() {
-  const stF=el('abkStatus').value, locF=el('abkLoc').value, dateF=v('abkDate');
-  let bks=[...S.bookings];
-  if (stF!=='all') bks=bks.filter(b=>b.status===stF);
-  if (locF!=='all') bks=bks.filter(b=>b.loc===locF);
-  if (dateF) bks=bks.filter(b=>b.date===dateF);
-  bks.sort((a,b)=>b.date.localeCompare(a.date));
-  el('abkTable').innerHTML=bks.length?`<div class="ovx"><table class="tbl">
-    <thead><tr><th>ID</th><th>User</th><th>Resource</th><th>Loc</th><th>Date</th><th>Time</th><th>Credits</th><th>Status</th><th>Check-In</th></tr></thead>
-    <tbody>${bks.map(b=>`<tr>
-      <td class="ta fxs">${b.id}</td>
-      <td>${b.userName}<div class="fxs t3">${b.userEmail}</div></td>
-      <td class="fsm">${b.resourceName}</td>
-      <td class="t3">${b.loc||'—'}</td>
-      <td class="fsm">${b.date}</td>
-      <td class="fsm">${b.startTime}–${b.endTime}</td>
-      <td>${b.credits>0?`⬡ ${b.credits}`:'<span class="ts">Free</span>'}</td>
-      <td><span class="bk-st ${b.status}">${b.status}</span></td>
-      <td class="fxs t2">${b.checkinTime?new Date(b.checkinTime).toLocaleString():'—'}</td>
-    </tr>`).join('')}</tbody>
-  </table></div>`:`<div class="empty"><p>No bookings found</p></div>`;
-}
-
-// ═══════════════════════════════════════════════════════
-// ADMIN — STAFF
-// ═══════════════════════════════════════════════════════
-function renderAdminStaff() {
-  el('stTable').innerHTML=S.staff.length?`<div class="ovx"><table class="tbl">
-    <thead><tr><th>Name</th><th>Role</th><th>Email</th><th>Expertise</th><th>Credits/hr</th><th>Days</th><th>Actions</th></tr></thead>
-    <tbody>${S.staff.map(s=>`<tr>
-      <td style="font-weight:500">${s.name}</td>
-      <td class="t2 fsm">${s.role}</td>
-      <td class="t2 fxs">${s.email}</td>
-      <td class="fsm">${(s.expertise||[]).join(', ')}</td>
-      <td>${s.creditsPerHour>0?`⬡ ${s.creditsPerHour}`:'<span class="ts">Free</span>'}</td>
-      <td class="t2">${s.days||'—'}</td>
-      <td><button class="btn btn-danger btn-sm" onclick="removeStaff('${s.id}')">Remove</button></td>
-    </tr>`).join('')}</tbody>
-  </table></div>`:`<div class="empty"><p>No staff yet</p></div>`;
-}
-async function saveStaff() {
-  const name=v('nstName').trim(),email=v('nstEmail').trim();
-  if (!name||!email){toast('Name & email required','error');return;}
-  const data={id:'S'+Date.now(),name,role:v('nstRole'),email,expertise:v('nstExp').split(',').map(s=>s.trim()).filter(Boolean),creditsPerHour:parseFloat(v('nstCr'))||0,days:v('nstDays')};
-  await sheetsWrite('addStaff',data);
-  toast(name+' added','success'); closeMo('addStMo'); renderAdminStaff();
-}
-async function removeStaff(id) {
-  if (!confirm('Remove staff?')) return;
-  await sheetsWrite('removeStaff',{id});
-  if (!CFG.demoMode) await refreshData();
-  toast('Staff removed','info');
-  renderAdminStaff();
-}
-
-// ═══════════════════════════════════════════════════════
-// ADMIN — DISABLE
-// ═══════════════════════════════════════════════════════
-function renderDisable() {
-  const locs=[{id:'T14',name:'T14 — 3D Printing Lab'},{id:'T11C01',name:'T11C01 — Laser Lab'}];
-  el('disLocList').innerHTML=locs.map(l=>{
-    const dis=S.disabledLocs.has(l.id);
-    return `<div class="card mb16 flexb">
-      <div><div style="font-weight:500">${l.name}</div><div class="fxs ${dis?'td':'ts'} mt-1">${dis?'⚠ Disabled':'● Active'}</div></div>
-      <button class="btn ${dis?'btn-success':'btn-danger'} btn-sm" onclick="toggleLocDis('${l.id}')">${dis?'Re-enable':'Disable'}</button>
-    </div>`;}).join('');
-
-  el('disEqList').innerHTML=S.equipment.map(e=>{
-    const dis=S.disabledEquip.has(e.id);
-    return `<div class="flexb" style="padding:7px 0;border-bottom:1px solid var(--border);">
-      <div><span style="font-size:15px;margin-right:7px;">${e.icon}</span><span class="fsm">${e.name}</span><span class="fxs t3" style="margin-left:6px;">${e.loc}</span></div>
-      <button class="btn ${dis?'btn-success':'btn-warning'} btn-sm" onclick="toggleEqDis('${e.id}')">${dis?'Enable':'Disable'}</button>
-    </div>`;}).join('');
-
-  el('disPeriods').innerHTML=S.disabledPeriods.length?S.disabledPeriods.map(dp=>`
-    <div class="bki mb16">
-      <div class="bki-info"><div class="bki-title">${dp.target==='all'?'All Locations':dp.target}</div>
-        <div class="bki-meta">${dp.start} → ${dp.end} · ${dp.reason||'No reason'}</div></div>
-      <button class="btn btn-danger btn-sm" onclick="removeDisP('${dp.id}')">Remove</button>
-    </div>`).join(''):`<div class="t3 fsm">No scheduled periods.</div>`;
-}
-
-function toggleLocDis(loc) {
-  if (S.disabledLocs.has(loc)) S.disabledLocs.delete(loc); else S.disabledLocs.add(loc);
-  localStorage.setItem('fablabDisLoc',JSON.stringify([...S.disabledLocs]));
-  toast(`${loc} ${S.disabledLocs.has(loc)?'disabled':'re-enabled'}`,'info'); renderDisable();
-}
-function toggleEqDis(id) {
-  if (S.disabledEquip.has(id)) S.disabledEquip.delete(id); else S.disabledEquip.add(id);
-  localStorage.setItem('fablabDisEq',JSON.stringify([...S.disabledEquip]));
-  const e=S.equipment.find(e=>e.id===id);
-  toast(`${e?.name||id} ${S.disabledEquip.has(id)?'disabled':'enabled'}`,'info'); renderDisable();
-}
-function scheduleDisable() {
-  const start=v('disStart'),end=v('disEnd'),target=v('disTgt'),reason=v('disReason');
-  if (!start||!end){toast('Set start and end dates','error');return;}
-  if (end<start){toast('End must be after start','error');return;}
-  S.disabledPeriods.push({id:'DP'+Date.now(),start,end,target,reason});
-  localStorage.setItem('fablabDisP',JSON.stringify(S.disabledPeriods));
-  toast('Disable period scheduled','success'); renderDisable();
-}
-function removeDisP(id) {
-  S.disabledPeriods=S.disabledPeriods.filter(dp=>dp.id!==id);
-  localStorage.setItem('fablabDisP',JSON.stringify(S.disabledPeriods));
-  toast('Removed','info'); renderDisable();
-}
-
-// ═══════════════════════════════════════════════════════
-// UI HELPERS
-// ═══════════════════════════════════════════════════════
-function openMo(id){el(id).classList.add('open');}
-function closeMo(id){el(id).classList.remove('open');}
-// Fix: use mousedown to track where drag started — prevent closing on text-select drag
-let _modalMousedownTarget = null;
-document.addEventListener('mousedown', e => { _modalMousedownTarget = e.target; });
-document.addEventListener('click', e => {
-  if (e.target.classList.contains('mov') && _modalMousedownTarget === e.target) {
-    e.target.classList.remove('open');
-  }
-});
-
-function toast(msg,type='info') {
-  const icons={success:'✓',error:'✕',info:'ℹ'};
-  const d=document.createElement('div'); d.className=`toast ${type}`;
-  d.innerHTML=`<span>${icons[type]}</span><span>${msg}</span>`;
-  el('toastCt').appendChild(d); setTimeout(()=>d.remove(),4500);
-}
-
-function el(id){return document.getElementById(id);}
-function v(id){return(el(id)||{}).value||'';}
-function els(sel){return document.querySelectorAll(sel);}
-function show(id){el(id)?.classList.remove('hidden');}
-function hide(id){el(id)?.classList.add('hidden');}
-function today(){return new Date().toISOString().split('T')[0];}
-function genId(){return `BK-${new Date().getFullYear()}-${String(Math.floor(Math.random()*9000)+1000)}`;}
-function fmtDate(s){if(!s)return'—';const d=new Date(s+'T00:00');return d.toLocaleDateString('en-SG',{weekday:'short',year:'numeric',month:'short',day:'numeric'});}
-function nowInRange(st,en){const n=new Date(),nm=n.getHours()*60+n.getMinutes();const[sh,sm]=st.split(':').map(Number);const[eh,em]=en.split(':').map(Number);return nm>=sh*60+sm&&nm<eh*60+em;}
-
-// ═══════════════════════════════════════════════════════
-// STAFF AVAILABILITY
-// ═══════════════════════════════════════════════════════
-
-// Admin: render availability table
-function renderAvailability() {
-  const now = new Date();
-  const twoMonthsOut = new Date(now.getFullYear(), now.getMonth()+2, now.getDate());
-  const avail = S.availability
-    .filter(a => new Date(a.date+'T00:00') >= now && new Date(a.date+'T00:00') <= twoMonthsOut)
-    .sort((a,b)=>a.date.localeCompare(b.date));
-
-  const el = document.getElementById('availTable');
-  if (!avail.length) {
-    el.innerHTML = '<div class="empty"><div class="empty-icon">📅</div><p>No availability slots scheduled yet.<br>Add slots up to 2 months ahead.</p></div>';
-    return;
-  }
-  el.innerHTML = `<div class="ovx"><table class="tbl">
-    <thead><tr><th>Staff</th><th>Date</th><th>Time</th><th>Label</th><th>Notes</th><th>Actions</th></tr></thead>
-    <tbody>${avail.map(a=>`<tr>
-      <td style="font-weight:500">${a.staffName}</td>
-      <td>${fmtDate(a.date)}</td>
-      <td>${a.startTime} – ${a.endTime}</td>
-      <td>${a.label||'—'}</td>
-      <td class="t2 fsm">${a.notes||'—'}</td>
-      <td><button class="btn btn-danger btn-sm" onclick="removeAvail('${a.id}')">Remove</button></td>
-    </tr>`).join('')}</tbody>
-  </table></div>`;
-}
-
-// Open availability modal
-function openAddAvailMo() {
-  el('availMoTitle').textContent = 'Add Availability Slot';
-  el('availId').value = '';
-  el('availDate').value = '';
-  el('availLabel').value = '';
-  el('availNotes').value = '';
-  el('availStart').value = '09:00';
-  el('availEnd').value = '17:00';
-  // Populate staff dropdown
-  const sel = el('availStaff');
-  sel.innerHTML = S.staff.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
-  // Set date min/max (today to 2 months out)
-  const now = new Date();
-  const maxDate = new Date(now.getFullYear(), now.getMonth()+2, now.getDate());
-  el('availDate').min = today();
-  el('availDate').max = maxDate.toISOString().split('T')[0];
-  openMo('addAvailMo');
-}
-
-async function saveAvail() {
-  const staffId = el('availStaff').value;
-  const date    = el('availDate').value;
-  const start   = el('availStart').value;
-  const end     = el('availEnd').value;
-  if (!staffId||!date||!start||!end) { toast('Fill in all required fields','error'); return; }
-  if (end <= start) { toast('End time must be after start time','error'); return; }
-
-  const staff = S.staff.find(s=>s.id===staffId);
-  const data = {
-    id: 'AV'+Date.now(),
-    staffId, staffName: staff?staff.name:'',
-    date, startTime:start, endTime:end,
-    label: el('availLabel').value,
-    notes: el('availNotes').value
-  };
-
-  await sheetsWrite('addAvail', data);
-  toast('Availability slot added','success');
-  closeMo('addAvailMo');
-  renderAvailability();
-}
-
-async function removeAvail(id) {
-  if (!confirm('Remove this availability slot?')) return;
-  await sheetsWrite('removeAvail',{id});
-  toast('Slot removed','info');
-  renderAvailability();
-}
-
-// User-facing: show current month availability
-function renderUserAvailability() {
-  const now  = new Date();
-  const y    = now.getFullYear();
-  const m    = now.getMonth();
-  const monthStart = `${y}-${String(m+1).padStart(2,'0')}-01`;
-  const monthEnd   = `${y}-${String(m+1).padStart(2,'0')}-${new Date(y,m+1,0).getDate()}`;
-
-  const avail = S.availability
-    .filter(a => a.date >= monthStart && a.date <= monthEnd)
-    .sort((a,b)=>a.date.localeCompare(b.date)||a.startTime.localeCompare(b.startTime));
-
-  const container = document.getElementById('userAvailContainer');
-  if (!container) return;
-
-  if (!avail.length) {
-    container.innerHTML = '<div class="empty"><div class="empty-icon">📅</div><p>No staff availability scheduled this month.</p></div>';
-    return;
-  }
-
-  // Group by staff
-  const byStaff = {};
-  avail.forEach(a => {
-    if (!byStaff[a.staffId]) byStaff[a.staffId] = { name: a.staffName, slots: [] };
-    byStaff[a.staffId].slots.push(a);
-  });
-
-  const mName = now.toLocaleString('en-SG',{month:'long',year:'numeric'});
-  container.innerHTML = `
-    <div style="font-family:var(--fd);font-weight:700;margin-bottom:16px;font-size:15px;">
-      Staff Available This Month <span class="t3 fsm">${mName}</span>
-    </div>
-    ${Object.values(byStaff).map(st=>`
-      <div class="card mb16">
-        <div class="flex mb16">
-          <div class="stc-av" style="width:36px;height:36px;font-size:14px;">${st.name.charAt(0)}</div>
-          <div>
-            <div style="font-weight:600;font-family:var(--fd);">${st.name}</div>
-            <div class="t3 fxs">${S.staff.find(s=>s.name===st.name)?.role||''}</div>
-          </div>
-        </div>
-        <div style="display:flex;flex-wrap:wrap;gap:8px;">
-          ${st.slots.map(a=>`
-            <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:11px;">
-              <div style="font-weight:600;color:var(--accent);">${fmtDate(a.date)}</div>
-              <div class="t2">${a.startTime} – ${a.endTime}</div>
-              ${a.label?`<div class="t3 fxs">${a.label}</div>`:''}
-              ${a.notes?`<div class="t3 fxs">${a.notes}</div>`:''}
-            </div>`).join('')}
-        </div>
-      </div>`).join('')}`;
-}
-
-// goPage hook removed - handled inline in goPage function
-
-function populateAvailStaff() {
-  const sel = document.getElementById('availStaff');
-  if (sel) sel.innerHTML = S.staff.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
-}
-
-// Add availability to applyDemo - patch into existing function
-const _origApplyDemo = applyDemo;
-function applyDemo(action, data) {
-  if (action==='addAvail')    { DEMO_AVAILABILITY.push(data); S.availability=DEMO_AVAILABILITY; return; }
-  if (action==='removeAvail') { const i=DEMO_AVAILABILITY.findIndex(a=>a.id===data.id); if(i>-1) DEMO_AVAILABILITY.splice(i,1); S.availability=DEMO_AVAILABILITY; return; }
-  _origApplyDemo(action, data);
-}
-
-
-// ── EQUIPMENT CSV IMPORT ─────────────────────────────
-async function equipCSV(evt) {
-  const file = evt.target.files[0]; if (!file) return;
-  const reader = new FileReader();
-  reader.onload = async e => {
-    const lines = e.target.result.split('\n').map(l=>l.trim()).filter(Boolean);
-    let added = 0, skipped = 0;
-    for (const line of lines) {
-      if (line.toLowerCase().startsWith('name')) continue; // skip header
-      const [name, desc, loc, cat, icon, creditsPerHour] = line.split(',').map(s=>s.trim());
-      if (!name || !loc) { skipped++; continue; }
-      if (!['T14','T11C01'].includes(loc)) { skipped++; continue; }
-      const data = {
-        id: 'E'+Date.now()+Math.random().toString(36).slice(2,5),
-        name, desc: desc||'', loc, cat: cat||'other',
-        icon: icon||'🔧',
-        creditsPerHour: parseFloat(creditsPerHour)||1,
-        active: true
-      };
-      await sheetsWrite('addEquip', data);
-      added++;
+function showSessionPanel(ds,s){
+  document.getElementById('no-session-panel').style.display='none';
+  document.getElementById('session-panel').style.display='block';
+  document.getElementById('success-card').classList.remove('show');
+  hideAlerts();
+  const meta=COURSE[course];
+  const venueDisplay = s.venue || meta.venue;
+  const isFull=s.pax>=s.max;
+  const pct=Math.round(s.pax/s.max*100);
+  const avail=s.max-s.pax;
+  document.getElementById('s-date').textContent=fmtDate(ds);
+  document.getElementById('s-venue').textContent=venueDisplay;
+  document.getElementById('s-venue-sub').textContent=venueDisplay.split(' ')[0];
+  document.getElementById('s-fac').textContent=s.trainer||meta.facilitator||'TBC';
+  document.getElementById('s-pax').textContent=`${s.pax} / ${s.max} registered${isFull?'':' · '+avail+' seats left'}`;
+  document.getElementById('ppct').textContent=pct+'%';
+  document.getElementById('pmin').textContent=s.pax>=5?'Min. reached ✓':'Need '+(5-s.pax)+' more to confirm';
+  const pb=document.getElementById('pbar');pb.style.width=pct+'%';
+  pb.className='pbfill '+(pct>=90?'hi':pct>=60?'mid':'low');
+  const pill=document.getElementById('s-pill');
+  if(isFull){pill.className='status-pill full';pill.textContent='Full';}
+  else{pill.className='status-pill '+s.status;pill.textContent=s.status[0].toUpperCase()+s.status.slice(1);}
+  document.getElementById('s-notice').style.display=s.status==='pending'?'flex':'none';
+  const fw=document.getElementById('form-wrap');
+  if(isFull){
+    fw.innerHTML=`<div style="padding:1rem 1.25rem;font-size:13px;color:var(--c-muted);text-align:center;background:var(--c-surface);margin:0.75rem;border-radius:8px;">This session is full. Please select another date from the calendar.</div>`;
+  }else if(DEMO.status==='registered'&&ds===DEMO.existingDate){
+    fw.innerHTML=`<div style="margin:0.75rem;background:var(--c-green-bg);border:1px solid var(--c-green-b);border-radius:8px;padding:12px 14px;font-size:13px;color:var(--c-green);display:flex;gap:8px;"><span>✓</span><span>Already registered. Ref: <strong>${DEMO.ref}</strong>. You will be notified of any changes.</span></div>`;
+  }else{
+    fw.innerHTML=buildForm();
+    if(DEMO.status==='failed'){
+      const info=document.createElement('div');
+      info.style.cssText='background:var(--c-amber-bg);border:1px solid var(--c-amber-b);border-radius:7px;padding:10px 12px;font-size:12px;color:var(--c-amber);margin:0 1.25rem 0;';
+      info.textContent='Note: You previously attended but did not pass. You may rebook below.';
+      fw.prepend(info);
     }
-    if (!CFG.demoMode) await refreshData();
-    renderAdminEquip();
-    toast(`Imported ${added} equipment${skipped>0?' ('+skipped+' skipped)':''}`, 'success');
-  };
-  reader.readAsText(file);
-  evt.target.value = ''; // reset input
-}
-
-// ── TOGGLE EQUIPMENT ACTIVE/INACTIVE ─────────────────
-async function toggleEquipActive(id) {
-  const equip = S.equipment.find(e=>e.id===id); if (!equip) return;
-  const newActive = !equip.active;
-  // Update local state immediately
-  equip.active = newActive;
-  const di = DEMO_EQUIPMENT.findIndex(e=>e.id===id);
-  if (di>-1) DEMO_EQUIPMENT[di].active = newActive;
-  // Re-render immediately with updated local state
-  renderAdminEquip();
-  toast(`${equip.name} ${newActive?'enabled':'disabled'}`, 'info');
-  // Write to sheets in background — don't refresh as it would overwrite
-  const data = {
-    id: equip.id, name: equip.name, desc: equip.desc||'',
-    loc: equip.loc, cat: equip.cat, icon: equip.icon||'🔧',
-    creditsPerHour: equip.creditsPerHour, active: newActive
-  };
-  sheetsWrite('updateEquip', data);
-}
-
-
-// ── TEMPLATE DOWNLOADS ───────────────────────────────
-function downloadTemplate(type) {
-  let csv = '', filename = '';
-
-  if (type === 'users') {
-    filename = 'whitelist-template.csv';
-    csv = [
-      'email,name,role,group',
-      '# role options: student, staff, external, admin',
-      '# group: must match Group ID in your Groups sheet e.g. G1',
-      'student1@sp.edu.sg,Student One,student,G1',
-      'staff1@sp.edu.sg,Staff Member,staff,G1',
-      'external@company.sg,External User,external,G2',
-      'admin@sp.edu.sg,Lab Admin,admin,G1',
-    ].join('\n');
   }
+}
 
-  if (type === 'equipment') {
-    filename = 'equipment-template.csv';
-    csv = [
-      'name,description,location,category,icon,creditsPerHour',
-      '# location options: T14, T11C01',
-      '# category options: 3dprinting, laser, other',
-      'Bambu Lab X1C #14,High-speed multi-material FDM,T14,3dprinting,🖨,1',
-      'Bambu A1 #11,Large format FDM,T14,3dprinting,🖨,1',
-      'Prusa MK4 #04,Open-source FDM,T14,3dprinting,🖨,1',
-      'Epilog M2 #03,CO2 laser cutter 610x610mm,T11C01,laser,⚡,2',
-    ].join('\n');
+function buildForm(){
+  const schoolOpts=[
+    ['','Select your school'],
+    ['SB','School of Business'],
+    ['CLS','School of Chemical & Life Sciences'],
+    ['ABE','School of Architecture & The Built Environment'],
+    ['MAD','Media, Arts & Design School'],
+    ['MAE','School of Mechanical & Aeronautical Engineering'],
+    ['EEE','School of Electrical & Electronic Engineering'],
+    ['SOC','School of Computing'],
+    ['SMA','Singapore Maritime Academy'],
+    ['MSA','School of Mathematical Sciences & Analytics'],
+  ].map(([v,l])=>`<option value="${v}">${l}</option>`).join('');
+  return `<div class="rform">
+    <div class="fsl">Your details<\/div>
+    <div class="fg"><label>Full Name<\/label>
+      <input type="text" id="f-name" placeholder="e.g. Tan Wei Ming" autocomplete="off">
+      <span class="ferr" id="err-name" style="display:none">Please enter your full name<\/span><\/div>
+    <div class="fg"><label>School<\/label>
+      <div class="sw"><select id="f-school" onchange="updateDiploma()">${schoolOpts}<\/select><\/div>
+      <span class="ferr" id="err-school" style="display:none">Please select your school<\/span><\/div>
+    <div class="fg" id="dip-grp"><label>Diploma / Specialisation<\/label>
+      <div class="sw"><select id="f-dip" disabled onchange="updateYear()"><option value="">Select school first<\/option><\/select><\/div>
+      <span class="ferr" id="err-dip" style="display:none">Please select your diploma / specialisation<\/span><\/div>
+    <div class="fg" id="year-grp"><label>Year of Study<\/label>
+      <div class="sw"><select id="f-year">
+        <option value="">Select year</option>
+        <option value="1">Year 1</option>
+        <option value="2">Year 2</option>
+        <option value="3">Year 3</option>
+      <\/select><\/div>
+      <span class="ferr" id="err-year" style="display:none">Please select your year of study<\/span><\/div>
+    <div class="fg"><label>SP Email Address<\/label>
+      <input type="email" id="f-email" placeholder="e.g. p12345678@ichat.sp.edu.sg" autocomplete="off">
+      <span class="ferr" id="err-email" style="display:none">Please enter a valid SP email<\/span><\/div>
+    <button class="btn btn-p bblock" id="sub-btn" onclick="submitReg()">Register for this Session →<\/button>
+    <div style="font-size:11px;color:var(--c-muted);text-align:center;line-height:1.5;">By registering, you confirm you have passed the online quiz. Your spot is pending staff confirmation.<\/div>
+  <\/div>`;
+}
+
+function updateDiploma(){
+  const school=document.getElementById('f-school')?.value;
+  const sel=document.getElementById('f-dip');if(!sel)return;
+  if(!school){sel.innerHTML='<option value="">Select school first<\/option>';sel.disabled=true;return;}
+  const list=DIPLOMA_MAP[school]||[];
+  sel.innerHTML='<option value="">Select your diploma / specialisation<\/option>'+list.map(d=>`<option value="${d}">${d}<\/option>`).join('');
+  sel.disabled=false;
+  updateYear();
+}
+
+function updateYear(){
+  const dip=document.getElementById('f-dip')?.value;
+  const yr=document.getElementById('f-year');
+  const yrGrp=document.getElementById('year-grp');
+  if(!yr)return;
+  if(dip==='Staff'){
+    // Staff — hide year field entirely, set value to 'staff'
+    if(yrGrp)yrGrp.style.display='none';
+    yr.value='staff';yr.disabled=true;
+  }else if(dip==='Poly Foundation Programme'){
+    // PFP — show year field, auto-set to Year 0
+    if(yrGrp)yrGrp.style.display='flex';
+    // Add Year 0 option if not present
+    if(![...yr.options].find(o=>o.value==='0')){
+      const opt=document.createElement('option');
+      opt.value='0';opt.textContent='Year 0 (PFP)';
+      yr.insertBefore(opt,yr.options[1]);
+    }
+    yr.value='0';yr.disabled=true;
+  }else{
+    // Normal diploma — show year field, remove Year 0 if present
+    if(yrGrp)yrGrp.style.display='flex';
+    const pfpOpt=[...yr.options].find(o=>o.value==='0');
+    if(pfpOpt)yr.removeChild(pfpOpt);
+    yr.disabled=false;
+    if(yr.value==='0'||yr.value==='staff')yr.value='';
   }
-
-  // Trigger download
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href     = url;
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(url);
-  toast(`Downloaded ${filename}`, 'success');
 }
 
+function submitReg(){
+  const n=(document.getElementById('f-name')||{}).value?.trim()||'';
+  const sc=(document.getElementById('f-school')||{}).value||'';
+  const dp=(document.getElementById('f-dip')||{}).value||'';
+  const yr=(document.getElementById('f-year')||{}).value||'';
+  const em=(document.getElementById('f-email')||{}).value?.trim()||'';
+  let ok=true;
+  const clr=id=>{const e=document.getElementById(id);if(e)e.style.display='none';};
+  const shw=id=>{const e=document.getElementById(id);if(e)e.style.display='block';};
+  const ec=(id,v)=>{const e=document.getElementById(id);if(e)e.classList.toggle('err',v);};
+  ['err-name','err-school','err-dip','err-year','err-email'].forEach(clr);
+  ['f-name','f-school','f-dip','f-year','f-email'].forEach(id=>ec(id,false));
+  if(!n){ec('f-name',true);shw('err-name');ok=false;}
+  if(!sc){ec('f-school',true);shw('err-school');ok=false;}
+  if(sc&&!dp){ec('f-dip',true);shw('err-dip');ok=false;}
+  if(!yr&&yr!=='0'&&yr!=='staff'){ec('f-year',true);shw('err-year');ok=false;}
+  if(!em||!em.includes('@')){ec('f-email',true);shw('err-email');ok=false;}
+  if(!ok)return;
+  const btn=document.getElementById('sub-btn');
+  if(btn){btn.disabled=true;btn.textContent='Checking…';}
 
-// ── GROUP DISABLE ─────────────────────────────────────
-function toggleGroupDisable(id) {
-  if (S.disabledGroups.has(id)) S.disabledGroups.delete(id);
-  else S.disabledGroups.add(id);
-  localStorage.setItem('fablabDisGrp', JSON.stringify([...S.disabledGroups]));
-  const g = S.groups.find(g=>g.id===id);
-  const isNowDisabled = S.disabledGroups.has(id);
-  toast(`Group "${g?.name}" ${isNowDisabled?'disabled — members cannot book':'re-enabled'}`, 'info');
-  renderGroups();
+  // Check for duplicate registration first — same session (email+date+course) is
+  // an exact duplicate; same email+date with a DIFFERENT course means the student
+  // is already booked into something else that day, which we also block.
+  fetch(FLOWS.register, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      checkOnly: true,
+      email: em,
+      sessionDate: selDate,
+      course: course
+    })
+  })
+  .then(r => r.json())
+  .then(checkResult => {
+    if(checkResult.exists){
+      if(btn){btn.disabled=false;btn.textContent='Register for this Session →';}
+      if(checkResult.course && checkResult.course!==course){
+        // Same date, different course — one FabLab session per day
+        const otherCourseName = (COURSE[checkResult.course] && COURSE[checkResult.course].courseName) || checkResult.course;
+        alert('You\'re already registered for '+otherCourseName+' on '+fmtDate(selDate)+'.\n\nOnly one FabLab session can be booked per day. Please choose a different date for this session, or contact FabLab staff if you need to change your existing booking.');
+      }else{
+        // Exact duplicate — same session
+        alert('You are already registered for this session.\n\nIf you did not receive a confirmation email, please contact the FabLab staff.');
+      }
+      return;
+    }
+    
+    // No duplicate, proceed with registration
+    if(btn){btn.textContent='Registering…';}
+    
+    const payload = {
+      name: n, school: sc, diploma: dp, year: yr,
+      email: em, sessionDate: selDate, course,
+      venue: COURSE[course].venue
+    };
+
+    return fetch(FLOWS.register, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+  })
+  .then(r => {
+    if(!r) return null; // Duplicate was found, already handled
+    return r.json();
+  })
+  .then(data => {
+    if(!data) return; // Duplicate was found, already handled
+    // Flow should return: { ref: 'FAB-2026-XXXX', success: true }
+    const ref = data.ref || ('FAB-2026-'+Math.floor(1000+Math.random()*9000));
+    document.getElementById('bref').textContent='REF: '+ref;
+    document.getElementById('success-date').textContent=fmtDate(selDate);
+    document.getElementById('success-venue').textContent=COURSE[course].venue;
+    DEMO.status='registered';DEMO.existingDate=selDate;DEMO.ref=ref;
+    bookedDate=selDate;
+    document.getElementById('session-panel').style.display='none';
+    document.getElementById('success-card').classList.add('show');
+    if(SESSIONS[selDate])SESSIONS[selDate].pax++;
+    renderCalendar();
+  })
+  .catch(() => {
+    // Fallback for demo/testing when flow not yet live
+    const ref='FAB-2026-'+Math.floor(1000+Math.random()*9000);
+    document.getElementById('bref').textContent='REF: '+ref;
+    document.getElementById('success-date').textContent=fmtDate(selDate);
+    document.getElementById('success-venue').textContent=COURSE[course].venue;
+    DEMO.status='registered';DEMO.existingDate=selDate;DEMO.ref=ref;
+    bookedDate=selDate;
+    document.getElementById('session-panel').style.display='none';
+    document.getElementById('success-card').classList.add('show');
+    if(SESSIONS[selDate])SESSIONS[selDate].pax++;
+    renderCalendar();
+    if(btn){btn.disabled=false;btn.textContent='Register for this Session →';}
+  });
 }
 
-// Check if current user group is disabled (blocks booking)
-function isUserGroupDisabled() {
-  if (!S.user) return false;
-  const grp = getUserGroup(S.user);
-  if (!grp) return false;
-  return S.disabledGroups.has(grp.id);
+function showBookedPanel(){
+  document.getElementById('no-session-panel').style.display='none';
+  document.getElementById('session-panel').style.display='none';
+  hideAlerts();
+  document.getElementById('success-card').classList.add('show');
+}
+function showAlert(id){hideAlerts();document.getElementById('no-session-panel').style.display='none';document.getElementById('session-panel').style.display='none';document.getElementById(id).classList.add('show');}
+function hideAlerts(){['alert-existing','alert-passed'].forEach(id=>document.getElementById(id).classList.remove('show'));}
+function dismissAlert(id){document.getElementById(id).classList.remove('show');selDate=null;renderCalendar();showNoSession();}
+function showNoSession(){document.getElementById('no-session-panel').style.display='block';document.getElementById('session-panel').style.display='none';document.getElementById('success-card').classList.remove('show');hideAlerts();}
+function changeDate(){dismissAlert('alert-existing');if(pendDate){document.getElementById('m-old').textContent=fmtDate(DEMO.existingDate);document.getElementById('m-new').textContent=fmtDate(pendDate);document.getElementById('modal-cd').classList.add('open');}}
+function confirmChangeDate(){closeModal('modal-cd');if(pendDate){DEMO.existingDate=pendDate;const s=pendDate;pendDate=null;selDate=s;renderCalendar();showSessionPanel(s,SESSIONS[s]);}}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function resetBooking(){selDate=null;document.getElementById('success-card').classList.remove('show');showNoSession();renderCalendar();}
+function switchCourse(c){
+  course=c;const m=COURSE[c];
+  document.getElementById('course-badge').textContent=m.label;
+  document.getElementById('hero-title').innerHTML=`Book your <span>${m.title}</span> F2F Competency`;
+  document.getElementById('hero-desc').textContent='Select a session below to register. '+m.desc;
+  const courseKeys=Object.keys(COURSE);
+  document.querySelectorAll('.course-tab').forEach((t,i)=>t.classList.toggle('active',courseKeys[i]===c));
+  selDate=null;showNoSession();loadHolidays();loadSessions();
+  // Update URL hash
+  window.location.hash = c;
 }
 
+// Check URL hash on page load and auto-select course
+function checkURLHash() {
+  const hash = window.location.hash.slice(1).toLowerCase(); // Remove the # symbol and lowercase
+  if (hash === 'laser') {
+    switchCourse('laser');
+  } else if (hash === '3d' || hash === '3dprint') {
+    switchCourse('3dprint');
+  }
+  // Add more courses here when enabled
+  // else if (hash === 'vinyl') { switchCourse('vinyl'); }
+}
+
+// Load holidays (sync) then fetch live sessions
+loadHolidays();
+loadSessions();
+
+// Check URL hash after page loads
+setTimeout(checkURLHash, 100); // Small delay to ensure DOM is ready
+
+// Listen for hash changes (when user clicks browser back/forward)
+window.addEventListener('hashchange', checkURLHash);
 </script>
 </body>
 </html>
